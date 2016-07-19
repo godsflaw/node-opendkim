@@ -1,0 +1,48 @@
+{
+  "name": "node-opendkim",
+  "version": "0.0.0",
+  "description": "node.js language binding for libopendkim",
+  "license": "MIT",
+  "repository": "godsflaw/node-opendkim",
+  "author": {
+    "name": "Christopher Mooney",
+    "email": "chris@dod.net",
+    "url": "github.com/godsflaw/node-opendkim"
+  },
+  "bin": "cli.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "xo && nyc ava"
+  },
+  "files": [
+    "index.js",
+    "cli.js"
+  ],
+  "keywords": [
+    "cli-app",
+    "cli",
+    ""
+  ],
+  "dependencies": {
+    "meow": "^3.7.0",
+    "nan": "^2.3.5"
+  },
+  "devDependencies": {
+    "ava": "^0.15.1",
+    "coveralls": "^2.11.9",
+    "nyc": "^6.4.0",
+    "xo": "^0.15.0"
+  },
+  "gypfile": true,
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  },
+  "xo": {
+    "space": 2
+  }
+}
