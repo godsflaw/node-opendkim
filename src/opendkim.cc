@@ -20,6 +20,7 @@ OpenDKIM::OpenDKIM() {
 
 // destructor
 OpenDKIM::~OpenDKIM() {
+  dkim_close(state);
 }
 
 NAN_MODULE_INIT(OpenDKIM::Init) {
