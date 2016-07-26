@@ -8,7 +8,14 @@ using namespace Nan;
 
 // constructor
 OpenDKIM::OpenDKIM() {
-    state = dkim_init(NULL, NULL);
+  state = dkim_init(NULL, NULL);
+
+  // Throw a memory exception
+  if (state == NULL) {
+    Nan::ThrowError(
+      Nan::New("memory allocation failure").ToLocalChecked()
+    );
+  }
 }
 
 // destructor
@@ -20,6 +27,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   tpl->SetClassName(Nan::New("OpenDKIM").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
+  SetPrototypeMethod(tpl, "flush_cache", FlushCache);
   SetPrototypeMethod(tpl, "pow", Pow);
 
   constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
@@ -41,6 +49,14 @@ NAN_METHOD(OpenDKIM::New) {
     v8::Local<v8::Function> cons = Nan::New(constructor());
     info.GetReturnValue().Set(cons->NewInstance());
   }
+}
+
+NAN_METHOD(OpenDKIM::FlushCache) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+
+  v8::Local<v8::Integer> retval = Nan::New(dkim_flush_cache(obj->state));
+
+  info.GetReturnValue().Set(retval);
 }
 
 NAN_METHOD(OpenDKIM::Pow) {

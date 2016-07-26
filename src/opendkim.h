@@ -18,6 +18,7 @@ class OpenDKIM : public Nan::ObjectWrap {
 
     static NAN_METHOD(New);
     static NAN_METHOD(Pow);
+    static NAN_METHOD(FlushCache);
 
     static inline Nan::Persistent<v8::Function> &constructor() {
       static Nan::Persistent<v8::Function> my_constructor;
