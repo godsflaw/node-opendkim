@@ -3,16 +3,26 @@
 > node.js native language binding to libopendkim
 
 
-## Install
+## Install/Test (locally)
 
 ```
-$ npm install --save node-opendkim
+git clone git@github.com:godsflaw/node-opendkim.git
+cd node-opendkim
+npm install
+npm test -- --verbose
+
 ```
 
-## Install Globally
+## Install/Test (npm)
 
 ```
-$ npm install --global node-opendkim
+npm install --save node-opendkim
+```
+
+## Install Globally (npm)
+
+```
+npm install --global node-opendkim
 ```
 
 ---
@@ -144,7 +154,7 @@ http://www.opendkim.org/libopendkim/dkim_sign.html
 
 Type: `Object`
 
-- `id`: `(default: undefined)` An opaque, printable string for identifying this
+- `id`: **(default: undefined)** An opaque, printable string for identifying this
     message, suitable for use in logging or debug output.
 - `secretkey`: The private key to be used when signing this message. This must
     be a string containing either a PEM-formatted private key, or a
@@ -153,15 +163,15 @@ Type: `Object`
     message.
 - `domain`: The domain doing the signing; this will be the domain whose DNS will
     be queried by the verifier for key data.
-- `hdrcanon`: `(values: 'simple | relaxed')` `(default: 'simple')` The
+- `hdrcanon`: **(values: 'simple | relaxed') (default: 'simple')** The
     canonicalization algorithm to use when preparing the headers of this message
     for signing.
-- `bodycanon`: `(values: 'simple | relaxed')` `(default: 'simple')` The
+- `bodycanon`: **(values: 'simple | relaxed') (default: 'simple')** The
     canonicalization algorithm to use when preparing the body of this message
     for signing.
-- `signalg`: `(values: 'sha1 | sha256')` `(default: 'sha1')` The signing algorithm
+- `signalg`: **(values: 'sha1 | sha256') (default: 'sha1')** The signing algorithm
     to use when generating the signature to be attached to this message.
-- `length`: `(default: -1)` The number of bytes of the body to sign. A value
+- `length`: **(default: -1)** The number of bytes of the body to sign. A value
     of -1 will cause the entire message to be signed.
 
 
