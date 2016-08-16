@@ -144,23 +144,23 @@ http://www.opendkim.org/libopendkim/dkim_sign.html
 
 Type: `Object`
 
-`id`: An opaque, printable string for identifying this message, suitable for
-    use in logging or debug output. *(default: undefined)*
-`secretkey`: The private key to be used when signing this message. This must
+- `id`: An opaque, printable string for identifying this message, suitable for
+    use in logging or debug output. **(default: undefined)**
+- `secretkey`: The private key to be used when signing this message. This must
     be a string containing either a PEM-formatted private key, or a
     DER-formatted private key after being encoded with base64.
-`selector`: The name of the selector to be reported in the signature on this
+- `selector`: The name of the selector to be reported in the signature on this
 message.
-`domain`: The domain doing the signing; this will be the domain whose DNS will
+- `domain`: The domain doing the signing; this will be the domain whose DNS will
     be queried by the verifier for key data.
-`hdrcanon`: The canonicalization algorithm to use when preparing the headers
-    of this message for signing. *(values: 'simple|relaxed')* *(default: 'simple')*
-`bodycanon`: The canonicalization algorithm to use when preparing the body of
-    this message for signing. *(values: 'simple|relaxed')* *(default: 'simple')*
-`signalg`:  The signing algorithm to use when generating the signature to be
-    attached to this message. *(values: 'sha1|sha256')* *(default: 'sha1')*
-`length`:  The number of bytes of the body to sign. A value of -1 will cause
-    the entire message to be signed. *(default: -1)*
+- `hdrcanon`: The canonicalization algorithm to use when preparing the headers
+    of this message for signing. **(values: 'simple|relaxed') (default: 'simple')**
+- `bodycanon`: The canonicalization algorithm to use when preparing the body of
+    this message for signing. **(values: 'simple|relaxed') (default: 'simple')**
+- `signalg`:  The signing algorithm to use when generating the signature to be
+    attached to this message. **(values: 'sha1|sha256') (default: 'sha1')**
+- `length`:  The number of bytes of the body to sign. A value of -1 will cause
+    the entire message to be signed. **(default: -1)**
 
 
 #### NOTES
