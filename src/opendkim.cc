@@ -42,6 +42,9 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   // Signing methods
   SetPrototypeMethod(tpl, "sign", Sign);
 
+  // Verifying methods
+  SetPrototypeMethod(tpl, "verify", Verify);
+
   constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
   Nan::Set(
     target,
@@ -150,6 +153,13 @@ NAN_METHOD(OpenDKIM::Sign) {
   int length = -1;
   length = _value_to_int(info[0], "length");
 
+  // free this to clear the old context
+  // TODO(godsflaw): make this its own method
+  if (obj->dkim != NULL) {
+    dkim_free(obj->dkim);
+    obj->dkim = NULL;
+  }
+
   obj->dkim = dkim_sign(
     obj->dkim_lib,
     (unsigned char *)id,
@@ -174,6 +184,41 @@ NAN_METHOD(OpenDKIM::Sign) {
   info.GetReturnValue().Set(info.This());
 }
 
+NAN_METHOD(OpenDKIM::Verify) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = 0;
+
+  if (info.Length() != 1) {
+    Nan::ThrowTypeError("verify(): Wrong number of arguments");
+    return;
+  }
+
+  if (!info[0]->IsObject()) {
+    Nan::ThrowTypeError("verify(): Argument should be an object");
+    return;
+  }
+
+  // id
+  char *id = _value_to_char(info[0], "id");
+
+  // free this to clear the old context
+  // TODO(godsflaw): make this its own method
+  if (obj->dkim != NULL) {
+    dkim_free(obj->dkim);
+    obj->dkim = NULL;
+  }
+
+  obj->dkim = dkim_verify(obj->dkim_lib, (unsigned char *)id, NULL, &statp);
+
+  // Test for error and throw an exception back to js.
+  if (obj->dkim == NULL) {
+    throw_error(statp);
+    return;
+  }
+
+  // success
+  info.GetReturnValue().Set(info.This());
+}
 NODE_MODULE(opendkim, OpenDKIM::Init)
 
 }

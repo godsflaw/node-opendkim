@@ -189,6 +189,53 @@ Type: `Object`
 
 ---
 
+## API Verifying Methods
+
+---
+
+### SYNOPSIS `verify`
+
+```js
+try {
+  var opendkim = new OpenDKIM();
+  opendkim.verify({
+    id: undefined           // optional (default: undefined)
+  });
+} catch (err) {
+  console.log(err);
+}
+```
+
+Create a new handle for verifying a (possibly) signed message.
+
+#### DESCRIPTION
+
+`opendkim.verify()` is called when preparing to process a new message that may
+be signed already in order to be able to verify its contents against the
+signature.
+
+
+For more information:
+http://www.opendkim.org/libopendkim/dkim_verify.html
+
+#### ARGUMENTS
+
+Type: `Object`
+
+- `id`: **(default: undefined)** An opaque, printable string for identifying this
+    message, suitable for use in logging or debug output.
+
+#### NOTES
+
+- The handle returned by this function may not be used in a later call to
+    `opendkim.getsighdr()`.
+
+#### RETURN VALUES
+
+- On failure, an exception is thrown that indicates the cause of the problem.
+
+---
+
 ## License
 
 MIT © [Christopher Mooney](https://github.com/godsflaw/node-opendkim)
