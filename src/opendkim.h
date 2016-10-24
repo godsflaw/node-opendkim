@@ -2,6 +2,8 @@
 #define LIBOPENDKIM_H
 
 #include <iostream>
+#include <stdlib.h>
+#include <string.h>
 #include <node.h>
 #include <nan.h>
 #include <node_object_wrap.h>
@@ -21,6 +23,9 @@ class OpenDKIM : public Nan::ObjectWrap {
     // Administration methods
     static NAN_METHOD(New);
     static NAN_METHOD(FlushCache);
+
+    // Processing methods
+    static NAN_METHOD(Header);
 
     // Signing methods
     static NAN_METHOD(Sign);
@@ -49,17 +54,29 @@ class OpenDKIM : public Nan::ObjectWrap {
       return;
     }
 
-    static inline char *_value_to_char(v8::Local<v8::Value> obj, const char *key) {
+    // The user of this function must free retval in the caller if the function
+    // return success.
+    static inline int _value_to_char(v8::Local<v8::Value> obj, const char *key, char **retval) {
       Local<Value> val = Nan::Get(
         obj.As<Object>(), Nan::New(key).ToLocalChecked()
       ).ToLocalChecked();
       Nan::Utf8String str(val);
-      char *retval = *str;
+      char *strval = *str;
 
-      if (strcmp(retval, "undefined") == 0) {
-        return NULL;
+      int val_size = strlen(strval);
+      *retval = (char *)malloc(sizeof(char) * (val_size + 1));
+      if(*retval == NULL) {
+        Nan::ThrowTypeError("_value_to_char: out-of-memory");
+        return 0;
+      }
+      memcpy(*retval, strval, val_size);
+      (*retval)[val_size] = '\0';
+
+      if (strcmp(*retval, "undefined") == 0) {
+        _safe_free(&(*retval));
+        return 0;
       } else {
-        return retval;
+        return 1;
       }
     }
 
@@ -68,6 +85,13 @@ class OpenDKIM : public Nan::ObjectWrap {
         obj.As<Object>(), Nan::New(key).ToLocalChecked()
       ).ToLocalChecked();
       return val->Int32Value();
+    }
+
+    static inline void _safe_free(char **ptr) {
+      if (*ptr != NULL) {
+        free(*ptr);
+        *ptr = NULL;
+      }
     }
 
     // private variables

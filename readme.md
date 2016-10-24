@@ -236,6 +236,63 @@ Type: `Object`
 
 ---
 
+## API Processing Methods
+
+---
+
+### SYNOPSIS `header`
+
+```js
+try {
+  var opendkim = new OpenDKIM();
+  opendkim.verify({
+    id: undefined           // optional (default: undefined)
+  });
+
+  // Adding one header at a time
+  var header = 'From: <herp@derp.com>';
+  opendkim.header({
+      header: header,
+      length: header.length
+  });
+} catch (err) {
+  console.log(err);
+}
+```
+
+Handle a message header field.
+
+#### DESCRIPTION
+
+`opendkim.header()` is called zero or more times between `opendkim.sign()` orxi
+`opendkim.verify()` and `opendkim.eoh()`, once per message header field.
+
+For more information:
+http://www.opendkim.org/libopendkim/dkim_header.html
+
+#### ARGUMENTS
+
+Type: `Object`
+
+- `header`: The header field being input, including its name, value and
+    separating colon (":") character.
+- `length`: length of the header value.
+
+#### NOTES
+
+- The value of `header` should not contain a trailing CRLF as this will be added
+    by the canonicalization code. However, a CRLF may appear elsewhere in the
+    value if, for example, the header field is meant to be wrapped.
+- A header field whose name includes a semi-colon cannot be used as it will
+    produce a syntactically invalid signature. Such header fields cause this
+    function to return `DKIM_STAT_SYNTAX`.
+
+#### RETURN VALUES
+
+- On failure, an exception is thrown that indicates the cause of the problem.
+
+---
+
 ## License
 
 MIT © [Christopher Mooney](https://github.com/godsflaw/node-opendkim)

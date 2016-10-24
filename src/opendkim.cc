@@ -39,6 +39,9 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   // Administration methods
   SetPrototypeMethod(tpl, "flush_cache", FlushCache);
 
+  // Processing methods
+  SetPrototypeMethod(tpl, "header", Header);
+
   // Signing methods
   SetPrototypeMethod(tpl, "sign", Sign);
 
@@ -72,10 +75,59 @@ NAN_METHOD(OpenDKIM::FlushCache) {
   info.GetReturnValue().Set(retval);
 }
 
+NAN_METHOD(OpenDKIM::Header) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = DKIM_STAT_OK;
+
+  // TODO(godsflaw): clean this up, it's getting copy/pasta all the time
+  if (info.Length() != 1) {
+    Nan::ThrowTypeError("header(): Wrong number of arguments");
+    return;
+  }
+
+  if (!info[0]->IsObject()) {
+    Nan::ThrowTypeError("header(): Argument should be an object");
+    return;
+  }
+
+  char *header = NULL;
+  if (!_value_to_char(info[0], "header", &header)) {
+    Nan::ThrowTypeError("header(): header is undefined");
+    return;
+  }
+
+  // length
+  int length = 0;
+  length = _value_to_int(info[0], "length");
+  if (length == 0) {
+    Nan::ThrowTypeError("header(): length must be defined and non-zero");
+    return;
+  }
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError("header(): sign() or verify() must be called first");
+    return;
+  }
+
+  statp = dkim_header(obj->dkim, (unsigned char *)header, length);
+
+  _safe_free(&header);
+
+  // Test for error and throw an exception back to js.
+  if (statp != DKIM_STAT_OK) {
+    throw_error(statp);
+    return;
+  }
+
+  // success
+  info.GetReturnValue().Set(info.This());
+}
+
 NAN_METHOD(OpenDKIM::Sign) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-  DKIM_STAT statp = 0;
+  DKIM_STAT statp = DKIM_STAT_OK;
 
+  // TODO(godsflaw): clean this up, it's getting copy/pasta all the time
   if (info.Length() != 1) {
     Nan::ThrowTypeError("sign(): Wrong number of arguments");
     return;
@@ -87,36 +139,37 @@ NAN_METHOD(OpenDKIM::Sign) {
   }
 
   // id
-  char *id = _value_to_char(info[0], "id");
+  char *id = NULL;
+  _value_to_char(info[0], "id", &id);
 
   // secretkey
   char *secretkey = NULL;
-  if ((secretkey = _value_to_char(info[0], "secretkey")) == NULL) {
+  if (!_value_to_char(info[0], "secretkey", &secretkey)) {
     Nan::ThrowTypeError("sign(): secretkey is undefined");
     return;
   }
 
   // selector
   char *selector = NULL;
-  if ((selector = _value_to_char(info[0], "selector")) == NULL) {
+  if (!_value_to_char(info[0], "selector", &selector)) {
     Nan::ThrowTypeError("sign(): selector is undefined");
     return;
   }
 
   // domain
   char *domain = NULL;
-  if ((domain = _value_to_char(info[0], "domain")) == NULL) {
+  if (!_value_to_char(info[0], "domain", &domain)) {
     Nan::ThrowTypeError("sign(): domain is undefined");
     return;
   }
 
   // hdrcanon
   char *hdrcanon = NULL;
-  if ((hdrcanon = _value_to_char(info[0], "hdrcanon")) == NULL) {
+  if (!_value_to_char(info[0], "hdrcanon", &hdrcanon)) {
     Nan::ThrowTypeError("sign(): hdrcanon is undefined");
     return;
   }
-  for ( ; *hdrcanon; ++hdrcanon) *hdrcanon = tolower(*hdrcanon);
+  for (int i = 0 ; hdrcanon[i] != '\0'; i++) hdrcanon[i] = tolower(hdrcanon[i]);
 
   dkim_canon_t hdrcanon_alg = DKIM_CANON_SIMPLE;
   if (strcmp(hdrcanon, "relaxed") == 0) {
@@ -125,11 +178,11 @@ NAN_METHOD(OpenDKIM::Sign) {
 
   // bodycanon
   char *bodycanon = NULL;
-  if ((bodycanon = _value_to_char(info[0], "bodycanon")) == NULL) {
+  if (!_value_to_char(info[0], "bodycanon", &bodycanon)) {
     Nan::ThrowTypeError("sign(): bodycanon is undefined");
     return;
   }
-  for ( ; *bodycanon; ++bodycanon) *bodycanon = tolower(*bodycanon);
+  for (int i = 0 ; bodycanon[i] != '\0'; i++) bodycanon[i] = tolower(bodycanon[i]);
 
   dkim_canon_t bodycanon_alg = DKIM_CANON_SIMPLE;
   if (strcmp(bodycanon, "relaxed") == 0) {
@@ -138,11 +191,11 @@ NAN_METHOD(OpenDKIM::Sign) {
 
   // signalg
   char *signalg = NULL;
-  if ((signalg = _value_to_char(info[0], "signalg")) == NULL) {
+  if (!_value_to_char(info[0], "signalg", &signalg)) {
     Nan::ThrowTypeError("sign(): signalg is undefined");
     return;
   }
-  for ( ; *signalg; ++signalg) *signalg = tolower(*signalg);
+  for (int i = 0 ; signalg[i] != '\0'; i++) signalg[i] = tolower(signalg[i]);
 
   dkim_alg_t sign_alg = DKIM_SIGN_RSASHA1;
   if (strcmp(signalg, "sha256") == 0) {
@@ -174,6 +227,14 @@ NAN_METHOD(OpenDKIM::Sign) {
     &statp
   );
 
+  _safe_free(&id);
+  _safe_free(&secretkey);
+  _safe_free(&selector);
+  _safe_free(&domain);
+  _safe_free(&hdrcanon);
+  _safe_free(&bodycanon);
+  _safe_free(&signalg);
+
   // Test for error and throw an exception back to js.
   if (obj->dkim == NULL) {
     throw_error(statp);
@@ -186,7 +247,7 @@ NAN_METHOD(OpenDKIM::Sign) {
 
 NAN_METHOD(OpenDKIM::Verify) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-  DKIM_STAT statp = 0;
+  DKIM_STAT statp = DKIM_STAT_OK;
 
   if (info.Length() != 1) {
     Nan::ThrowTypeError("verify(): Wrong number of arguments");
@@ -199,7 +260,8 @@ NAN_METHOD(OpenDKIM::Verify) {
   }
 
   // id
-  char *id = _value_to_char(info[0], "id");
+  char *id = NULL;
+  _value_to_char(info[0], "id", &id);
 
   // free this to clear the old context
   // TODO(godsflaw): make this its own method
@@ -210,6 +272,8 @@ NAN_METHOD(OpenDKIM::Verify) {
 
   obj->dkim = dkim_verify(obj->dkim_lib, (unsigned char *)id, NULL, &statp);
 
+  _safe_free(&id);
+
   // Test for error and throw an exception back to js.
   if (obj->dkim == NULL) {
     throw_error(statp);
@@ -219,6 +283,7 @@ NAN_METHOD(OpenDKIM::Verify) {
   // success
   info.GetReturnValue().Set(info.This());
 }
+
 NODE_MODULE(opendkim, OpenDKIM::Init)
 
 }
