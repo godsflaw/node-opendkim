@@ -125,7 +125,7 @@ it also adds a library dependency to applications.
 try {
   var opendkim = new OpenDKIM();
   opendkim.sign({
-    id: undefined,          // optional (default: undefined)
+    id: undefined, // optional (default: undefined)
     secretkey: 'testkey',
     selector: 'a1b2c3',
     domain: 'example.com',
@@ -133,7 +133,7 @@ try {
     bodycanon: 'relaxed',
     signalg: 'sha256',
     signalg: 'sha256',
-    length: -1              // optional (default: -1)
+    length: -1     // optional (default: -1)
   });
 } catch (err) {
   console.log(err);
@@ -199,7 +199,7 @@ Type: `Object`
 try {
   var opendkim = new OpenDKIM();
   opendkim.verify({
-    id: undefined           // optional (default: undefined)
+    id: undefined // optional (default: undefined)
   });
 } catch (err) {
   console.log(err);
@@ -246,10 +246,10 @@ Type: `Object`
 try {
   var opendkim = new OpenDKIM();
   opendkim.verify({
-    id: undefined           // optional (default: undefined)
+    id: undefined // optional (default: undefined)
   });
 
-  // Adding one header at a time
+  // Adding one header at a time, when finished call opendkim.eoh()
   var header = 'From: <herp@derp.com>';
   opendkim.header({
       header: header,
@@ -264,7 +264,7 @@ Handle a message header field.
 
 #### DESCRIPTION
 
-`opendkim.header()` is called zero or more times between `opendkim.sign()` orxi
+`opendkim.header()` is called zero or more times between `opendkim.sign()` or
 `opendkim.verify()` and `opendkim.eoh()`, once per message header field.
 
 For more information:
@@ -286,6 +286,142 @@ Type: `Object`
 - A header field whose name includes a semi-colon cannot be used as it will
     produce a syntactically invalid signature. Such header fields cause this
     function to return `DKIM_STAT_SYNTAX`.
+
+#### RETURN VALUES
+
+- On failure, an exception is thrown that indicates the cause of the problem.
+
+---
+
+### SYNOPSIS `eoh`
+
+```js
+try {
+  var opendkim = new OpenDKIM();
+  opendkim.verify({
+    id: undefined // optional (default: undefined)
+  });
+
+  // Adding one header at a time, when finished call opendkim.eoh()
+  var header = 'From: <herp@derp.com>';
+  opendkim.header({
+      header: header,
+      length: header.length
+  });
+  opendkim.eoh();
+} catch (err) {
+  console.log(err);
+}
+```
+
+Denote end-of-headers for a message.
+
+#### DESCRIPTION
+
+`opendkim.eoh()` is called when the delimiter between the message's
+headers and its body is encountered.  That is, when one is done processing
+the header section.
+
+For more information:
+http://www.opendkim.org/libopendkim/dkim_eoh.html
+
+#### ARGUMENTS
+
+Type: `undefined`
+
+#### NOTES
+
+- This function may throw `DKIM_STAT_NOSIG` when verifying if no signature was
+    present in the message headers. This is simply advisory; you must continue
+    executing down to the `opendkim.eom()` call to determine whether or not a
+    signature should have been present.
+- This function can throw `DKIM_STAT_SYNTAX` when verifying if a header that
+    must be signed was not included in a received signature, or if the message
+    appeared to contain no sender header field. In the latter case, the dkim
+    handle is rendered unusable by future calls to `opendkim.body()` or
+    `opendkim.eom()`.
+- This function can throw `DKIM_STAT_CANTVRFY` when verifying if all
+    discovered signatures were either marked to be ignored, contained syntax
+    errors, or failed verification attempts. This is only tested if the
+    `DKIM_LIBFLAG_EOHCHECK` library flag is set.
+- This function can throw `DKIM_STAT_SYNTAX` in either mode if the input
+    message does not conform to the header field count checks imposed by the
+    `DKIM_LIBFLAG_STRICTHDRS` library flag.
+- This function can throw `DKIM_STAT_NORESOURCE` for a verifying handle if an
+    attempt to construct a DNS query based on the selector and domain in a
+    signature exceeded the maximum allowable query size.
+
+#### RETURN VALUES
+
+- On failure, an exception is thrown that indicates the cause of the problem.
+
+---
+
+### SYNOPSIS `eom`
+
+```js
+try {
+  var opendkim = new OpenDKIM();
+  opendkim.verify({
+    id: undefined // optional (default: undefined)
+  });
+
+  // Adding one header at a time, when finished call opendkim.eoh()
+  var header = 'From: <herp@derp.com>';
+  opendkim.header({
+      header: header,
+      length: header.length
+  });
+  opendkim.eoh();
+  // Adding body chunks, when finished call opendkim.eom()
+  var body = 'this is a test';
+  opendkim.header({
+      header: body,
+      length: body.length
+  });
+  opendkim.eom();
+} catch (err) {
+  console.log(err);
+}
+```
+
+Denote end-of-message for a message. When verifying, process signatures in
+order; when signing, compute all signatures.
+
+#### DESCRIPTION
+
+`opendkim.eoh()` is called when the delimiter between the message's
+headers and its body is encountered.  That is, when one is done processing
+the header section.
+
+For more information:
+http://www.opendkim.org/libopendkim/dkim_eoh.html
+
+#### ARGUMENTS
+
+Type: `undefined`
+
+#### NOTES
+
+- This function may throw `DKIM_STAT_NOSIG` when verifying if no signature was
+    present in the message headers. This is simply advisory; you must continue
+    executing down to the `opendkim.eom()` call to determine whether or not a
+    signature should have been present.
+- This function can throw `DKIM_STAT_SYNTAX` when verifying if a header that
+    must be signed was not included in a received signature, or if the message
+    appeared to contain no sender header field. In the latter case, the dkim
+    handle is rendered unusable by future calls to `opendkim.body()` or
+    `opendkim.eom()`.
+- This function can throw `DKIM_STAT_CANTVRFY` when verifying if all
+    discovered signatures were either marked to be ignored, contained syntax
+    errors, or failed verification attempts. This is only tested if the
+    `DKIM_LIBFLAG_EOHCHECK` library flag is set.
+- This function can throw `DKIM_STAT_SYNTAX` in either mode if the input
+    message does not conform to the header field count checks imposed by the
+    `DKIM_LIBFLAG_STRICTHDRS` library flag.
+- This function can throw `DKIM_STAT_NORESOURCE` for a verifying handle if an
+    attempt to construct a DNS query based on the selector and domain in a
+    signature exceeded the maximum allowable query size.
 
 #### RETURN VALUES
 

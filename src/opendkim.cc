@@ -1,4 +1,5 @@
 #include "opendkim.h"
+#include <stdio.h>
 
 namespace opendkim {
 
@@ -41,6 +42,8 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
 
   // Processing methods
   SetPrototypeMethod(tpl, "header", Header);
+  SetPrototypeMethod(tpl, "eoh", EOH);
+  SetPrototypeMethod(tpl, "eom", EOM);
 
   // Signing methods
   SetPrototypeMethod(tpl, "sign", Sign);
@@ -121,6 +124,53 @@ NAN_METHOD(OpenDKIM::Header) {
 
   // success
   info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::EOH) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = DKIM_STAT_OK;
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError(
+      "eoh(): sign() or verify(), then header() must be called first"
+    );
+    return;
+  }
+
+  statp = dkim_eoh(obj->dkim);
+
+  // Test for error and throw an exception back to js.
+  if (statp != DKIM_STAT_OK && statp != DKIM_STAT_NOSIG) {
+    throw_error(statp);
+    return;
+  }
+
+  // success
+  info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::EOM) {
+  bool testkey = false;
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = DKIM_STAT_OK;
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError(
+      "eom(): sign() or verify(), then body() must be called first"
+    );
+    return;
+  }
+
+  statp = dkim_eom(obj->dkim, &testkey);
+
+  // Test for error and throw an exception back to js.
+  if (statp != DKIM_STAT_OK && statp != DKIM_STAT_NOSIG) {
+    throw_error(statp);
+    return;
+  }
+
+  // success
+  info.GetReturnValue().Set(Nan::New<v8::Boolean>((testkey ? true : false)));
 }
 
 NAN_METHOD(OpenDKIM::Sign) {

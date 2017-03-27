@@ -26,6 +26,8 @@ class OpenDKIM : public Nan::ObjectWrap {
 
     // Processing methods
     static NAN_METHOD(Header);
+    static NAN_METHOD(EOH);
+    static NAN_METHOD(EOM);
 
     // Signing methods
     static NAN_METHOD(Sign);
@@ -85,6 +87,13 @@ class OpenDKIM : public Nan::ObjectWrap {
         obj.As<Object>(), Nan::New(key).ToLocalChecked()
       ).ToLocalChecked();
       return val->Int32Value();
+    }
+
+    static inline bool _value_to_bool(v8::Local<v8::Value> obj, const char *key) {
+      Local<Value> val = Nan::Get(
+        obj.As<Object>(), Nan::New(key).ToLocalChecked()
+      ).ToLocalChecked();
+      return val->BooleanValue();
     }
 
     static inline void _safe_free(char **ptr) {
