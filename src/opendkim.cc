@@ -45,6 +45,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   SetPrototypeMethod(tpl, "eoh", EOH);
   SetPrototypeMethod(tpl, "body", Body);
   SetPrototypeMethod(tpl, "eom", EOM);
+  SetPrototypeMethod(tpl, "chunk", Chunk);
 
   // Signing methods
   SetPrototypeMethod(tpl, "sign", Sign);
@@ -221,6 +222,54 @@ NAN_METHOD(OpenDKIM::EOM) {
 
   // success
   info.GetReturnValue().Set(Nan::New<v8::Boolean>((testkey ? true : false)));
+}
+
+NAN_METHOD(OpenDKIM::Chunk) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = DKIM_STAT_OK;
+
+  // TODO(godsflaw): clean this up, it's getting copy/pasta all the time
+  if (info.Length() != 1) {
+    Nan::ThrowTypeError("chunk(): Wrong number of arguments");
+    return;
+  }
+
+  if (!info[0]->IsObject()) {
+    Nan::ThrowTypeError("chunk(): Argument should be an object");
+    return;
+  }
+
+  char *message = NULL;
+  if (!_value_to_char(info[0], "message", &message)) {
+    Nan::ThrowTypeError("chunk(): message is undefined");
+    return;
+  }
+
+  // length
+  int length = 0;
+  length = _value_to_int(info[0], "length");
+  if (length == 0) {
+    Nan::ThrowTypeError("chunk(): length must be defined and non-zero");
+    return;
+  }
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError("chunk(): sign() or verify() must be called first");
+    return;
+  }
+
+  statp = dkim_chunk(obj->dkim, (unsigned char *)message, length);
+
+  _safe_free(&message);
+
+  // Test for error and throw an exception back to js.
+  if (statp != DKIM_STAT_OK) {
+    throw_error(statp);
+    return;
+  }
+
+  // success
+  info.GetReturnValue().Set(info.This());
 }
 
 NAN_METHOD(OpenDKIM::Sign) {

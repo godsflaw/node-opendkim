@@ -29,6 +29,7 @@ class OpenDKIM : public Nan::ObjectWrap {
     static NAN_METHOD(EOH);
     static NAN_METHOD(Body);
     static NAN_METHOD(EOM);
+    static NAN_METHOD(Chunk);
 
     // Signing methods
     static NAN_METHOD(Sign);

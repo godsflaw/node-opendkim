@@ -482,6 +482,73 @@ Type: `undefined`
 
 ---
 
+### SYNOPSIS `chunk`
+
+```js
+try {
+  var opendkim = new OpenDKIM();
+  opendkim.verify({
+    id: undefined // optional (default: undefined)
+  });
+
+  // Adding body chunks, when finished call opendkim.eom().  This too
+  // can take many chunks.  Do NOT include the terminating DOT.
+  var message = 'From: <herp@derp.com>\r\n';
+  message += '\r\n';
+  message += 'this is a test';
+  opendkim.chunk({
+    message: message,
+    length: message.length
+  });
+
+} catch (err) {
+  console.log(err);
+}
+```
+
+Handle a chunk of message input. The input is a buffer of message data which may contain
+headers or body. An entire message may be fed to the API in one buffer using this
+function. The API will determine automatically the boundary between header fields
+and the body of the message and process it accordingly.  Message body content should
+be in canonical form (e.g., with dot-stuffing removed, if any).
+
+Lines in the data chunk are expected to be `CRLF`-terminated in the standard way. For input
+that is not, consider setting the `DKIM_LIBFLAGS_FIXCRLF` (see `opendkim.options()`), which
+will cause this function to attempt to auto-detect based on the first line whether the
+input is `CRLF`-terminated or not, and adapt accordingly.
+
+`opendkim.eoh()` will be called implicitly by this function upon encountering the end of
+the message's header block, but the caller must `opendkim.chunk_end()` to complete
+processing of the message.
+
+#### DESCRIPTION
+
+`opendkim.chunk()` is called zero or more times between using `opendkim.sign()` and
+`opendkim.verify()`, and `opendkim.chunk_end()`.
+
+For more information:
+http://www.opendkim.org/libopendkim/dkim_chunk.html
+
+#### ARGUMENTS
+
+Type: `Object`
+
+- `message`: The message chunk with normal `CRLF` line termination and the terminating DOT removed
+- `length`: length of the message chunk.
+
+#### NOTES
+
+- Dot stuffing and the terminating dot in the message body are expected to be removed by the caller.
+    If they appear within body, they are assumed to be part of the message body and will be
+    included in the hashed data. This is true of any content modification that might be done by
+    the MTA.
+
+#### RETURN VALUES
+
+- On failure, an exception is thrown that indicates the cause of the problem.
+
+---
+
 ## License
 
 MIT © [Christopher Mooney](https://github.com/godsflaw/node-opendkim)
