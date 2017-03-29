@@ -43,6 +43,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   // Processing methods
   SetPrototypeMethod(tpl, "header", Header);
   SetPrototypeMethod(tpl, "eoh", EOH);
+  SetPrototypeMethod(tpl, "body", Body);
   SetPrototypeMethod(tpl, "eom", EOM);
 
   // Signing methods
@@ -149,7 +150,56 @@ NAN_METHOD(OpenDKIM::EOH) {
   info.GetReturnValue().Set(info.This());
 }
 
+NAN_METHOD(OpenDKIM::Body) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = DKIM_STAT_OK;
+
+  // TODO(godsflaw): clean this up, it's getting copy/pasta all the time
+  if (info.Length() != 1) {
+    Nan::ThrowTypeError("body(): Wrong number of arguments");
+    return;
+  }
+
+  if (!info[0]->IsObject()) {
+    Nan::ThrowTypeError("body(): Argument should be an object");
+    return;
+  }
+
+  char *body = NULL;
+  if (!_value_to_char(info[0], "body", &body)) {
+    Nan::ThrowTypeError("body(): body is undefined");
+    return;
+  }
+
+  // length
+  int length = 0;
+  length = _value_to_int(info[0], "length");
+  if (length == 0) {
+    Nan::ThrowTypeError("body(): length must be defined and non-zero");
+    return;
+  }
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError("body(): sign() or verify() must be called first");
+    return;
+  }
+
+  statp = dkim_body(obj->dkim, (unsigned char *)body, length);
+
+  _safe_free(&body);
+
+  // Test for error and throw an exception back to js.
+  if (statp != DKIM_STAT_OK) {
+    throw_error(statp);
+    return;
+  }
+
+  // success
+  info.GetReturnValue().Set(info.This());
+}
+
 NAN_METHOD(OpenDKIM::EOM) {
+  // TODO(godsflaw): perhaps expose this in node.js
   bool testkey = false;
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;

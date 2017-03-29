@@ -357,6 +357,66 @@ Type: `undefined`
 
 ---
 
+### SYNOPSIS `body`
+
+```js
+try {
+  var opendkim = new OpenDKIM();
+  opendkim.verify({
+    id: undefined // optional (default: undefined)
+  });
+
+  // Adding one header at a time, when finished call opendkim.eoh()
+  var header = 'From: <herp@derp.com>';
+  opendkim.header({
+      header: header,
+      length: header.length
+  });
+  opendkim.eoh();
+
+  // Adding body chunks, when finished call opendkim.eom().  This too
+  // can take many chunks.  Do NOT include the terminating DOT.
+  var body = 'this is a test';
+  opendkim.body({
+    body: body,
+    length: body.length
+  });
+
+} catch (err) {
+  console.log(err);
+}
+```
+
+Handle a piece of a message's body. The body block should contain normal CRLF line
+termination and be in canonical form (e.g., with dot-stuffing removed, if any).
+
+#### DESCRIPTION
+
+`opendkim.body()` is called zero or more times between `opendkim.eoh()` and `opendkim.eom()`.
+
+For more information:
+http://www.opendkim.org/libopendkim/dkim_body.html
+
+#### ARGUMENTS
+
+Type: `Object`
+
+- `body`: The body chunk with normal CRLF line termination and the terminating DOT removed
+- `length`: length of the body chunk.
+
+#### NOTES
+
+- Dot stuffing and the terminating dot in the message body are expected to be removed by the caller.
+    If they appear within body, they are assumed to be part of the message body and will be
+    included in the hashed data. This is true of any content modification that might be done by
+    the MTA.
+
+#### RETURN VALUES
+
+- On failure, an exception is thrown that indicates the cause of the problem.
+
+---
+
 ### SYNOPSIS `eom`
 
 ```js
@@ -373,12 +433,15 @@ try {
       length: header.length
   });
   opendkim.eoh();
-  // Adding body chunks, when finished call opendkim.eom()
+
+  // Adding body chunks, when finished call opendkim.eom().  This too
+  // can take many chunks.  Do NOT include the terminating DOT.
   var body = 'this is a test';
   opendkim.header({
       header: body,
       length: body.length
   });
+  // This does the final validation, and will throw an error if there is one.
   opendkim.eom();
 } catch (err) {
   console.log(err);
@@ -390,12 +453,11 @@ order; when signing, compute all signatures.
 
 #### DESCRIPTION
 
-`opendkim.eoh()` is called when the delimiter between the message's
-headers and its body is encountered.  That is, when one is done processing
-the header section.
+`opendkim.eom()` is called after the entire body of the message has been passed
+to the API via zero or more calls to `opendkim.body()`.
 
 For more information:
-http://www.opendkim.org/libopendkim/dkim_eoh.html
+http://www.opendkim.org/libopendkim/dkim_eom.html
 
 #### ARGUMENTS
 
@@ -403,25 +465,16 @@ Type: `undefined`
 
 #### NOTES
 
-- This function may throw `DKIM_STAT_NOSIG` when verifying if no signature was
-    present in the message headers. This is simply advisory; you must continue
-    executing down to the `opendkim.eom()` call to determine whether or not a
-    signature should have been present.
-- This function can throw `DKIM_STAT_SYNTAX` when verifying if a header that
-    must be signed was not included in a received signature, or if the message
-    appeared to contain no sender header field. In the latter case, the dkim
-    handle is rendered unusable by future calls to `opendkim.body()` or
-    `opendkim.eom()`.
-- This function can throw `DKIM_STAT_CANTVRFY` when verifying if all
-    discovered signatures were either marked to be ignored, contained syntax
-    errors, or failed verification attempts. This is only tested if the
-    `DKIM_LIBFLAG_EOHCHECK` library flag is set.
-- This function can throw `DKIM_STAT_SYNTAX` in either mode if the input
-    message does not conform to the header field count checks imposed by the
-    `DKIM_LIBFLAG_STRICTHDRS` library flag.
-- This function can throw `DKIM_STAT_NORESOURCE` for a verifying handle if an
-    attempt to construct a DNS query based on the selector and domain in a
-    signature exceeded the maximum allowable query size.
+- By default, when verifying, this function processes all signatures, in order. If the
+    DKIM_LIBFLAGS_VERIFYONE flag is set on the library, then processing will stop after
+    one good signature is found. There may be other signatures before or after that one
+    in the message whose evaluation might be meaningful to the calling application.
+    In that case, the calling application should use the final handling callback
+    (see `opendkim.set_final()` to get an opportunity to process all of the signatures
+    and possibly reorder them as per the application's preference. With the above
+    flag set, this function will use the signatures as reordered by that function
+    (or in arrival order if no reordering is done) and act on the first valid one,
+    or the first one if none are valid.
 
 #### RETURN VALUES
 
