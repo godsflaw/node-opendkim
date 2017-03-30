@@ -500,7 +500,6 @@ try {
     message: message,
     length: message.length
   });
-
 } catch (err) {
   console.log(err);
 }
@@ -542,6 +541,53 @@ Type: `Object`
     If they appear within body, they are assumed to be part of the message body and will be
     included in the hashed data. This is true of any content modification that might be done by
     the MTA.
+
+#### RETURN VALUES
+
+- On failure, an exception is thrown that indicates the cause of the problem.
+
+---
+
+### SYNOPSIS `chunk_end`
+
+```js
+try {
+  var opendkim = new OpenDKIM();
+  opendkim.verify({
+    id: undefined // optional (default: undefined)
+  });
+
+  // Adding body chunks, when finished call opendkim.eom().  This too
+  // can take many chunks.  Do NOT include the terminating DOT.
+  var message = 'From: <herp@derp.com>\r\n';
+  message += '\r\n';
+  message += 'this is a test';
+  opendkim.chunk({
+    message: message,
+    length: message.length
+  });
+  opendkim.chunk_end();
+} catch (err) {
+  console.log(err);
+}
+```
+
+This call terminates one or many calls to `opendkim.chunk()`, and will return the
+DKIM results the same way `opendkim.eom()` does.  When using `opendkim.chunk()`,
+one must validate the message using this call.
+
+#### DESCRIPTION
+
+`opendkim.chunk_end()` is called  to validate a message when done calling
+`opendkim.chunk()`.
+
+#### ARGUMENTS
+
+Type: `undefined`
+
+#### NOTES
+
+- All the same notes for `opendkim.eom()` apply here.
 
 #### RETURN VALUES
 

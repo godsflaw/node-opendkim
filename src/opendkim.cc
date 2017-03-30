@@ -46,6 +46,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   SetPrototypeMethod(tpl, "body", Body);
   SetPrototypeMethod(tpl, "eom", EOM);
   SetPrototypeMethod(tpl, "chunk", Chunk);
+  SetPrototypeMethod(tpl, "chunk_end", ChunkEnd);
 
   // Signing methods
   SetPrototypeMethod(tpl, "sign", Sign);
@@ -270,6 +271,28 @@ NAN_METHOD(OpenDKIM::Chunk) {
 
   // success
   info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::ChunkEnd) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = DKIM_STAT_OK;
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError("chunk_end(): sign() or verify(), then chunk() must be called first");
+    return;
+  }
+
+  // When done with calling chunk(), we need to call it with NULL pointer and 0 length.
+  statp = dkim_chunk(obj->dkim, NULL, 0);
+
+  // Test for error and throw an exception back to js.
+  if (statp != DKIM_STAT_OK) {
+    throw_error(statp);
+    return;
+  }
+
+  // We also need to call dkim_eom(), so we can just call that method.
+  obj->EOM(info);
 }
 
 NAN_METHOD(OpenDKIM::Sign) {

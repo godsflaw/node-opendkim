@@ -331,6 +331,16 @@ test('test chunk works', t => {
   }
 });
 
+test('test chunk_end needs context', t => {
+  try {
+    var opendkim = new OpenDKIM();
+    opendkim.chunk_end();
+    t.fail();
+  } catch (err) {
+    t.is(err.message, 'chunk_end(): sign() or verify(), then chunk() must be called first');
+  }
+});
+
 // test('test chunk_end works after chunk', t => {
 //   try {
 //     var opendkim = new OpenDKIM();
