@@ -102,23 +102,6 @@ test('test sign method with missing bodycanon arg', t => {
   }
 });
 
-test('test sign method with missing signalg arg', t => {
-  try {
-    var opendkim = new OpenDKIM();
-    opendkim.sign({
-      id: undefined,
-      secretkey: 'testkey',
-      selector: 'a1b2c3',
-      domain: 'example.com',
-      hdrcanon: 'relaxed',
-      bodycanon: 'relaxed'
-    });
-    t.fail();
-  } catch (err) {
-    t.is(err.message, 'sign(): signalg is undefined');
-  }
-});
-
 test('test sign method works as object with correct args', t => {
   try {
     var opendkim = new OpenDKIM();
@@ -129,7 +112,7 @@ test('test sign method works as object with correct args', t => {
       domain: 'example.com',
       hdrcanon: 'relaxed',
       bodycanon: 'relaxed',
-      signalg: 'sha256',
+      signalg: 'sha256',     // default is sha256
       length: -1
     });
     t.pass();

@@ -361,17 +361,15 @@ NAN_METHOD(OpenDKIM::Sign) {
     bodycanon_alg = DKIM_CANON_RELAXED;
   }
 
-  // signalg
+  // signalg, the default is now sha256 due to weakness in sha1
   char *signalg = NULL;
-  if (!_value_to_char(info[0], "signalg", &signalg)) {
-    Nan::ThrowTypeError("sign(): signalg is undefined");
-    return;
-  }
-  for (int i = 0 ; signalg[i] != '\0'; i++) signalg[i] = tolower(signalg[i]);
+  dkim_alg_t sign_alg = DKIM_SIGN_RSASHA256;
+  if (_value_to_char(info[0], "signalg", &signalg)) {
+    for (int i = 0 ; signalg[i] != '\0'; i++) signalg[i] = tolower(signalg[i]);
 
-  dkim_alg_t sign_alg = DKIM_SIGN_RSASHA1;
-  if (strcmp(signalg, "sha256") == 0) {
-    sign_alg = DKIM_SIGN_RSASHA256;
+    if (strcmp(signalg, "sha1") == 0) {
+      sign_alg = DKIM_SIGN_RSASHA1;
+    }
   }
 
   // length
