@@ -38,6 +38,10 @@ class OpenDKIM : public Nan::ObjectWrap {
     // Verifying methods
     static NAN_METHOD(Verify);
 
+    // Utility methods
+    static NAN_METHOD(GetOption);
+    static NAN_METHOD(SetOption);
+
   private:
     explicit OpenDKIM();
     ~OpenDKIM();
@@ -53,7 +57,7 @@ class OpenDKIM : public Nan::ObjectWrap {
       if (msg != NULL) {
         Nan::ThrowError(msg);
       } else {
-        Nan::ThrowError("sign(): an unknown error occurred");
+        Nan::ThrowError("an unknown error occurred");
       }
 
       return;
