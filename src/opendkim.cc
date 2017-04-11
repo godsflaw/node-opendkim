@@ -1,11 +1,24 @@
 #include "opendkim.h"
 #include <stdio.h>
+#include <unistd.h>    // TODO(godsflaw): port for windows?
 
 namespace opendkim {
 
 using namespace std;
 using namespace v8;
 using namespace Nan;
+
+// figure out which option this is, and return that type
+int _get_option(char *option, size_t len) {
+  if (strncmp(option, "DKIM_OPTS_QUERYMETHOD", len) == 0) {
+    return DKIM_OPTS_QUERYMETHOD;
+  } else if (strncmp(option, "DKIM_OPTS_QUERYINFO", len) == 0) {
+    return DKIM_OPTS_QUERYINFO;
+  }
+
+  // return -1 for error if we don't find the option
+  return -1;
+}
 
 // constructor
 OpenDKIM::OpenDKIM() {
@@ -53,6 +66,10 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
 
   // Verifying methods
   SetPrototypeMethod(tpl, "verify", Verify);
+
+  // Utility methods
+  SetPrototypeMethod(tpl, "get_option", GetOption);
+  SetPrototypeMethod(tpl, "set_option", SetOption);
 
   constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
   Nan::Set(
@@ -446,6 +463,158 @@ NAN_METHOD(OpenDKIM::Verify) {
 
   // Test for error and throw an exception back to js.
   if (obj->dkim == NULL) {
+    throw_error(statp);
+    return;
+  }
+
+  // success
+  info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::GetOption) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = DKIM_STAT_OK;
+
+  if (info.Length() != 1) {
+    Nan::ThrowTypeError("get_option(): Wrong number of arguments");
+    return;
+  }
+
+  if (!info[0]->IsObject()) {
+    Nan::ThrowTypeError("get_option(): Argument should be an object");
+    return;
+  }
+
+  // option
+  char *option = NULL;
+  if (!_value_to_char(info[0], "option", &option)) {
+    Nan::ThrowTypeError("get_option(): option is undefined");
+    return;
+  }
+
+  int opt = _get_option(option, strlen(option));
+  _safe_free(&option);
+
+  // because data can vary, we have to do something different for each option
+  if (opt == DKIM_OPTS_QUERYINFO) {
+    char data[MAXPATHLEN + 1] = "";
+    statp = dkim_options(
+      obj->dkim_lib,
+      DKIM_OP_GETOPT,
+      opt,
+      &data,
+      sizeof(data)
+    );
+
+    if (statp != DKIM_STAT_OK) {
+      throw_error(statp);
+      return;
+    }
+
+    info.GetReturnValue().Set(Nan::New<v8::String>(data).ToLocalChecked());
+  } else if (opt == DKIM_OPTS_QUERYMETHOD) {
+    dkim_query_t data;
+    statp = dkim_options(
+      obj->dkim_lib,
+      DKIM_OP_GETOPT,
+      opt,
+      &data,
+      sizeof(data)
+    );
+
+    if (statp != DKIM_STAT_OK) {
+      throw_error(statp);
+      return;
+    }
+
+    if (data == DKIM_QUERY_FILE) {
+      info.GetReturnValue().Set(Nan::New<v8::String>("DKIM_QUERY_FILE").ToLocalChecked());
+    } else {
+      info.GetReturnValue().Set(Nan::New<v8::String>("DKIM_QUERY_DNS").ToLocalChecked());
+    }
+  } else {
+    Nan::ThrowError("get_option(): invalid option");
+  }
+
+  return;
+}
+
+NAN_METHOD(OpenDKIM::SetOption) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = DKIM_STAT_OK;
+
+  if (info.Length() != 1) {
+    Nan::ThrowTypeError("set_option(): Wrong number of arguments");
+    return;
+  }
+
+  if (!info[0]->IsObject()) {
+    Nan::ThrowTypeError("set_option(): Argument should be an object");
+    return;
+  }
+
+  // option
+  char *option = NULL;
+  if (!_value_to_char(info[0], "option", &option)) {
+    Nan::ThrowTypeError("set_option(): option is undefined");
+    return;
+  }
+
+  // data
+  char *data = NULL;
+  if (!_value_to_char(info[0], "data", &data)) {
+    Nan::ThrowTypeError("set_option(): data is undefined");
+    return;
+  }
+
+  // length
+  int length = 0;
+  length = _value_to_int(info[0], "length");
+  if (length == 0) {
+    Nan::ThrowTypeError("set_option(): length must be defined and non-zero");
+    return;
+  }
+
+  int opt = _get_option(option, strlen(option));
+  _safe_free(&option);
+
+  // because data can vary, we have to do something different for each option
+  if (opt == DKIM_OPTS_QUERYINFO) {
+    if (length > MAXPATHLEN + 1) {
+      Nan::ThrowTypeError("set_option(): filename too long");
+      return;
+    }
+
+    statp = dkim_options(
+      obj->dkim_lib,
+      DKIM_OP_SETOPT,
+      opt,
+      data,
+      length
+    );
+  } else if (opt == DKIM_OPTS_QUERYMETHOD) {
+    dkim_query_t qtype = DKIM_QUERY_DNS;
+    if (strncmp(data, "DKIM_QUERY_FILE", length) == 0) {
+      qtype = DKIM_QUERY_FILE;
+    }
+
+    statp = dkim_options(
+      obj->dkim_lib,
+      DKIM_OP_SETOPT,
+      opt,
+      &qtype,
+      sizeof(qtype)
+    );
+  } else {
+    Nan::ThrowTypeError("set_option(): invalid option");
+    return;
+  }
+
+  _safe_free(&option);
+  _safe_free(&data);
+
+  // Test for error and throw an exception back to js.
+  if (statp != DKIM_STAT_OK) {
     throw_error(statp);
     return;
   }

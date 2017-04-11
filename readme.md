@@ -93,8 +93,13 @@ try {
 - [opendkim.chunk()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.chunk())
 - [opendkim.chunk_end()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.chunk_end())
 
+## API Utility Methods
+
+- [opendkim.query_info()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_info())
+- [opendkim.query_method()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_method())
+
 ---
 
 ## License
 
-MIT © [Christopher Mooney](https://github.com/godsflaw/node-opendkim)
+MIT © [Christopher Mooney](https://github.com/godsflaw)
