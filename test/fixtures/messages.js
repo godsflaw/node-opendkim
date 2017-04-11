@@ -11,6 +11,7 @@ function Messages(options) {
   var path = options.path || process.cwd() + '/../fixtures/';
 
   this.good = fs.readFileSync(path + 'message_good.data', 'utf8');
+  this.bad_timestamp = fs.readFileSync(path + 'message_bad_timestamp.data', 'utf8');
 }
 
 module.exports = Messages;
