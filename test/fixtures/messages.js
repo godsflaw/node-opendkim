@@ -13,6 +13,10 @@ function Messages(options) {
   // good message
   this.good = fs.readFileSync(path + 'message_good.eml', 'utf8');
 
+  // message that will fail with extra signature spaces
+  this.bad_extra_signature_spaces =
+    fs.readFileSync(path + 'message_bad_extra_signature_spaces.eml', 'utf8');
+
   // message that will fail with bad timestamp data
   this.bad_timestamp = fs.readFileSync(path + 'message_bad_timestamp.eml', 'utf8');
 
