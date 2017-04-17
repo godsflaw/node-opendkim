@@ -17,6 +17,9 @@ function Messages(options) {
   this.bad_extra_signature_spaces =
     fs.readFileSync(path + 'message_bad_extra_signature_spaces.eml', 'utf8');
 
+  // message that will fail with no key error
+  this.bad_no_key = fs.readFileSync(path + 'message_bad_no_key.eml', 'utf8');
+
   // message that will fail with bad timestamp data
   this.bad_timestamp = fs.readFileSync(path + 'message_bad_timestamp.eml', 'utf8');
 
