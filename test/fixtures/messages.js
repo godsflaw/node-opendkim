@@ -19,6 +19,10 @@ function Messages(options) {
   // message that will fail because of the additional CC header
   this.bad_must_be_signed_list =
     fs.readFileSync(path + 'message_bad_must_me_signed_list.eml', 'utf8');
+
+  // message that will fail with bad timestamp data
+  this.bad_timestamp_future = fs.readFileSync(path + 'message_bad_timestamp_future.eml', 'utf8');
+
 }
 
 module.exports = Messages;
