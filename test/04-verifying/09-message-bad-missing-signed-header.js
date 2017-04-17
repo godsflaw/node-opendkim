@@ -5,7 +5,7 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test message with no key', t => {
+test('test message with missing signed header', t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -14,12 +14,12 @@ test('test message with no key', t => {
 
     opendkim.verify({id: undefined});
     opendkim.chunk({
-      message: messages.bad_no_key,
-      length: messages.bad_no_key.length
+      message: messages.bad_missing_signed_header,
+      length: messages.bad_missing_signed_header.length
     });
     opendkim.chunk_end();
     t.fail();
   } catch (err) {
-    t.is(err.message, 'No key');
+    t.is(err.message, 'Bad signature');
   }
 });

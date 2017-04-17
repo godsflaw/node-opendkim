@@ -20,6 +20,10 @@ function Messages(options) {
   // message that will fail with no key error
   this.bad_no_key = fs.readFileSync(path + 'message_bad_no_key.eml', 'utf8');
 
+  // message that will fail because of missing signed header
+  this.bad_missing_signed_header =
+    fs.readFileSync(path + 'message_bad_missing_signed_header.eml', 'utf8');
+
   // message that will fail with bad timestamp data
   this.bad_timestamp = fs.readFileSync(path + 'message_bad_timestamp.eml', 'utf8');
 
@@ -28,13 +32,16 @@ function Messages(options) {
     fs.readFileSync(path + 'message_bad_must_me_signed_list.eml', 'utf8');
 
   // message that will fail with bad future timestamp
-  this.bad_timestamp_future = fs.readFileSync(path + 'message_bad_timestamp_future.eml', 'utf8');
+  this.bad_timestamp_future =
+    fs.readFileSync(path + 'message_bad_timestamp_future.eml', 'utf8');
 
   // message that will fail with bad negative timestamp (header parse error)
-  this.bad_timestamp_negative = fs.readFileSync(path + 'message_bad_timestamp_negative.eml', 'utf8');
+  this.bad_timestamp_negative =
+    fs.readFileSync(path + 'message_bad_timestamp_negative.eml', 'utf8');
 
   // message that will fail with bad bogus timestamp (header parse error)
-  this.bad_timestamp_bogus = fs.readFileSync(path + 'message_bad_timestamp_bogus.eml', 'utf8');
+  this.bad_timestamp_bogus =
+    fs.readFileSync(path + 'message_bad_timestamp_bogus.eml', 'utf8');
 
 }
 
