@@ -20,8 +20,11 @@ function Messages(options) {
   this.bad_must_be_signed_list =
     fs.readFileSync(path + 'message_bad_must_me_signed_list.eml', 'utf8');
 
-  // message that will fail with bad timestamp data
+  // message that will fail with bad future timestamp
   this.bad_timestamp_future = fs.readFileSync(path + 'message_bad_timestamp_future.eml', 'utf8');
+
+  // message that will fail with bad negative timestamp (header parse error)
+  this.bad_timestamp_negative = fs.readFileSync(path + 'message_bad_timestamp_negative.eml', 'utf8');
 
 }
 
