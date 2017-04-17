@@ -2,4 +2,4 @@
 *.js text eol=lf
 
 # except these which we want crlf
-*.data text eol=crlf
+*.eml text eol=crlf
