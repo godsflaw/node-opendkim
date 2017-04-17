@@ -26,6 +26,9 @@ function Messages(options) {
   // message that will fail with bad negative timestamp (header parse error)
   this.bad_timestamp_negative = fs.readFileSync(path + 'message_bad_timestamp_negative.eml', 'utf8');
 
+  // message that will fail with bad bogus timestamp (header parse error)
+  this.bad_timestamp_bogus = fs.readFileSync(path + 'message_bad_timestamp_bogus.eml', 'utf8');
+
 }
 
 module.exports = Messages;
