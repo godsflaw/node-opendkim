@@ -5,7 +5,7 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test message with bad timestamp', t => {
+test('test message with bad timestamp (bogus)', t => {
   try {
     var opendkim = new OpenDKIM();
 
