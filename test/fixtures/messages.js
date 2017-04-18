@@ -43,6 +43,9 @@ function Messages(options) {
   this.bad_timestamp_bogus =
     fs.readFileSync(path + 'message_bad_timestamp_bogus.eml', 'utf8');
 
+  // malformed message
+  this.bad_malformed = fs.readFileSync(path + 'message_bad_malformed.eml', 'utf8');
+
 }
 
 module.exports = Messages;
