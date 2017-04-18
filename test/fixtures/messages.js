@@ -56,6 +56,10 @@ function Messages(options) {
   // message with bad sigalg
   this.bad_sigalg =
     fs.readFileSync(path + 'message_bad_sigalg.eml', 'utf8');
+
+  // message with missing bh tag
+  this.bad_missing_bh_tag =
+    fs.readFileSync(path + 'message_bad_missing_bh_tag.eml', 'utf8');
 }
 
 module.exports = Messages;
