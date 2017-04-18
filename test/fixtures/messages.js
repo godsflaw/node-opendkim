@@ -96,6 +96,10 @@ function Messages(options) {
   // message with oversized l=
   this.bad_oversized_l =
     fs.readFileSync(path + 'message_bad_oversized_l.eml', 'utf8');
+
+  // message with a bad signature version
+  this.bad_signature_version =
+    fs.readFileSync(path + 'message_bad_signature_version.eml', 'utf8');
 }
 
 module.exports = Messages;
