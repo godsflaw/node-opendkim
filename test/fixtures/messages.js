@@ -60,6 +60,14 @@ function Messages(options) {
   // message with missing bh tag
   this.bad_missing_bh_tag =
     fs.readFileSync(path + 'message_bad_missing_bh_tag.eml', 'utf8');
+
+  // message with bogus from header
+  this.bad_bogus_from =
+    fs.readFileSync(path + 'message_bad_bogus_from.eml', 'utf8');
+
+  // message with missing from header
+  this.bad_missing_from =
+    fs.readFileSync(path + 'message_bad_missing_from.eml', 'utf8');
 }
 
 module.exports = Messages;
