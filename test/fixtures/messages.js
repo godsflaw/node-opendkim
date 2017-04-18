@@ -100,6 +100,10 @@ function Messages(options) {
   // message with a bad signature version
   this.bad_signature_version =
     fs.readFileSync(path + 'message_bad_signature_version.eml', 'utf8');
+
+  // message with empty timestamp
+  this.bad_timestamp_empty =
+    fs.readFileSync(path + 'message_bad_timestamp_empty.eml', 'utf8');
 }
 
 module.exports = Messages;
