@@ -76,6 +76,10 @@ function Messages(options) {
   // message with malformed signature
   this.bad_malformed_signature =
     fs.readFileSync(path + 'message_bad_malformed_signature.eml', 'utf8');
+
+  // message with mismatched i= and d=
+  this.bad_mismatched_i_d =
+    fs.readFileSync(path + 'message_bad_mismatched_i_d.eml', 'utf8');
 }
 
 module.exports = Messages;
