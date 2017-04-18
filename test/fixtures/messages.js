@@ -88,6 +88,10 @@ function Messages(options) {
   // message with h= lacking required headers
   this.bad_lacking_h =
     fs.readFileSync(path + 'message_bad_lacking_h.eml', 'utf8');
+
+  // message with oversized l=
+  this.bad_oversized_l =
+    fs.readFileSync(path + 'message_bad_oversized_l.eml', 'utf8');
 }
 
 module.exports = Messages;
