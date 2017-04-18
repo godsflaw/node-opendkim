@@ -72,6 +72,10 @@ function Messages(options) {
   // message with altered body
   this.bad_altered_body =
     fs.readFileSync(path + 'message_bad_altered_body.eml', 'utf8');
+
+  // message with malformed signature
+  this.bad_malformed_signature =
+    fs.readFileSync(path + 'message_bad_malformed_signature.eml', 'utf8');
 }
 
 module.exports = Messages;
