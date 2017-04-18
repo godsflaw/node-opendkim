@@ -52,6 +52,10 @@ function Messages(options) {
   // message with bad canonicalization
   this.bad_canonicalization =
     fs.readFileSync(path + 'message_bad_canonicalization.eml', 'utf8');
+
+  // message with bad sigalg
+  this.bad_sigalg =
+    fs.readFileSync(path + 'message_bad_sigalg.eml', 'utf8');
 }
 
 module.exports = Messages;
