@@ -49,9 +49,13 @@ function Messages(options) {
   this.bad_malformed =
     fs.readFileSync(path + 'message_bad_malformed.eml', 'utf8');
 
-  // message with bad canonicalization
-  this.bad_canonicalization =
-    fs.readFileSync(path + 'message_bad_canonicalization.eml', 'utf8');
+  // message with bad header canonicalization
+  this.bad_header_canonicalization =
+    fs.readFileSync(path + 'message_bad_header_canonicalization.eml', 'utf8');
+
+  // message with bad body canonicalization
+  this.bad_body_canonicalization =
+    fs.readFileSync(path + 'message_bad_body_canonicalization.eml', 'utf8');
 
   // message with bad sigalg
   this.bad_sigalg =

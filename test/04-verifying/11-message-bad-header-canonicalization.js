@@ -5,7 +5,7 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test message with bad canonicalization', t => {
+test('test message with bad header canonicalization', t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -14,8 +14,8 @@ test('test message with bad canonicalization', t => {
 
     opendkim.verify({id: undefined});
     opendkim.chunk({
-      message: messages.bad_canonicalization,
-      length: messages.bad_canonicalization.length
+      message: messages.bad_header_canonicalization,
+      length: messages.bad_header_canonicalization.length
     });
     opendkim.chunk_end();
     t.fail();
