@@ -18,14 +18,16 @@ function Messages(options) {
     fs.readFileSync(path + 'message_bad_extra_signature_spaces.eml', 'utf8');
 
   // message that will fail with no key error
-  this.bad_no_key = fs.readFileSync(path + 'message_bad_no_key.eml', 'utf8');
+  this.bad_no_key =
+    fs.readFileSync(path + 'message_bad_no_key.eml', 'utf8');
 
   // message that will fail because of missing signed header
   this.bad_missing_signed_header =
     fs.readFileSync(path + 'message_bad_missing_signed_header.eml', 'utf8');
 
   // message that will fail with bad timestamp data
-  this.bad_timestamp = fs.readFileSync(path + 'message_bad_timestamp.eml', 'utf8');
+  this.bad_timestamp =
+    fs.readFileSync(path + 'message_bad_timestamp.eml', 'utf8');
 
   // message that will fail because of the additional CC header
   this.bad_must_be_signed_list =
@@ -44,8 +46,12 @@ function Messages(options) {
     fs.readFileSync(path + 'message_bad_timestamp_bogus.eml', 'utf8');
 
   // malformed message
-  this.bad_malformed = fs.readFileSync(path + 'message_bad_malformed.eml', 'utf8');
+  this.bad_malformed =
+    fs.readFileSync(path + 'message_bad_malformed.eml', 'utf8');
 
+  // message with bad canonicalization
+  this.bad_canonicalization =
+    fs.readFileSync(path + 'message_bad_canonicalization.eml', 'utf8');
 }
 
 module.exports = Messages;
