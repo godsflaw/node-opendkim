@@ -68,6 +68,10 @@ function Messages(options) {
   // message with missing from header
   this.bad_missing_from =
     fs.readFileSync(path + 'message_bad_missing_from.eml', 'utf8');
+
+  // message with altered body
+  this.bad_altered_body =
+    fs.readFileSync(path + 'message_bad_altered_body.eml', 'utf8');
 }
 
 module.exports = Messages;
