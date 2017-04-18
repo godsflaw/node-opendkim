@@ -39,7 +39,6 @@ test('test good message multi-chunk', t => {
 
     for (var i = 0, o = 0; i < numChunks; ++i, o += chunks) {
       var chunk = messages.good.substr(o, chunks);
-      console.log(chunk);
       opendkim.chunk({
         message: chunk,
         length: chunk.length

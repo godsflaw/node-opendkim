@@ -80,6 +80,10 @@ function Messages(options) {
   // message with mismatched i= and d=
   this.bad_mismatched_i_d =
     fs.readFileSync(path + 'message_bad_mismatched_i_d.eml', 'utf8');
+
+  // message with missing h=
+  this.bad_missing_h_signature =
+    fs.readFileSync(path + 'message_bad_missing_h_signature.eml', 'utf8');
 }
 
 module.exports = Messages;
