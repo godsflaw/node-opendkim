@@ -84,6 +84,10 @@ function Messages(options) {
   // message with missing h=
   this.bad_missing_h_signature =
     fs.readFileSync(path + 'message_bad_missing_h_signature.eml', 'utf8');
+
+  // message with h= lacking required headers
+  this.bad_lacking_h =
+    fs.readFileSync(path + 'message_bad_lacking_h.eml', 'utf8');
 }
 
 module.exports = Messages;
