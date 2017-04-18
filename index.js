@@ -34,4 +34,20 @@ OpenDKIM.prototype.query_method = function (data) {
   });
 };
 
+OpenDKIM.prototype.tmpdir = function (data) {
+  if (data === undefined) {
+    return this.get_option({option: 'DKIM_OPTS_TMPDIR'});
+  }
+
+  if (data.length < 1) {
+    throw new Error('tmpdir(): data is empty');
+  }
+
+  this.set_option({
+    option: 'DKIM_OPTS_TMPDIR',
+    data: data,
+    length: data.length
+  });
+};
+
 module.exports = OpenDKIM;
