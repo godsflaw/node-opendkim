@@ -14,6 +14,8 @@ int _get_option(char *option, size_t len) {
     return DKIM_OPTS_QUERYMETHOD;
   } else if (strncmp(option, "DKIM_OPTS_QUERYINFO", len) == 0) {
     return DKIM_OPTS_QUERYINFO;
+  } else if (strncmp(option, "DKIM_OPTS_TMPDIR", len) == 0) {
+    return DKIM_OPTS_QUERYINFO;
   }
 
   // return -1 for error if we don't find the option
@@ -496,7 +498,7 @@ NAN_METHOD(OpenDKIM::GetOption) {
   _safe_free(&option);
 
   // because data can vary, we have to do something different for each option
-  if (opt == DKIM_OPTS_QUERYINFO) {
+  if (opt == DKIM_OPTS_QUERYINFO || opt == DKIM_OPTS_TMPDIR) {
     char data[MAXPATHLEN + 1] = "";
     statp = dkim_options(
       obj->dkim_lib,
@@ -579,7 +581,7 @@ NAN_METHOD(OpenDKIM::SetOption) {
   _safe_free(&option);
 
   // because data can vary, we have to do something different for each option
-  if (opt == DKIM_OPTS_QUERYINFO) {
+  if (opt == DKIM_OPTS_QUERYINFO || opt == DKIM_OPTS_TMPDIR) {
     if (length > MAXPATHLEN + 1) {
       Nan::ThrowTypeError("set_option(): filename too long");
       return;

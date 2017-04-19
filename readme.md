@@ -72,31 +72,28 @@ try {
 ---
 
 ## API Administration
+* [OpenDKIM.new()](https://github.com/godsflaw/node-opendkim/wiki/OpenDKIM.new()): new instance of OpenDKIM object.
+* [opendkim.flush_cache()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.flush_cache()): Flush the key cache.
 
-- [OpenDKIM.new()](https://github.com/godsflaw/node-opendkim/wiki/OpenDKIM.new())
-- [opendkim.flush_cache()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.flush_cache())
+## API Processing
+* [opendkim.header()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.header()): Process a header.
+* [opendkim.eoh()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.eoh()): Identify end of headers.
+* [opendkim.body()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.body()): Process a body chunk.
+* [opendkim.eom()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.eom()): Identify end of message.
+* [opendkim.chunk()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.chunk()): Process a message chunk.
+* [opendkim.chunk_end()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.chunk_end()): called when done with chunk.
 
-## API Signing Methods
+## API Signing
+* [opendkim.sign()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sign()): get ready to sign a message.
 
-- [opendkim.sign()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sign())
+## API Verifying
+* [opendkim.verify()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.verify()): get ready to verify a message.
 
-## API Verifying Methods
 
-- [opendkim.verify()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.verify())
-
-## API Processing Methods
-
-- [opendkim.header()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.header())
-- [opendkim.eoh()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.eoh())
-- [opendkim.body()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.body())
-- [opendkim.eom()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.eom())
-- [opendkim.chunk()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.chunk())
-- [opendkim.chunk_end()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.chunk_end())
-
-## API Utility Methods
-
-- [opendkim.query_info()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_info())
-- [opendkim.query_method()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_method())
+## API Utility
+* [opendkim.query_info()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_info()): get/set query info.
+* [opendkim.query_method()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_method()): get/set query method.
+* [opendkim.tmpdir()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.tmpdir()): get/set tmp dir.
 
 ---
 
