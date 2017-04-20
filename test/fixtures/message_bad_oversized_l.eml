@@ -1,0 +1,24 @@
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed/relaxed; d=example.com; s=test;
+	t=1172620939; bh=Z9ONHHsBrKN0pbfrOu025VfbdR4=; l=340; h=Received:
+	 Received:Received:From:To:Date:Subject:Message-ID; b=NiN+5WZz+O0jY
+	+OH1mCVhv3zM+SrJ6i0wTrhoaDOawOTwW10dF/ZTaMdFmrjJkQfxQenKQN0hmxRNm0Q
+	abHoiaaO1N5owKY0/cUV78U5Z05bNjGl9P9goSgNsLGukRgjb+ellUI8U97Xi9mFjOG
+	Wm1iJ2FIq31Bh1mybmvlveKA=
+Received: received data 0
+Received: received data 1
+Received: received data 2
+Received: received data 3 part 1
+	 data 3 part 2
+From: Murray S. Kucherawy <msk@sendmail.com>
+To: Sendmail Test Address <sa-test@sendmail.net>
+Date: Thu, 05 May 2005 11:59:09 -0700
+Subject: DKIM test message
+Message-ID: <439094BF.5010709@sendmail.com>
+
+
+This is a message body.  Fun!
+Here is a second line.
+Here is a line that is broken up across calls.
+Now we can try something interesting, like a
+multi-line buffer.  This should not be mangled.
+And a line with a trailing space: 

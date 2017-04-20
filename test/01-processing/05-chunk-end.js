@@ -1,6 +1,9 @@
 import test from 'ava';
 
 var OpenDKIM = require('../../');
+var Messages = require('../fixtures/messages');
+
+var messages = new Messages();
 
 test('test chunk_end needs context', t => {
   try {
@@ -12,22 +15,33 @@ test('test chunk_end needs context', t => {
   }
 });
 
-// TODO(godsflaw): get a real message to test here.
-// test('test chunk_end works after chunk', t => {
-//   try {
-//     var opendkim = new OpenDKIM();
-//     opendkim.verify({id: undefined});
-//     var message = 'From: <herp@derp.com>\r\n';
-//     message += '\r\n';
-//     message += 'this is a test';
-//     opendkim.chunk({
-//       message: message,
-//       length: message.length
-//     });
-//     opendkim.chunk_end();
-//     t.pass();
-//   } catch (err) {
-//     console.log(err);
-//     t.fail();
-//   }
-// });
+test('test chunk_end without calling chunk', t => {
+  try {
+    var opendkim = new OpenDKIM();
+    opendkim.verify({id: 'testing'});
+    opendkim.chunk_end();
+    t.fail();
+  } catch (err) {
+    t.is(err.message, 'Syntax error');
+  }
+});
+
+test('test chunk_end works after chunk', t => {
+  try {
+    var opendkim = new OpenDKIM();
+
+    opendkim.query_method('DKIM_QUERY_FILE');
+    opendkim.query_info('../fixtures/testkeys');
+
+    opendkim.verify({id: 'testing'});
+    opendkim.chunk({
+      message: messages.good,
+      length: messages.good.length
+    });
+    opendkim.chunk_end();
+    t.pass();
+  } catch (err) {
+    console.log(err);
+    t.fail();
+  }
+});
