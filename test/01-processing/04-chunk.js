@@ -1,6 +1,9 @@
 import test from 'ava';
 
 var OpenDKIM = require('../../');
+var Messages = require('../fixtures/messages');
+
+var messages = new Messages();
 
 test('test chunk with no argument', t => {
   try {
@@ -78,20 +81,49 @@ test('test chunk needs context', t => {
 test('test chunk works', t => {
   try {
     var opendkim = new OpenDKIM();
+
+    opendkim.query_method('DKIM_QUERY_FILE');
+    opendkim.query_info('../fixtures/testkeys');
+
     opendkim.verify({id: undefined});
-// TODO(godsflaw): add a real test here.
-//    var sig = 'v=1; a=rsa-sha1; c=relaxed/simple; d=example.com; s=test;\r\n\tt=1172620939; bh=ll/0h2aWgG+D3ewmE4Y3pY7Ukz8=; h=Received:Received:\r\n\t Received:From:To:Date:Subject:Message-ID; b=bj9kVUbnBYfe9sVzH9lT45\r\n\tTFKO3eQnDbXLfgmgu/b5QgxcnhT9ojnV2IAM4KUO8+hOo5sDEu5Co/0GASH0vHpSV4P\r\n\t377Iwew3FxvLpHsVbVKgXzoKD4QSbHRpWNxyL6LypaaqFa96YqjXuYXr0vpb88hticn\r\n\t6I16//WThMz8fMU=';
-//    message = 'DKIM-Signature:' + sig + '\r\n';
-    var message = 'From: Joe SixPack <joe@football.example.com>\r\n';
-//    message += '\r\n';
-//    message += 'this is a test';
     opendkim.chunk({
-      message: message,
-      length: message.length
+      message: messages.good,
+      length: messages.good.length
     });
+    opendkim.chunk_end();
     t.pass();
   } catch (err) {
     console.log(err);
     t.fail();
   }
 });
+
+test('test many chunks', t => {
+  try {
+    var opendkim = new OpenDKIM();
+
+    opendkim.query_method('DKIM_QUERY_FILE');
+    opendkim.query_info('../fixtures/testkeys');
+
+    var chunks = 16;
+    var numChunks = Math.ceil(messages.good.length / chunks);
+
+    opendkim.verify({id: undefined});
+
+    for (var i = 0, o = 0; i < numChunks; ++i, o += chunks) {
+      var chunk = messages.good.substr(o, chunks);
+      opendkim.chunk({
+        message: chunk,
+        length: chunk.length
+      });
+    }
+
+    opendkim.chunk_end();
+    t.pass();
+  } catch (err) {
+    console.log(err);
+    t.fail();
+  }
+});
+
+// For more usage of the chunk() interface check test/04-verifying/*

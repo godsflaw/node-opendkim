@@ -103,48 +103,47 @@ NAN_METHOD(OpenDKIM::FlushCache) {
 NAN_METHOD(OpenDKIM::Header) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
+  char *header = NULL;
+  int length = 0;
 
-  // TODO(godsflaw): clean this up, it's getting copy/pasta all the time
   if (info.Length() != 1) {
     Nan::ThrowTypeError("header(): Wrong number of arguments");
-    return;
+    goto finish_header;
   }
 
   if (!info[0]->IsObject()) {
     Nan::ThrowTypeError("header(): Argument should be an object");
-    return;
+    goto finish_header;
   }
 
-  char *header = NULL;
   if (!_value_to_char(info[0], "header", &header)) {
     Nan::ThrowTypeError("header(): header is undefined");
-    return;
+    goto finish_header;
   }
 
   // length
-  int length = 0;
   length = _value_to_int(info[0], "length");
   if (length == 0) {
     Nan::ThrowTypeError("header(): length must be defined and non-zero");
-    return;
+    goto finish_header;
   }
 
   if (obj->dkim == NULL) {
     Nan::ThrowTypeError("header(): sign() or verify() must be called first");
-    return;
+    goto finish_header;
   }
 
   statp = dkim_header(obj->dkim, (unsigned char *)header, length);
 
-  _safe_free(&header);
-
   // Test for error and throw an exception back to js.
   if (statp != DKIM_STAT_OK) {
     throw_error(statp);
-    return;
+    goto finish_header;
   }
 
-  // success
+  finish_header:
+    _safe_free(&header);
+
   info.GetReturnValue().Set(info.This());
 }
 
@@ -167,55 +166,53 @@ NAN_METHOD(OpenDKIM::EOH) {
     return;
   }
 
-  // success
   info.GetReturnValue().Set(info.This());
 }
 
 NAN_METHOD(OpenDKIM::Body) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
+  char *body = NULL;
+  int length = 0;
 
-  // TODO(godsflaw): clean this up, it's getting copy/pasta all the time
   if (info.Length() != 1) {
     Nan::ThrowTypeError("body(): Wrong number of arguments");
-    return;
+    goto finish_body;
   }
 
   if (!info[0]->IsObject()) {
     Nan::ThrowTypeError("body(): Argument should be an object");
-    return;
+    goto finish_body;
   }
 
-  char *body = NULL;
   if (!_value_to_char(info[0], "body", &body)) {
     Nan::ThrowTypeError("body(): body is undefined");
-    return;
+    goto finish_body;
   }
 
   // length
-  int length = 0;
   length = _value_to_int(info[0], "length");
   if (length == 0) {
     Nan::ThrowTypeError("body(): length must be defined and non-zero");
-    return;
+    goto finish_body;
   }
 
   if (obj->dkim == NULL) {
     Nan::ThrowTypeError("body(): sign() or verify() must be called first");
-    return;
+    goto finish_body;
   }
 
   statp = dkim_body(obj->dkim, (unsigned char *)body, length);
 
-  _safe_free(&body);
-
   // Test for error and throw an exception back to js.
   if (statp != DKIM_STAT_OK) {
     throw_error(statp);
-    return;
+    goto finish_body;
   }
 
-  // success
+  finish_body:
+    _safe_free(&body);
+
   info.GetReturnValue().Set(info.This());
 }
 
@@ -240,55 +237,53 @@ NAN_METHOD(OpenDKIM::EOM) {
     return;
   }
 
-  // success
   info.GetReturnValue().Set(Nan::New<v8::Boolean>((testkey ? true : false)));
 }
 
 NAN_METHOD(OpenDKIM::Chunk) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
+  char *message = NULL;
+  int length = 0;
 
-  // TODO(godsflaw): clean this up, it's getting copy/pasta all the time
   if (info.Length() != 1) {
     Nan::ThrowTypeError("chunk(): Wrong number of arguments");
-    return;
+    goto finish_chunk;
   }
 
   if (!info[0]->IsObject()) {
     Nan::ThrowTypeError("chunk(): Argument should be an object");
-    return;
+    goto finish_chunk;
   }
 
-  char *message = NULL;
   if (!_value_to_char(info[0], "message", &message)) {
     Nan::ThrowTypeError("chunk(): message is undefined");
-    return;
+    goto finish_chunk;
   }
 
   // length
-  int length = 0;
   length = _value_to_int(info[0], "length");
   if (length == 0) {
     Nan::ThrowTypeError("chunk(): length must be defined and non-zero");
-    return;
+    goto finish_chunk;
   }
 
   if (obj->dkim == NULL) {
     Nan::ThrowTypeError("chunk(): sign() or verify() must be called first");
-    return;
+    goto finish_chunk;
   }
 
   statp = dkim_chunk(obj->dkim, (unsigned char *)message, length);
 
-  _safe_free(&message);
-
   // Test for error and throw an exception back to js.
   if (statp != DKIM_STAT_OK) {
     throw_error(statp);
-    return;
+    goto finish_chunk;
   }
 
-  // success
+  finish_chunk:
+    _safe_free(&message);
+
   info.GetReturnValue().Set(info.This());
 }
 
@@ -317,72 +312,72 @@ NAN_METHOD(OpenDKIM::ChunkEnd) {
 NAN_METHOD(OpenDKIM::Sign) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
+  dkim_canon_t hdrcanon_alg = DKIM_CANON_SIMPLE;
+  dkim_canon_t bodycanon_alg = DKIM_CANON_SIMPLE;
+  dkim_alg_t sign_alg = DKIM_SIGN_RSASHA256;
+  char *id = NULL;
+  char *secretkey = NULL;
+  char *selector = NULL;
+  char *domain = NULL;
+  char *hdrcanon = NULL;
+  char *bodycanon = NULL;
+  char *signalg = NULL;
+  int length = -1;
 
-  // TODO(godsflaw): clean this up, it's getting copy/pasta all the time
   if (info.Length() != 1) {
     Nan::ThrowTypeError("sign(): Wrong number of arguments");
-    return;
+    goto finish_sign;
   }
 
   if (!info[0]->IsObject()) {
     Nan::ThrowTypeError("sign(): Argument should be an object");
-    return;
+    goto finish_sign;
   }
 
   // id
-  char *id = NULL;
   _value_to_char(info[0], "id", &id);
 
   // secretkey
-  char *secretkey = NULL;
   if (!_value_to_char(info[0], "secretkey", &secretkey)) {
     Nan::ThrowTypeError("sign(): secretkey is undefined");
-    return;
+    goto finish_sign;
   }
 
   // selector
-  char *selector = NULL;
   if (!_value_to_char(info[0], "selector", &selector)) {
     Nan::ThrowTypeError("sign(): selector is undefined");
-    return;
+    goto finish_sign;
   }
 
   // domain
-  char *domain = NULL;
   if (!_value_to_char(info[0], "domain", &domain)) {
     Nan::ThrowTypeError("sign(): domain is undefined");
-    return;
+    goto finish_sign;
   }
 
   // hdrcanon
-  char *hdrcanon = NULL;
   if (!_value_to_char(info[0], "hdrcanon", &hdrcanon)) {
     Nan::ThrowTypeError("sign(): hdrcanon is undefined");
-    return;
+    goto finish_sign;
   }
   for (int i = 0 ; hdrcanon[i] != '\0'; i++) hdrcanon[i] = tolower(hdrcanon[i]);
 
-  dkim_canon_t hdrcanon_alg = DKIM_CANON_SIMPLE;
   if (strcmp(hdrcanon, "relaxed") == 0) {
     hdrcanon_alg = DKIM_CANON_RELAXED;
   }
 
   // bodycanon
-  char *bodycanon = NULL;
   if (!_value_to_char(info[0], "bodycanon", &bodycanon)) {
     Nan::ThrowTypeError("sign(): bodycanon is undefined");
-    return;
+    goto finish_sign;
   }
   for (int i = 0 ; bodycanon[i] != '\0'; i++) bodycanon[i] = tolower(bodycanon[i]);
 
-  dkim_canon_t bodycanon_alg = DKIM_CANON_SIMPLE;
   if (strcmp(bodycanon, "relaxed") == 0) {
     bodycanon_alg = DKIM_CANON_RELAXED;
   }
 
   // signalg, the default is now sha256 due to weakness in sha1
-  char *signalg = NULL;
-  dkim_alg_t sign_alg = DKIM_SIGN_RSASHA256;
   if (_value_to_char(info[0], "signalg", &signalg)) {
     for (int i = 0 ; signalg[i] != '\0'; i++) signalg[i] = tolower(signalg[i]);
 
@@ -392,11 +387,9 @@ NAN_METHOD(OpenDKIM::Sign) {
   }
 
   // length
-  int length = -1;
   length = _value_to_int(info[0], "length");
 
   // free this to clear the old context
-  // TODO(godsflaw): make this its own method
   if (obj->dkim != NULL) {
     dkim_free(obj->dkim);
     obj->dkim = NULL;
@@ -416,44 +409,43 @@ NAN_METHOD(OpenDKIM::Sign) {
     &statp
   );
 
-  _safe_free(&id);
-  _safe_free(&secretkey);
-  _safe_free(&selector);
-  _safe_free(&domain);
-  _safe_free(&hdrcanon);
-  _safe_free(&bodycanon);
-  _safe_free(&signalg);
-
   // Test for error and throw an exception back to js.
   if (obj->dkim == NULL) {
     throw_error(statp);
-    return;
+    goto finish_sign;
   }
 
-  // success
+  finish_sign:
+    _safe_free(&id);
+    _safe_free(&secretkey);
+    _safe_free(&selector);
+    _safe_free(&domain);
+    _safe_free(&hdrcanon);
+    _safe_free(&bodycanon);
+    _safe_free(&signalg);
+
   info.GetReturnValue().Set(info.This());
 }
 
 NAN_METHOD(OpenDKIM::Verify) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
+  char *id = NULL;
 
   if (info.Length() != 1) {
     Nan::ThrowTypeError("verify(): Wrong number of arguments");
-    return;
+    goto finish_verify;
   }
 
   if (!info[0]->IsObject()) {
     Nan::ThrowTypeError("verify(): Argument should be an object");
-    return;
+    goto finish_verify;
   }
 
   // id
-  char *id = NULL;
   _value_to_char(info[0], "id", &id);
 
   // free this to clear the old context
-  // TODO(godsflaw): make this its own method
   if (obj->dkim != NULL) {
     dkim_free(obj->dkim);
     obj->dkim = NULL;
@@ -461,21 +453,23 @@ NAN_METHOD(OpenDKIM::Verify) {
 
   obj->dkim = dkim_verify(obj->dkim_lib, (unsigned char *)id, NULL, &statp);
 
-  _safe_free(&id);
-
   // Test for error and throw an exception back to js.
   if (obj->dkim == NULL) {
     throw_error(statp);
-    return;
+    goto finish_verify;
   }
 
-  // success
+  finish_verify:
+    _safe_free(&id);
+
   info.GetReturnValue().Set(info.This());
 }
 
 NAN_METHOD(OpenDKIM::GetOption) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
+  char *option = NULL;
+  int opt = 0;
 
   if (info.Length() != 1) {
     Nan::ThrowTypeError("get_option(): Wrong number of arguments");
@@ -488,13 +482,12 @@ NAN_METHOD(OpenDKIM::GetOption) {
   }
 
   // option
-  char *option = NULL;
   if (!_value_to_char(info[0], "option", &option)) {
     Nan::ThrowTypeError("get_option(): option is undefined");
     return;
   }
 
-  int opt = _get_option(option, strlen(option));
+  opt = _get_option(option, strlen(option));
   _safe_free(&option);
 
   // because data can vary, we have to do something different for each option
@@ -544,47 +537,47 @@ NAN_METHOD(OpenDKIM::GetOption) {
 NAN_METHOD(OpenDKIM::SetOption) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
+  char *option = NULL;
+  char *data = NULL;
+  int length = 0;
+  int opt = 0;
 
   if (info.Length() != 1) {
     Nan::ThrowTypeError("set_option(): Wrong number of arguments");
-    return;
+    goto finish_set_option;
   }
 
   if (!info[0]->IsObject()) {
     Nan::ThrowTypeError("set_option(): Argument should be an object");
-    return;
+    goto finish_set_option;
   }
 
   // option
-  char *option = NULL;
   if (!_value_to_char(info[0], "option", &option)) {
     Nan::ThrowTypeError("set_option(): option is undefined");
-    return;
+    goto finish_set_option;
   }
 
   // data
-  char *data = NULL;
   if (!_value_to_char(info[0], "data", &data)) {
     Nan::ThrowTypeError("set_option(): data is undefined");
-    return;
+    goto finish_set_option;
   }
 
   // length
-  int length = 0;
   length = _value_to_int(info[0], "length");
   if (length == 0) {
     Nan::ThrowTypeError("set_option(): length must be defined and non-zero");
-    return;
+    goto finish_set_option;
   }
 
-  int opt = _get_option(option, strlen(option));
-  _safe_free(&option);
+  opt = _get_option(option, strlen(option));
 
   // because data can vary, we have to do something different for each option
   if (opt == DKIM_OPTS_QUERYINFO || opt == DKIM_OPTS_TMPDIR) {
     if (length > MAXPATHLEN + 1) {
       Nan::ThrowTypeError("set_option(): filename too long");
-      return;
+      goto finish_set_option;
     }
 
     statp = dkim_options(
@@ -609,19 +602,19 @@ NAN_METHOD(OpenDKIM::SetOption) {
     );
   } else {
     Nan::ThrowTypeError("set_option(): invalid option");
-    return;
+    goto finish_set_option;
   }
-
-  _safe_free(&option);
-  _safe_free(&data);
 
   // Test for error and throw an exception back to js.
   if (statp != DKIM_STAT_OK) {
     throw_error(statp);
-    return;
+    goto finish_set_option;
   }
 
-  // success
+  finish_set_option:
+    _safe_free(&option);
+    _safe_free(&data);
+
   info.GetReturnValue().Set(info.This());
 }
 
