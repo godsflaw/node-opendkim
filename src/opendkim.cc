@@ -255,6 +255,9 @@ NAN_METHOD(OpenDKIM::GetSignature) {
 
   // Test for NULL and throw an exception back to js.
   if (obj->sig == NULL) {
+    // TODO(godsflaw): just because there is no signature, doesn't mean this is an error.
+    // we may want to do something better here, or there might be something we can
+    // use in libopendkim to flag that this is a signature-less message.
     Nan::ThrowTypeError(
       "get_signature(): either there was no signature or called before eom() or chunk_end()"
     );
