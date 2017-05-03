@@ -37,6 +37,7 @@ class OpenDKIM : public Nan::ObjectWrap {
 
     // Verifying methods
     static NAN_METHOD(Verify);
+    static NAN_METHOD(GetSignature);
 
     // Utility methods
     static NAN_METHOD(GetOption);
@@ -113,6 +114,7 @@ class OpenDKIM : public Nan::ObjectWrap {
     // private variables
     DKIM *dkim;
     DKIM_LIB *dkim_lib;
+    DKIM_SIGINFO *sig;
 };
 
 }
