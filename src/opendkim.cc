@@ -68,6 +68,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
 
   // Verifying methods
   SetPrototypeMethod(tpl, "verify", Verify);
+  SetPrototypeMethod(tpl, "get_signature", GetSignature);
 
   // Utility methods
   SetPrototypeMethod(tpl, "get_option", GetOption);
@@ -238,6 +239,32 @@ NAN_METHOD(OpenDKIM::EOM) {
   }
 
   info.GetReturnValue().Set(Nan::New<v8::Boolean>((testkey ? true : false)));
+}
+
+NAN_METHOD(OpenDKIM::GetSignature) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError(
+      "get_signature(): library must be initialized first"
+    );
+    return;
+  }
+
+  obj->sig = dkim_getsignature(obj->dkim);
+
+  // Test for NULL and throw an exception back to js.
+  if (obj->sig == NULL) {
+    // TODO(godsflaw): just because there is no signature, doesn't mean this is an error.
+    // we may want to do something better here, or there might be something we can
+    // use in libopendkim to flag that this is a signature-less message.
+    Nan::ThrowTypeError(
+      "get_signature(): either there was no signature or called before eom() or chunk_end()"
+    );
+    return;
+  }
+
+  info.GetReturnValue().Set(info.This());
 }
 
 NAN_METHOD(OpenDKIM::Chunk) {

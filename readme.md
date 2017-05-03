@@ -88,6 +88,7 @@ try {
 
 ## API Verifying
 * [opendkim.verify()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.verify()): get ready to verify a message.
+* [opendkim.get_signature()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.get_signature()): sets the signature info handle.
 
 
 ## API Utility
