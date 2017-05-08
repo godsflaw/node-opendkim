@@ -61,3 +61,25 @@ test('test sig_getidentity after chunk', t => {
     t.fail();
   }
 });
+
+test('test a more pedantic sig_getidentity', t => {
+  try {
+    var opendkim = new OpenDKIM();
+
+    opendkim.query_method('DKIM_QUERY_FILE');
+    opendkim.query_info('../fixtures/testkeys');
+
+    opendkim.verify({id: undefined});
+    opendkim.chunk({
+      message: messages.good,
+      length: messages.good.length
+    });
+    opendkim.chunk_end();
+    opendkim.get_signature();
+    var identity = opendkim.sig_getidentity();
+    t.is(identity, '@example.com');
+  } catch (err) {
+    console.log(err);
+    t.fail();
+  }
+});

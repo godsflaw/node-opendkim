@@ -28,6 +28,7 @@ int _get_option(char *option, size_t len) {
 OpenDKIM::OpenDKIM() {
   dkim = NULL;
   dkim_lib = dkim_init(NULL, NULL);
+  sig = NULL;
 
   // Throw a memory exception
   if (dkim_lib == NULL) {
@@ -249,6 +250,7 @@ NAN_METHOD(OpenDKIM::GetSignature) {
 
   if (obj->sig != NULL) {
     info.GetReturnValue().Set(info.This());
+    return;
   }
 
   if (obj->dkim == NULL) {
