@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <unistd.h>    // TODO(godsflaw): port for windows?
 
+#define IDENTITY_SIZE 64
+
 namespace opendkim {
 
 using namespace std;
@@ -69,6 +71,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   // Verifying methods
   SetPrototypeMethod(tpl, "verify", Verify);
   SetPrototypeMethod(tpl, "get_signature", GetSignature);
+  SetPrototypeMethod(tpl, "sig_getidentity", SigGetIdentity);
 
   // Utility methods
   SetPrototypeMethod(tpl, "get_option", GetOption);
@@ -244,6 +247,10 @@ NAN_METHOD(OpenDKIM::EOM) {
 NAN_METHOD(OpenDKIM::GetSignature) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
 
+  if (obj->sig != NULL) {
+    info.GetReturnValue().Set(info.This());
+  }
+
   if (obj->dkim == NULL) {
     Nan::ThrowTypeError(
       "get_signature(): library must be initialized first"
@@ -265,6 +272,60 @@ NAN_METHOD(OpenDKIM::GetSignature) {
   }
 
   info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::SigGetIdentity) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = DKIM_STAT_OK;
+  char* data = NULL;
+  int data_size = (IDENTITY_SIZE + 1) * sizeof(char);
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError(
+      "sig_getidentity(): library must be initialized first"
+    );
+    goto finish_sig_getidentity;
+  }
+
+  obj->GetSignature(info);
+
+  if (obj->sig == NULL) {
+    Nan::ThrowTypeError(
+      "sig_getidentity(): get_signature() failed, call it first for more details"
+    );
+    goto finish_sig_getidentity;
+  }
+
+  if ((data = (char*)malloc(data_size)) == NULL) {
+    Nan::ThrowTypeError(
+      "sig_getidentity(): allocation failure, out of memory"
+    );
+    goto finish_sig_getidentity;
+  }
+
+  while ((statp = dkim_sig_getidentity(obj->dkim, obj->sig, (unsigned char*)data, data_size)) ==
+          DKIM_STAT_NORESOURCE) {
+    data_size *= 2;
+    char* tmp = (char*)realloc(data, data_size);
+    if (tmp == NULL) {
+      Nan::ThrowTypeError(
+        "sig_getidentity(): allocation failure, out of memory"
+      );
+      goto finish_sig_getidentity;
+    } else {
+      data = tmp;
+    }
+  }
+
+  if (statp != DKIM_STAT_OK) {
+    throw_error(statp);
+    goto finish_sig_getidentity;
+  }
+
+  info.GetReturnValue().Set(Nan::New<v8::String>(data).ToLocalChecked());
+
+  finish_sig_getidentity:
+    _safe_free(&data);
 }
 
 NAN_METHOD(OpenDKIM::Chunk) {
