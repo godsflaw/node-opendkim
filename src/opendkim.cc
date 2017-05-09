@@ -74,6 +74,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   SetPrototypeMethod(tpl, "get_signature", GetSignature);
   SetPrototypeMethod(tpl, "sig_getidentity", SigGetIdentity);
   SetPrototypeMethod(tpl, "sig_getdomain", SigGetDomain);
+  SetPrototypeMethod(tpl, "sig_getselector", SigGetSelector);
 
   // Utility methods
   SetPrototypeMethod(tpl, "get_option", GetOption);
@@ -337,7 +338,7 @@ NAN_METHOD(OpenDKIM::SigGetDomain) {
 
   if (obj->dkim == NULL) {
     Nan::ThrowTypeError(
-      "sig_getdomain(): library must be initialized first"
+      "sig_getdomain(): library must be initialized first"  
     );
     return;
   }
@@ -350,8 +351,35 @@ NAN_METHOD(OpenDKIM::SigGetDomain) {
     );
     return;
   }
-
+  
   if ((data = dkim_sig_getdomain(obj->sig)) == NULL) {
+    info.GetReturnValue().Set(Nan::New<v8::String>("").ToLocalChecked());
+  } else {
+    info.GetReturnValue().Set(Nan::New<v8::String>((char *)data).ToLocalChecked());
+  }
+}
+
+NAN_METHOD(OpenDKIM::SigGetSelector) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  unsigned char* data = NULL;
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError(
+      "sig_getselector(): library must be initialized first"
+    );
+    return;
+  }
+
+  obj->GetSignature(info);
+
+  if (obj->sig == NULL) {
+    Nan::ThrowTypeError(
+      "sig_getselector(): get_signature() failed, call it first for more details"
+    );
+    return;
+  }
+
+  if ((data = dkim_sig_getselector(obj->sig)) == NULL) {
     info.GetReturnValue().Set(Nan::New<v8::String>("").ToLocalChecked());
   } else {
     info.GetReturnValue().Set(Nan::New<v8::String>((char *)data).ToLocalChecked());
