@@ -1,23 +1,14 @@
 {
-    'targets': [{
-        'target_name': 'opendkimBinding',
-        'sources': [
-            'src/opendkim.cc',
+    "targets": [{
+        "target_name": "opendkim",
+        "sources": [
+            "src/opendkim.cc",
         ],
-        'include_dirs': [
-            'deps/opendkim',
-           '<!(node -e "require(\'nan\')")'
+        "include_dirs": [
+           "<!(node -e \"require('nan')\")"
         ],
-        'dependencies': [
-            'deps/opendkim/opendkim.gyp:libopendkim'
-        ],
-        'cflags_cc': [
-                '-Wall',
-                '-O3'
-            ],
-            'cflags': [
-                '-Wall',
-                '-O3'
-            ]
+        "libraries": [
+            "-lopendkim"
+        ]
     }]
 }
