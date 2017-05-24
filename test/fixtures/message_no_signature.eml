@@ -1,0 +1,25 @@
+Received: received data 0
+Received: received data 1
+Received: received data 2
+Received: received data 3 part 1
+	 data 3 part 2
+From: Christopher Mooney <chris@dod.net>
+To: Sendmail Test Address <sa-test@sendmail.net>
+Date: Thu, 11 May 2017 10:20:32 -0500
+Subject: No signature DKIM test message
+Message-ID: <439094BF.5010709@dod.net>
+
+This is a message body.  Fun!
+Here is a second line.
+Here is a line that is broken up across calls.
+Now we can try something interesting, like a
+multi-line buffer.  This should not be mangled.
+And a line with a trailing space: 
+Next we'll try a blank.
+
+Next we'll try multiple blanks.
+
+
+Finally we'll try multiple trailing blanks.
+
+
