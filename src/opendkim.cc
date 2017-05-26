@@ -168,7 +168,7 @@ NAN_METHOD(OpenDKIM::EOH) {
   statp = dkim_eoh(obj->dkim);
 
   // Test for error and throw an exception back to js.
-  if (statp != DKIM_STAT_OK && statp != DKIM_STAT_NOSIG) {
+  if (statp != DKIM_STAT_OK) {
     throw_error(statp);
     return;
   }
@@ -239,7 +239,7 @@ NAN_METHOD(OpenDKIM::EOM) {
   statp = dkim_eom(obj->dkim, &testkey);
 
   // Test for error and throw an exception back to js.
-  if (statp != DKIM_STAT_OK && statp != DKIM_STAT_NOSIG) {
+  if (statp != DKIM_STAT_OK) {
     throw_error(statp);
     return;
   }

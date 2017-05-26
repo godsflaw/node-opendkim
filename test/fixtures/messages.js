@@ -13,6 +13,9 @@ function Messages(options) {
   // good message
   this.good = fs.readFileSync(path + 'message_good.eml', 'utf8');
 
+  // good message, no signature
+  this.no_signature = fs.readFileSync(path + 'message_no_signature.eml', 'utf8');
+
   // message that will fail with extra signature spaces
   this.bad_extra_signature_spaces =
     fs.readFileSync(path + 'message_bad_extra_signature_spaces.eml', 'utf8');

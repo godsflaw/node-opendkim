@@ -1,6 +1,9 @@
 import test from 'ava';
 
 var OpenDKIM = require('../../');
+var Messages = require('../fixtures/messages');
+
+var messages = new Messages();
 
 test('test body method with no argument', t => {
   try {
@@ -75,13 +78,17 @@ test('test body method works after header and eoh', t => {
   try {
     var opendkim = new OpenDKIM();
     opendkim.verify({id: undefined});
-    var header = 'From: <herp@derp.com>';
-    opendkim.header({
-      header: header,
-      length: header.length
-    });
+    var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
+    var body = messages.good.substring(messages.good.indexOf('\r\n\r\n') + 4);
+    var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
+    for (var i = 0; i < headers.length; i++) {
+      var line = headers[i];
+      opendkim.header({
+        header: line,
+        length: line.length
+      });
+    }
     opendkim.eoh();
-    var body = 'this is a test';
     opendkim.body({
       body: body,
       length: body.length
