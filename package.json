@@ -1,6 +1,6 @@
 {
   "name": "node-opendkim",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "node.js language binding for libopendkim",
   "license": "MIT",
   "repository": "godsflaw/node-opendkim",
@@ -16,10 +16,6 @@
   "scripts": {
     "test": "xo && nyc ava"
   },
-  "files": [
-    "index.js",
-    "cli.js"
-  ],
   "keywords": [
     "cli-app",
     "cli",
