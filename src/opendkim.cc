@@ -52,39 +52,39 @@ OpenDKIM::~OpenDKIM() {
 
 NAN_MODULE_INIT(OpenDKIM::Init) {
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
-  tpl->SetClassName(Nan::New("OpenDKIM").ToLocalChecked());
+  tpl->SetClassName(Nan::New<String>("OpenDKIM").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   // Administration methods
-  SetPrototypeMethod(tpl, "flush_cache", FlushCache);
+  Nan::SetPrototypeMethod(tpl, "flush_cache", FlushCache);
 
   // Processing methods
-  SetPrototypeMethod(tpl, "header", Header);
-  SetPrototypeMethod(tpl, "eoh", EOH);
-  SetPrototypeMethod(tpl, "body", Body);
-  SetPrototypeMethod(tpl, "eom", EOM);
-  SetPrototypeMethod(tpl, "chunk", Chunk);
-  SetPrototypeMethod(tpl, "chunk_end", ChunkEnd);
+  Nan::SetPrototypeMethod(tpl, "header", Header);
+  Nan::SetPrototypeMethod(tpl, "eoh", EOH);
+  Nan::SetPrototypeMethod(tpl, "body", Body);
+  Nan::SetPrototypeMethod(tpl, "eom", EOM);
+  Nan::SetPrototypeMethod(tpl, "chunk", Chunk);
+  Nan::SetPrototypeMethod(tpl, "chunk_end", ChunkEnd);
 
   // Signing methods
-  SetPrototypeMethod(tpl, "sign", Sign);
+  Nan::SetPrototypeMethod(tpl, "sign", Sign);
 
   // Verifying methods
-  SetPrototypeMethod(tpl, "verify", Verify);
-  SetPrototypeMethod(tpl, "get_signature", GetSignature);
-  SetPrototypeMethod(tpl, "sig_getidentity", SigGetIdentity);
-  SetPrototypeMethod(tpl, "sig_getdomain", SigGetDomain);
-  SetPrototypeMethod(tpl, "sig_getselector", SigGetSelector);
+  Nan::SetPrototypeMethod(tpl, "verify", Verify);
+  Nan::SetPrototypeMethod(tpl, "get_signature", GetSignature);
+  Nan::SetPrototypeMethod(tpl, "sig_getidentity", SigGetIdentity);
+  Nan::SetPrototypeMethod(tpl, "sig_getdomain", SigGetDomain);
+  Nan::SetPrototypeMethod(tpl, "sig_getselector", SigGetSelector);
 
   // Utility methods
-  SetPrototypeMethod(tpl, "get_option", GetOption);
-  SetPrototypeMethod(tpl, "set_option", SetOption);
+  Nan::SetPrototypeMethod(tpl, "get_option", GetOption);
+  Nan::SetPrototypeMethod(tpl, "set_option", SetOption);
 
-  constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
+  constructor().Reset(tpl->GetFunction());
   Nan::Set(
     target,
     Nan::New("OpenDKIM").ToLocalChecked(),
-    Nan::GetFunction(tpl).ToLocalChecked()
+    tpl->GetFunction()
   );
 }
 
@@ -95,7 +95,7 @@ NAN_METHOD(OpenDKIM::New) {
     info.GetReturnValue().Set(info.This());
   } else {
     v8::Local<v8::Function> cons = Nan::New(constructor());
-    info.GetReturnValue().Set(cons->NewInstance());
+    info.GetReturnValue().Set(Nan::NewInstance(cons).ToLocalChecked());
   }
 }
 
