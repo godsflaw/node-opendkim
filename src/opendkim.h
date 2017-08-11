@@ -116,7 +116,6 @@ class OpenDKIM : public Nan::ObjectWrap {
 
     // private variables
     DKIM *dkim;
-    DKIM_LIB *dkim_lib;
     DKIM_SIGINFO *sig;
 };
 
