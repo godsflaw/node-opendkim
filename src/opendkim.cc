@@ -10,6 +10,8 @@ using namespace std;
 using namespace v8;
 using namespace Nan;
 
+DKIM_LIB *dkim_lib = NULL;
+
 // figure out which option this is, and return that type
 int _get_option(char *option, size_t len) {
   if (strncmp(option, "DKIM_OPTS_QUERYMETHOD", len) == 0) {
@@ -27,14 +29,14 @@ int _get_option(char *option, size_t len) {
 // constructor
 OpenDKIM::OpenDKIM() {
   dkim = NULL;
-  dkim_lib = dkim_init(NULL, NULL);
   sig = NULL;
 
-  // Throw a memory exception
   if (dkim_lib == NULL) {
-    Nan::ThrowError(
-      Nan::New("memory allocation failure").ToLocalChecked()
-    );
+    if ((dkim_lib = dkim_init(NULL, NULL)) == NULL) {
+      Nan::ThrowError(
+        Nan::New("memory allocation failure").ToLocalChecked()
+      );
+    }
   }
 }
 
@@ -43,10 +45,6 @@ OpenDKIM::~OpenDKIM() {
   if (dkim != NULL) {
     dkim_free(dkim);
     dkim = NULL;
-  }
-  if (dkim_lib != NULL) {
-    dkim_close(dkim_lib);
-    dkim_lib = NULL;
   }
 }
 
@@ -100,10 +98,7 @@ NAN_METHOD(OpenDKIM::New) {
 }
 
 NAN_METHOD(OpenDKIM::FlushCache) {
-  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-
-  v8::Local<v8::Integer> retval = Nan::New(dkim_flush_cache(obj->dkim_lib));
-
+  v8::Local<v8::Integer> retval = Nan::New(dkim_flush_cache(dkim_lib));
   info.GetReturnValue().Set(retval);
 }
 
@@ -542,7 +537,7 @@ NAN_METHOD(OpenDKIM::Sign) {
   }
 
   obj->dkim = dkim_sign(
-    obj->dkim_lib,
+    dkim_lib,
     (unsigned char *)id,
     NULL,                                         /* (void *memclosure) */
     (unsigned char *)secretkey,
@@ -597,7 +592,7 @@ NAN_METHOD(OpenDKIM::Verify) {
     obj->dkim = NULL;
   }
 
-  obj->dkim = dkim_verify(obj->dkim_lib, (unsigned char *)id, NULL, &statp);
+  obj->dkim = dkim_verify(dkim_lib, (unsigned char *)id, NULL, &statp);
 
   // Test for error and throw an exception back to js.
   if (obj->dkim == NULL) {
@@ -612,7 +607,6 @@ NAN_METHOD(OpenDKIM::Verify) {
 }
 
 NAN_METHOD(OpenDKIM::GetOption) {
-  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
   char *option = NULL;
   int opt = 0;
@@ -640,7 +634,7 @@ NAN_METHOD(OpenDKIM::GetOption) {
   if (opt == DKIM_OPTS_QUERYINFO || opt == DKIM_OPTS_TMPDIR) {
     char data[MAXPATHLEN + 1] = "";
     statp = dkim_options(
-      obj->dkim_lib,
+      dkim_lib,
       DKIM_OP_GETOPT,
       opt,
       &data,
@@ -656,7 +650,7 @@ NAN_METHOD(OpenDKIM::GetOption) {
   } else if (opt == DKIM_OPTS_QUERYMETHOD) {
     dkim_query_t data;
     statp = dkim_options(
-      obj->dkim_lib,
+      dkim_lib,
       DKIM_OP_GETOPT,
       opt,
       &data,
@@ -681,7 +675,6 @@ NAN_METHOD(OpenDKIM::GetOption) {
 }
 
 NAN_METHOD(OpenDKIM::SetOption) {
-  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
   char *option = NULL;
   char *data = NULL;
@@ -727,7 +720,7 @@ NAN_METHOD(OpenDKIM::SetOption) {
     }
 
     statp = dkim_options(
-      obj->dkim_lib,
+      dkim_lib,
       DKIM_OP_SETOPT,
       opt,
       data,
@@ -740,7 +733,7 @@ NAN_METHOD(OpenDKIM::SetOption) {
     }
 
     statp = dkim_options(
-      obj->dkim_lib,
+      dkim_lib,
       DKIM_OP_SETOPT,
       opt,
       &qtype,
