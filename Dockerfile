@@ -12,7 +12,6 @@ ADD index.js ${LOCALDIR}
 ADD package-lock.json ${LOCALDIR}
 ADD package.json ${LOCALDIR}
 ADD bin ${LOCALDIR}/bin
-ADD coverage ${LOCALDIR}/coverage
 ADD src ${LOCALDIR}/src
 ADD test ${LOCALDIR}/test
 
