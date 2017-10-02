@@ -1,4 +1,4 @@
-FROM node/8.6.0-alpine
+FROM node:8.6.0-alpine
 MAINTAINER Christopher Mooney <chris@dod.net>
 
 ENV LOCALDIR="/node-opendkim"
