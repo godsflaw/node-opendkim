@@ -22,7 +22,7 @@ RUN apk upgrade --update && \
 
 # install codebase
 WORKDIR "${LOCALDIR}"
-RUN npm install
+RUN npm install --unsafe-perm
 
 # startup any services
 CMD ["tail", "-f", "readme.md"]
