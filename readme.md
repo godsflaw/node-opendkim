@@ -1,4 +1,4 @@
-# node-opendkim [![Build Status](https://travis-ci.org/godsflaw/node-opendkim.svg?branch=master)](https://travis-ci.org/godsflaw/node-opendkim) [![Coverage Status](https://coveralls.io/repos/github/godsflaw/node-opendkim/badge.svg?branch=master)](https://coveralls.io/github/godsflaw/node-opendkim?branch=master)
+# node-opendkim [![Codefresh build status]( https://g.codefresh.io/api/badges/build?repoOwner=godsflaw&repoName=node-opendkim&branch=dev&pipelineName=node-opendkim&accountName=godsflaw&type=cf-1)]( https://g.codefresh.io/repositories/godsflaw/node-opendkim/builds?filter=trigger:build;branch:dev;service:59d2a742525f1c000154fbe8~node-opendkim)
 
 > node.js native language binding to libopendkim
 
