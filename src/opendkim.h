@@ -1,6 +1,10 @@
 #ifndef LIBOPENDKIM_H
 #define LIBOPENDKIM_H
 
+#if __GNUC__ > 4
+#define _Bool bool
+#endif
+
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
