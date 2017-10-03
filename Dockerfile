@@ -18,8 +18,7 @@ ADD test ${LOCALDIR}/test
 # install deps
 RUN apk upgrade --update && \
   apk add --no-cache --virtual .gyp python make g++ opendkim-dev && \
-  npm install -g node-gyp && \
-  apk del .gyp python make g++
+  npm install -g node-gyp
 
 # install codebase
 WORKDIR "${LOCALDIR}"
