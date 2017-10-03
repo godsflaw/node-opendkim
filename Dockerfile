@@ -21,8 +21,8 @@ RUN apk upgrade --update && \
   npm install -g node-gyp
 
 # install codebase
-RUN (cd ${LOCALDIR} ; npm install ; node-gyp rebuild)
+WORKDIR "${LOCALDIR}"
+RUN npm install --unsafe-perm
 
 # startup any services
-WORKDIR "${LOCALDIR}"
 CMD ["tail", "-f", "readme.md"]

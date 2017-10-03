@@ -18,8 +18,7 @@
   },
   "keywords": [
     "cli-app",
-    "cli",
-    ""
+    "cli"
   ],
   "dependencies": {
     "meow": "^3.7.0",
