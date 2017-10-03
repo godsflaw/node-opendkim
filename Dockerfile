@@ -18,11 +18,12 @@ ADD test ${LOCALDIR}/test
 # install deps
 RUN apk upgrade --update && \
   apk add --no-cache --virtual .gyp python make g++ opendkim-dev && \
-  npm install -g node-gyp
+  npm install -g node-gyp && \
+  apk del .gyp python make g++
 
 # install codebase
-RUN (cd ${LOCALDIR} ; npm install ; node-gyp rebuild)
+WORKDIR "${LOCALDIR}"
+RUN npm install
 
 # startup any services
-WORKDIR "${LOCALDIR}"
 CMD ["tail", "-f", "readme.md"]

@@ -3,7 +3,7 @@
 > node.js native language binding to libopendkim
 
 
-## Install/Test (locally)
+## Install/Test Locally (from source)
 
 ```
 git clone git@github.com:godsflaw/node-opendkim.git
@@ -13,7 +13,7 @@ npm test -- --verbose
 
 ```
 
-## Install/Test (npm)
+## Install Locally (npm)
 
 ```
 npm install --save node-opendkim
@@ -28,7 +28,7 @@ npm install --global node-opendkim
 ## Compile (Development)
 
 ```
-node-gyp clean ; node-gyp configure ; node-gyp build
+node-gyp rebuild
 
 ```
 
