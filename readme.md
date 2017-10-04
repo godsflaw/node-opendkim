@@ -1,7 +1,9 @@
-# node-opendkim [![Codefresh build status]( https://g.codefresh.io/api/badges/build?repoOwner=godsflaw&repoName=node-opendkim&branch=dev&pipelineName=node-opendkim&accountName=godsflaw&type=cf-1)]( https://g.codefresh.io/repositories/godsflaw/node-opendkim/builds?filter=trigger:build;branch:dev;service:59d2a742525f1c000154fbe8~node-opendkim)
+[![Codefresh build status][cf-img]][cf-url]
+[![NPM][npm-img]][npm-url]
+
+# node-opendkim
 
 > node.js native language binding to libopendkim
-
 
 ## Install/Test Locally (from source)
 
@@ -104,3 +106,8 @@ try {
 ## License
 
 MIT © [Christopher Mooney](https://github.com/godsflaw)
+
+[cf-img]: https://g.codefresh.io/api/badges/build?repoOwner=godsflaw&repoName=node-opendkim&branch=dev&pipelineName=node-opendkim&accountName=godsflaw&type=cf-1
+[cf-url]: https://g.codefresh.io/repositories/godsflaw/node-opendkim/builds?filter=trigger:build;branch:dev;service:59d2a742525f1c000154fbe8~node-opendkim
+[npm-img]: https://nodei.co/npm/node-opendkim.png
+[npm-url]: https://www.npmjs.com/package/node-opendkim
