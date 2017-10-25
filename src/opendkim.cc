@@ -55,6 +55,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
 
   // Administration methods
   Nan::SetPrototypeMethod(tpl, "flush_cache", FlushCache);
+  Nan::SetPrototypeMethod(tpl, "lib_feature_obj", LibFeature);
 
   // Processing methods
   Nan::SetPrototypeMethod(tpl, "header", Header);
@@ -755,6 +756,48 @@ NAN_METHOD(OpenDKIM::SetOption) {
     _safe_free(&data);
 
   info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::LibFeature) {
+  char *feature = NULL;
+  unsigned int feature_int = 0;
+  _Bool result = 0;
+
+  if (info.Length() != 1) {
+    Nan::ThrowTypeError("lib_feature(): Wrong number of arguments");
+    goto finish_lib_feature;
+  }
+
+  if (!info[0]->IsObject()) {
+    Nan::ThrowTypeError("lib_feature(): Argument should be an object");
+    goto finish_lib_feature;
+  }
+
+  // feature
+  if (!_value_to_char(info[0], "feature", &feature)) {
+    Nan::ThrowTypeError("lib_feature(): Feature is undefined");
+    goto finish_lib_feature;
+  }
+
+  // Convert feature into the appropriate int
+  if (strcmp(feature, "DKIM_FEATURE_DIFFHEADERS") == 0) { feature_int = DKIM_FEATURE_DIFFHEADERS; }
+  else if (strcmp(feature, "DKIM_FEATURE_PARSE_TIME") == 0) { feature_int = DKIM_FEATURE_PARSE_TIME; }
+  else if (strcmp(feature, "DKIM_FEATURE_QUERY_CACHE") == 0) { feature_int = DKIM_FEATURE_QUERY_CACHE; }
+  else if (strcmp(feature, "DKIM_FEATURE_SHA256") == 0) { feature_int = DKIM_FEATURE_SHA256; }
+  else if (strcmp(feature, "DKIM_FEATURE_DNSSEC") == 0) { feature_int = DKIM_FEATURE_DNSSEC; }
+  else if (strcmp(feature, "DKIM_FEATURE_OVERSIGN") == 0) { feature_int = DKIM_FEATURE_OVERSIGN; }
+  else {
+      Nan::ThrowTypeError("lib_feature(): Invalid feature");
+      goto finish_lib_feature;
+  }
+
+
+  result = dkim_libfeature(dkim_lib, feature_int);
+
+  finish_lib_feature:
+    _safe_free(&feature);
+
+  info.GetReturnValue().Set(Nan::New<v8::Boolean>(result));
 }
 
 NODE_MODULE(opendkim, OpenDKIM::Init)
