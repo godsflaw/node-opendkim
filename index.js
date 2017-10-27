@@ -50,4 +50,8 @@ OpenDKIM.prototype.tmpdir = function (data) {
   });
 };
 
+OpenDKIM.prototype.lib_feature = function (feature) {
+  return this.lib_feature_obj({feature: feature});
+};
+
 module.exports = OpenDKIM;

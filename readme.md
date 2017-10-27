@@ -76,6 +76,7 @@ try {
 ## API Administration
 * [OpenDKIM.new()](https://github.com/godsflaw/node-opendkim/wiki/OpenDKIM.new()): new instance of OpenDKIM object.
 * [opendkim.flush_cache()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.flush_cache()): Flush the key cache.
+* [opendkim.lib_feature()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.lib_feature()): Check for supported features.
 
 ## API Processing
 * [opendkim.header()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.header()): Process a header.
