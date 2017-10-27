@@ -51,7 +51,7 @@ OpenDKIM.prototype.tmpdir = function (data) {
 };
 
 OpenDKIM.prototype.lib_feature = function (feature) {
-  this.lib_feature_obj({feature: feature});
+  return this.lib_feature_obj({feature: feature});
 };
 
 module.exports = OpenDKIM;
