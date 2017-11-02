@@ -95,6 +95,7 @@ try {
 * [opendkim.sig_getidentity()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getidentity()): get the identity from the signature handle.
 * [opendkim.sig_getdomain()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getdomain()): get the domain from the signature handle.
 * [opendkim.sig_getselector()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getselector()): get the selector from the signature handle.
+* [opendkim.sig_geterror()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_geterror()): get the error value stored for a specific message. 
 
 
 ## API Utility
