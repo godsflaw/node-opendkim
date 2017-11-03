@@ -1,5 +1,6 @@
-[![Codefresh build status][cf-img]][cf-url]
 [![NPM][npm-img]][npm-url]
+
+[![Codefresh build status][cf-img]][cf-url]
 
 # node-opendkim
 
