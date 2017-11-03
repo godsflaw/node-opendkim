@@ -74,6 +74,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "sig_getidentity", SigGetIdentity);
   Nan::SetPrototypeMethod(tpl, "sig_getdomain", SigGetDomain);
   Nan::SetPrototypeMethod(tpl, "sig_getselector", SigGetSelector);
+  Nan::SetPrototypeMethod(tpl, "sig_geterror", SigGetError);
 
   // Utility methods
   Nan::SetPrototypeMethod(tpl, "get_option", GetOption);
@@ -382,6 +383,30 @@ NAN_METHOD(OpenDKIM::SigGetSelector) {
   }
 }
 
+NAN_METHOD(OpenDKIM::SigGetError) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  int data = 0;
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError(
+      "sig_geterror(): library must be initialized first"
+    );
+    return;
+  }
+
+  obj->GetSignature(info);
+
+  if (obj->sig == NULL) {
+    Nan::ThrowTypeError(
+      "sig_geterror(): get_signature() failed, call it first for more details"
+    );
+    return;
+  }
+
+  data = dkim_sig_geterror(obj->sig);
+  info.GetReturnValue().Set(Nan::New<v8::Int32>(data));
+}
+
 NAN_METHOD(OpenDKIM::Chunk) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
@@ -425,8 +450,7 @@ NAN_METHOD(OpenDKIM::Chunk) {
 
   finish_chunk:
     _safe_free(&message);
-
-  info.GetReturnValue().Set(info.This());
+    info.GetReturnValue().Set(info.This());
 }
 
 NAN_METHOD(OpenDKIM::ChunkEnd) {
