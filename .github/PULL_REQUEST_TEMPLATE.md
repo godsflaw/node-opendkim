@@ -9,5 +9,5 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 - [ ] tests approved
 - [ ] documentation approved
 
-# Link to gist documentation (will be manually added to the wiki)
+### Link to gist documentation (will be manually added to the wiki)
 https://gist.github.com/...
