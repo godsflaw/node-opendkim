@@ -1,4 +1,4 @@
-e#include "opendkim.h"
+#include "opendkim.h"
 #include <stdio.h>
 #include <unistd.h>    // TODO(godsflaw): port for windows?
 
