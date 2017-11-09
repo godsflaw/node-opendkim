@@ -8,6 +8,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 - [ ] code approved
 - [ ] tests approved
 - [ ] documentation approved
+- [ ] fixes #(fill in issue number)
 
 ### Link to gist documentation (will be manually added to the wiki)
 https://gist.github.com/...

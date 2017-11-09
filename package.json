@@ -31,6 +31,9 @@
     "xo": "^0.15.0"
   },
   "gypfile": true,
+  "ava": {
+    "concurrency": 20
+  },
   "nyc": {
     "reporter": [
       "lcov",
