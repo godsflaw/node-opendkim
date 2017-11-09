@@ -12,7 +12,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 # Example PR
 https://github.com/godsflaw/node-opendkim/pull/50
 
-# Nore Information
+# More Information
 http://www.opendkim.org/libopendkim/
 
 # Bounty
