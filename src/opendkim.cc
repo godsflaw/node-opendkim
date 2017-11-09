@@ -703,7 +703,7 @@ NAN_METHOD(OpenDKIM::GetOption) {
       opt,
       &data,
       sizeof(data)
-   );
+    );
 
     if (statp != DKIM_STAT_OK) {
       throw_error(statp);
