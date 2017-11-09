@@ -1,4 +1,4 @@
-#include "opendkim.h"
+e#include "opendkim.h"
 #include <stdio.h>
 #include <unistd.h>    // TODO(godsflaw): port for windows?
 
@@ -408,25 +408,17 @@ NAN_METHOD(OpenDKIM::SigGetError) {
   info.GetReturnValue().Set(Nan::New<v8::Int32>(data));
 }
 
-NAN_METHOD(OpenDKIM::SigGetErrorStr) {
-  int errorcode = 0;
-  char* errorstr = NULL;
-  int errorlen = 0;
-
-  if (info.Length() != 1) {
-    Nan::ThrowTypeError("sig_geterrorstr(): Wrong number of arguments");
-    goto finish_sig_geterrorstr;
-  }
-
-  errorcode = info[0]->NumberValue(); 
-  errorlen = strlen(dkim_sig_geterrorstr(errorcode)) + 1;
-  errorstr = new char[errorlen];
-
-  strcpy(errorstr, dkim_sig_geterrorstr(errorcode));
-  info.GetReturnValue().Set(Nan::New<v8::String>(errorstr).ToLocalChecked());
-
-  finish_sig_geterrorstr:
-    _safe_free(&errorstr);
+NAN_METHOD(OpenDKIM::SigGetErrorStr) {                                          
+  const char *errorstr = NULL;                                                  
+                                                                                
+  if (info.Length() != 1) {                                                     
+    Nan::ThrowTypeError("sig_geterrorstr(): Wrong number of arguments");        
+    return;                                                                     
+  }                                                                             
+                                                                                
+  errorstr = dkim_sig_geterrorstr(info[0]->NumberValue());                                               
+                                                                                
+  info.GetReturnValue().Set(Nan::New<v8::String>(errorstr).ToLocalChecked());   
 }
 
 NAN_METHOD(OpenDKIM::Chunk) {
