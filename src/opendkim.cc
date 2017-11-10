@@ -75,6 +75,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "sig_getdomain", SigGetDomain);
   Nan::SetPrototypeMethod(tpl, "sig_getselector", SigGetSelector);
   Nan::SetPrototypeMethod(tpl, "sig_geterror", SigGetError);
+  Nan::SetPrototypeMethod(tpl, "sig_geterrorstr", SigGetErrorStr);
 
   // Utility methods
   Nan::SetPrototypeMethod(tpl, "get_option", GetOption);
@@ -407,6 +408,19 @@ NAN_METHOD(OpenDKIM::SigGetError) {
   info.GetReturnValue().Set(Nan::New<v8::Int32>(data));
 }
 
+NAN_METHOD(OpenDKIM::SigGetErrorStr) {                                          
+  const char *errorstr = NULL;                                                  
+                                                                                
+  if (info.Length() != 1) {                                                     
+    Nan::ThrowTypeError("sig_geterrorstr(): Wrong number of arguments");        
+    return;                                                                     
+  }                                                                             
+                                                                                
+  errorstr = dkim_sig_geterrorstr(info[0]->NumberValue());                                               
+                                                                                
+  info.GetReturnValue().Set(Nan::New<v8::String>(errorstr).ToLocalChecked());   
+}
+
 NAN_METHOD(OpenDKIM::Chunk) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
@@ -450,7 +464,8 @@ NAN_METHOD(OpenDKIM::Chunk) {
 
   finish_chunk:
     _safe_free(&message);
-    info.GetReturnValue().Set(info.This());
+
+  info.GetReturnValue().Set(info.This());
 }
 
 NAN_METHOD(OpenDKIM::ChunkEnd) {
