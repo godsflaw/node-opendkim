@@ -54,33 +54,33 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   // Administration methods
-  Nan::SetPrototypeMethod(tpl, "flush_cache", FlushCache);
-  Nan::SetPrototypeMethod(tpl, "lib_feature_obj", LibFeature);
+  Nan::SetPrototypeMethod(tpl, "native_flush_cache", FlushCache);
+  Nan::SetPrototypeMethod(tpl, "native_lib_feature", LibFeature);
 
   // Processing methods
-  Nan::SetPrototypeMethod(tpl, "header", Header);
-  Nan::SetPrototypeMethod(tpl, "eoh", EOH);
-  Nan::SetPrototypeMethod(tpl, "body", Body);
-  Nan::SetPrototypeMethod(tpl, "eom", EOM);
-  Nan::SetPrototypeMethod(tpl, "chunk", Chunk);
-  Nan::SetPrototypeMethod(tpl, "chunk_end", ChunkEnd);
+  Nan::SetPrototypeMethod(tpl, "native_header", Header);
+  Nan::SetPrototypeMethod(tpl, "native_eoh", EOH);
+  Nan::SetPrototypeMethod(tpl, "native_body", Body);
+  Nan::SetPrototypeMethod(tpl, "native_eom", EOM);
+  Nan::SetPrototypeMethod(tpl, "native_chunk", Chunk);
+  Nan::SetPrototypeMethod(tpl, "native_chunk_end", ChunkEnd);
 
   // Signing methods
-  Nan::SetPrototypeMethod(tpl, "sign", Sign);
-
-  // Verifying methods
-  Nan::SetPrototypeMethod(tpl, "verify", Verify);
-  Nan::SetPrototypeMethod(tpl, "get_signature", GetSignature);
-  Nan::SetPrototypeMethod(tpl, "sig_getidentity", SigGetIdentity);
-  Nan::SetPrototypeMethod(tpl, "sig_getdomain", SigGetDomain);
-  Nan::SetPrototypeMethod(tpl, "sig_getselector", SigGetSelector);
-  Nan::SetPrototypeMethod(tpl, "sig_geterror", SigGetError);
-  Nan::SetPrototypeMethod(tpl, "sig_geterrorstr", SigGetErrorStr);
+  Nan::SetPrototypeMethod(tpl, "native_sign", Sign);
 
   // Utility methods
-  Nan::SetPrototypeMethod(tpl, "get_option", GetOption);
-  Nan::SetPrototypeMethod(tpl, "set_option", SetOption);
-  Nan::SetPrototypeMethod(tpl, "ohdrs", OHDRS);
+  Nan::SetPrototypeMethod(tpl, "native_get_option", GetOption);
+  Nan::SetPrototypeMethod(tpl, "native_set_option", SetOption);
+
+  // Verifying methods
+  Nan::SetPrototypeMethod(tpl, "native_sig_getdomain", SigGetDomain);
+  Nan::SetPrototypeMethod(tpl, "native_sig_geterror", SigGetError);
+  Nan::SetPrototypeMethod(tpl, "native_sig_geterrorstr", SigGetErrorStr);
+  Nan::SetPrototypeMethod(tpl, "native_sig_getidentity", SigGetIdentity);
+  Nan::SetPrototypeMethod(tpl, "native_sig_getselector", SigGetSelector);
+  Nan::SetPrototypeMethod(tpl, "native_get_signature", GetSignature);
+  Nan::SetPrototypeMethod(tpl, "native_ohdrs", OHDRS);
+  Nan::SetPrototypeMethod(tpl, "native_verify", Verify);
 
   constructor().Reset(tpl->GetFunction());
   Nan::Set(

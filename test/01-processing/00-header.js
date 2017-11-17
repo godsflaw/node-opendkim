@@ -8,7 +8,7 @@ test('test header method with no argument', t => {
     opendkim.header();
     t.fail();
   } catch (err) {
-    t.is(err.message, 'header(): Wrong number of arguments');
+    t.is(err.message, 'header(): Argument should be an object');
   }
 });
 

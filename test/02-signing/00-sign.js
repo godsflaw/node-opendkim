@@ -8,7 +8,7 @@ test('test sign method with no argument', t => {
     opendkim.sign();
     t.fail();
   } catch (err) {
-    t.is(err.message, 'sign(): Wrong number of arguments');
+    t.is(err.message, 'sign(): Argument should be an object');
   }
 });
 

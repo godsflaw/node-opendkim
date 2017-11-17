@@ -8,7 +8,7 @@ test('test verify method with no argument', t => {
     opendkim.verify();
     t.fail();
   } catch (err) {
-    t.is(err.message, 'verify(): Wrong number of arguments');
+    t.is(err.message, 'verify(): Argument should be an object');
   }
 });
 

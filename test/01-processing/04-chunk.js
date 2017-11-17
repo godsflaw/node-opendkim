@@ -11,7 +11,7 @@ test('test chunk with no argument', t => {
     opendkim.chunk();
     t.fail();
   } catch (err) {
-    t.is(err.message, 'chunk(): Wrong number of arguments');
+    t.is(err.message, 'chunk(): Argument should be an object');
   }
 });
 

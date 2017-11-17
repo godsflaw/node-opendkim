@@ -11,7 +11,7 @@ test('test body method with no argument', t => {
     opendkim.body();
     t.fail();
   } catch (err) {
-    t.is(err.message, 'body(): Wrong number of arguments');
+    t.is(err.message, 'body(): Argument should be an object');
   }
 });
 
