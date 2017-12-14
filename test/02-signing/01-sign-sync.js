@@ -2,51 +2,40 @@ import test from 'ava';
 
 var OpenDKIM = require('../../');
 
-test('test sign method with no argument', async t => {
+test('test sign_sync method with no argument', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.sign();
+    opendkim.sign_sync();
     t.fail();
   } catch (err) {
     t.is(err.message, 'sign(): Wrong number of arguments');
   }
 });
 
-test('test sign method with no argument (errback)', t => {
-  var opendkim = new OpenDKIM();
-  opendkim.sign(function (err, result) {
-    if (err) {
-      t.is(err.message, 'sign(obj, func): Wrong number of arguments');
-    } else {
-      t.fail('got: ' + result);
-    }
-  });
-});
-
-test('test sign method with numeric argument', async t => {
+test('test sign_sync method with numeric argument', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.sign(1);
+    opendkim.sign_sync(1);
     t.fail();
   } catch (err) {
     t.is(err.message, 'sign(): Argument should be an object');
   }
 });
 
-test('test sign method with string argument', async t => {
+test('test sign_sync method with string argument', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.sign('test');
+    opendkim.sign_sync('test');
     t.fail();
   } catch (err) {
     t.is(err.message, 'sign(): Argument should be an object');
   }
 });
 
-test('test sign method with missing secretkey arg', async t => {
+test('test sign_sync method with missing secretkey arg', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.sign({
+    opendkim.sign_sync({
       id: undefined
     });
     t.fail();
@@ -55,10 +44,10 @@ test('test sign method with missing secretkey arg', async t => {
   }
 });
 
-test('test sign method with missing selector arg', async t => {
+test('test sign_sync method with missing selector arg', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.sign({
+    opendkim.sign_sync({
       id: undefined,
       secretkey: 'testkey'
     });
@@ -68,10 +57,10 @@ test('test sign method with missing selector arg', async t => {
   }
 });
 
-test('test sign method with missing domain arg', async t => {
+test('test sign_sync method with missing domain arg', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.sign({
+    opendkim.sign_sync({
       id: undefined,
       secretkey: 'testkey',
       selector: 'a1b2c3'
@@ -82,10 +71,10 @@ test('test sign method with missing domain arg', async t => {
   }
 });
 
-test('test sign method with missing hdrcanon arg', async t => {
+test('test sign_sync method with missing hdrcanon arg', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.sign({
+    opendkim.sign_sync({
       id: undefined,
       secretkey: 'testkey',
       selector: 'a1b2c3',
@@ -97,10 +86,10 @@ test('test sign method with missing hdrcanon arg', async t => {
   }
 });
 
-test('test sign method with missing bodycanon arg', async t => {
+test('test sign_sync method with missing bodycanon arg', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.sign({
+    opendkim.sign_sync({
       id: undefined,
       secretkey: 'testkey',
       selector: 'a1b2c3',
@@ -113,10 +102,10 @@ test('test sign method with missing bodycanon arg', async t => {
   }
 });
 
-test('test sign method works as object with correct args', async t => {
+test('test sign_sync method works as object with correct args', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.sign({
+    opendkim.sign_sync({
       id: undefined,
       secretkey: 'testkey',
       selector: 'a1b2c3',

@@ -40,8 +40,41 @@ OpenDKIM.prototype.chunk_end = function () {
 
 
 // Sign methods
-OpenDKIM.prototype.sign = function (obj) {
-  return this.native_sign(obj);
+OpenDKIM.prototype.sign_sync = function (obj) {
+  if (arguments.length === 0) {
+    throw new Error('sign(): Wrong number of arguments');
+  }
+
+  return this.native_sign_sync(obj);
+};
+
+OpenDKIM.prototype.sign = function (obj, callback) {
+  var self = this;
+
+  if (arguments.length === 0) {
+    throw new Error('sign(): Wrong number of arguments');
+  }
+
+  // added for the poor folks that call this as an errback without a try/catch
+  if (arguments.length === 1 && typeof obj === 'function') {
+    return obj(new Error('sign(obj, func): Wrong number of arguments'));
+  }
+
+  if (arguments.length === 2) {
+    // errback
+    this.native_sign(obj, callback);
+  } else {
+    // Promise
+    return new Promise(function (resolve, reject) {
+      self.native_sign(obj, function (err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
 };
 
 

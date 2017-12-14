@@ -39,6 +39,30 @@ class OpenDKIM : public Nan::ObjectWrap {
 
     // Signing methods
     static NAN_METHOD(Sign);
+    static NAN_METHOD(SignSync);
+    static const char *SignArgs(
+      Nan::NAN_METHOD_ARGS_TYPE info,
+      OpenDKIM **obj,
+      char **id,
+      char **secretkey,
+      char **selector,
+      char **domain,
+      char **hdrcanon,
+      char **bodycanon,
+      char **signalg,
+      int *length
+    );
+    static const char *SignBase(
+      OpenDKIM *obj,
+      char *id,
+      char *secretkey,
+      char *selector,
+      char *domain,
+      char *hdrcanon,
+      char *bodycanon,
+      char *signalg,
+      int length
+    );
 
     // Verifying methods
     static NAN_METHOD(Verify);
@@ -63,16 +87,18 @@ class OpenDKIM : public Nan::ObjectWrap {
       return my_constructor;
     }
 
-    static inline void throw_error(DKIM_STAT result) {
+    static inline const char *get_error(DKIM_STAT result) {
       const char *msg = dkim_getresultstr(result);
 
       if (msg != NULL) {
-        Nan::ThrowError(msg);
+         return msg;
       } else {
-        Nan::ThrowError("an unknown error occurred");
+        return "an unknown error occurred";
       }
+    }
 
-      return;
+    static inline void throw_error(DKIM_STAT result) {
+      Nan::ThrowError(get_error(result));
     }
 
     // The user of this function must free retval in the caller if the function

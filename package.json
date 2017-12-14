@@ -43,6 +43,7 @@
   "xo": {
     "space": 2,
     "rules": {
+      "no-else-return": 0,
       "no-multiple-empty-lines": 0,
       "no-negated-condition": 0,
       "no-warning-comments": 0,
