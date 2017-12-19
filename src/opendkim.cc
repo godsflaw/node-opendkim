@@ -227,7 +227,6 @@ NAN_METHOD(OpenDKIM::Body) {
 }
 
 NAN_METHOD(OpenDKIM::EOM) {
-  // TODO(godsflaw): perhaps expose this in node.js
   bool testkey = false;
   bool returntest = false;
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
@@ -244,7 +243,7 @@ NAN_METHOD(OpenDKIM::EOM) {
      if (!info[0]->IsObject()) {
         Nan::ThrowTypeError("eom(): Argument should be an object");
      } else {
-        returntest = _value_to_bool(info[0], "testkey"); 
+        returntest = _value_to_bool(info[0], "testkey");
      }
   }
 
