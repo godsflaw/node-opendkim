@@ -224,6 +224,7 @@ NAN_METHOD(OpenDKIM::Body) {
 NAN_METHOD(OpenDKIM::EOM) {
   // TODO(godsflaw): perhaps expose this in node.js
   bool testkey = false;
+  bool returntest = false;
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
 
@@ -234,6 +235,14 @@ NAN_METHOD(OpenDKIM::EOM) {
     return;
   }
 
+  if (info.Length() > 0) {
+     if (!info[0]->IsObject()) {
+        Nan::ThrowTypeError("eom(): Argument should be an object");
+     } else {
+        returntest = _value_to_bool(info[0], "testkey"); 
+     }
+  }
+
   statp = dkim_eom(obj->dkim, &testkey);
 
   // Test for error and throw an exception back to js.
@@ -242,7 +251,12 @@ NAN_METHOD(OpenDKIM::EOM) {
     return;
   }
 
-  info.GetReturnValue().Set(Nan::New<v8::Boolean>((testkey ? true : false)));
+  // success
+  if (returntest) {
+     info.GetReturnValue().Set(Nan::New<v8::Boolean>((testkey ? true : false)));
+  } else {
+     info.GetReturnValue().Set(info.This());
+  }
 }
 
 NAN_METHOD(OpenDKIM::GetSignature) {
