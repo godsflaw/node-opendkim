@@ -812,7 +812,7 @@ NAN_METHOD(OpenDKIM::SetOption) {
   info.GetReturnValue().Set(info.This());
 }
 
-#define MAXHDRCOUNT 100
+#define MAXHDRCOUNT 10000
 
 NAN_METHOD(OpenDKIM::OHDRS) {
    OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
@@ -820,24 +820,28 @@ NAN_METHOD(OpenDKIM::OHDRS) {
    int nhdrs = MAXHDRCOUNT;
    DKIM_STAT statp = DKIM_STAT_OK;
 
+   Isolate* isolate = info.GetIsolate(); // Needed to make new array
+
    if (obj->sig == NULL) {
       Nan::ThrowTypeError("ohdrs(): either there was no signature or called before eom() or chunk_end()");
       return;
    }
 
-   cout << "Testing ohdrs" << endl;
-
    statp = dkim_ohdrs(obj->dkim, obj->sig, ohdrs, &nhdrs);
-
-   cout << nhdrs << endl;
-   cout << ohdrs << endl;
 
    if (statp != DKIM_STAT_OK) {
       throw_error(statp);
       return;
    }
 
-   info.GetReturnValue().Set(info.This());
+   Local<Array> zheaders = Array::New(isolate);
+   for (int i = 0; i < nhdrs; i++) {
+      char dump[MAXHDRCOUNT];        // We need dump to transfer from unsigned char
+      sprintf(dump, "%s", ohdrs[i]);
+      Nan::Set(zheaders, i, Nan::New(dump).ToLocalChecked());
+   }
+
+   info.GetReturnValue().Set(zheaders);
 }
 
 NAN_METHOD(OpenDKIM::LibFeature) {
