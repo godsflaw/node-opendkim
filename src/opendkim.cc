@@ -812,6 +812,8 @@ NAN_METHOD(OpenDKIM::SetOption) {
   info.GetReturnValue().Set(info.This());
 }
 
+#define MAXHDRCOUNT 100000
+
 NAN_METHOD(OpenDKIM::OHDRS) {
    OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
    unsigned char *ohdrs[MAXHDRCOUNT];
