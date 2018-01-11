@@ -80,6 +80,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   // Utility methods
   Nan::SetPrototypeMethod(tpl, "get_option", GetOption);
   Nan::SetPrototypeMethod(tpl, "set_option", SetOption);
+  Nan::SetPrototypeMethod(tpl, "ohdrs", OHDRS);
 
   constructor().Reset(tpl->GetFunction());
   Nan::Set(
@@ -809,6 +810,36 @@ NAN_METHOD(OpenDKIM::SetOption) {
     _safe_free(&data);
 
   info.GetReturnValue().Set(info.This());
+}
+
+#define MAXHDRCOUNT 100000
+
+NAN_METHOD(OpenDKIM::OHDRS) {
+   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+   unsigned char *ohdrs[MAXHDRCOUNT];
+   int nhdrs = MAXHDRCOUNT;
+   DKIM_STAT statp = DKIM_STAT_OK;
+
+   Isolate* isolate = info.GetIsolate(); // Needed to make new array
+
+   if (obj->sig == NULL) {
+      Nan::ThrowTypeError("ohdrs(): either there was no signature or called before eom() or chunk_end()");
+      return;
+   }
+
+   statp = dkim_ohdrs(obj->dkim, obj->sig, ohdrs, &nhdrs);
+
+   if (statp != DKIM_STAT_OK) {
+      throw_error(statp);
+      return;
+   }
+
+   Local<Array> zheaders = Array::New(isolate);
+   for (int i = 0; i < nhdrs; i++) {
+      Nan::Set(zheaders, i, Nan::New<String>((char*)ohdrs[i]).ToLocalChecked());
+   }
+
+   info.GetReturnValue().Set(zheaders);
 }
 
 NAN_METHOD(OpenDKIM::LibFeature) {

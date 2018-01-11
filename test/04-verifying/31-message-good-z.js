@@ -52,3 +52,25 @@ test('test good message with z= multi-chunk', t => {
     t.fail();
   }
 });
+
+test('test ohdrs with z=', t => {
+  try {
+    var opendkim = new OpenDKIM();
+
+    opendkim.query_method('DKIM_QUERY_FILE');
+    opendkim.query_info('../fixtures/testkeys');
+
+    opendkim.verify({id: undefined});
+    opendkim.chunk({
+      message: messages.good_z,
+      length: messages.good_z.length
+    });
+    opendkim.chunk_end();
+    opendkim.get_signature(); // this is needed for ohdrs to not throw an error
+    var zheader = opendkim.ohdrs();
+    t.is(zheader[0], 'Received: received data 1');
+  } catch (err) {
+    console.log(err);
+    t.fail();
+  }
+});

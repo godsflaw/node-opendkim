@@ -52,6 +52,7 @@ class OpenDKIM : public Nan::ObjectWrap {
     // Utility methods
     static NAN_METHOD(GetOption);
     static NAN_METHOD(SetOption);
+    static NAN_METHOD(OHDRS);
 
   private:
     explicit OpenDKIM();
