@@ -1,5 +1,6 @@
 #include "opendkim.h"
 #include "opendkim_sign_async.h"
+#include "opendkim_eoh_async.h"
 #include <stdio.h>
 #include <unistd.h>    // TODO(godsflaw): port for windows?
 
@@ -61,6 +62,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   // Processing methods
   Nan::SetPrototypeMethod(tpl, "native_header", Header);
   Nan::SetPrototypeMethod(tpl, "native_eoh", EOH);
+  Nan::SetPrototypeMethod(tpl, "native_eoh_sync", EOHSync);
   Nan::SetPrototypeMethod(tpl, "native_body", Body);
   Nan::SetPrototypeMethod(tpl, "native_eom", EOM);
   Nan::SetPrototypeMethod(tpl, "native_chunk", Chunk);
@@ -157,25 +159,45 @@ NAN_METHOD(OpenDKIM::Header) {
 }
 
 NAN_METHOD(OpenDKIM::EOH) {
+  // dispatch this job to a worker
+  Nan::AsyncQueueWorker(new OpenDKIMEOHAsyncWorker(info));
+  info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::EOHSync) {
+  const char *result = NULL;
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+
+  // call synchronously
+  result = EOHBase(obj);
+
+  if (result != NULL) {
+    Nan::ThrowTypeError(result);
+  }
+
+  info.GetReturnValue().Set(info.This());
+}
+
+const char *OpenDKIM::EOHBase(OpenDKIM *obj)
+{
+  const char *result = NULL;
   DKIM_STAT statp = DKIM_STAT_OK;
 
   if (obj->dkim == NULL) {
-    Nan::ThrowTypeError(
-      "eoh(): sign() or verify(), then header() must be called first"
-    );
-    return;
+    result = "eoh(): sign() or verify(), then header() must be called first";
+    goto finish_eoh_base;
   }
 
   statp = dkim_eoh(obj->dkim);
 
   // Test for error and throw an exception back to js.
   if (statp != DKIM_STAT_OK) {
-    throw_error(statp);
-    return;
+    result = get_error(statp);
   }
 
-  info.GetReturnValue().Set(info.This());
+  finish_eoh_base:
+
+  return result;
 }
 
 NAN_METHOD(OpenDKIM::Body) {

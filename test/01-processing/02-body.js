@@ -74,7 +74,7 @@ test('test body needs context', t => {
   }
 });
 
-test('test body method works after header and eoh', t => {
+test('test body method works after header and eoh', async t => {
   try {
     var opendkim = new OpenDKIM();
     opendkim.verify({id: undefined});
@@ -88,7 +88,7 @@ test('test body method works after header and eoh', t => {
         length: line.length
       });
     }
-    opendkim.eoh();
+    await opendkim.eoh();
     opendkim.body({
       body: body,
       length: body.length

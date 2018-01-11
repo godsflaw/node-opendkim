@@ -18,8 +18,28 @@ OpenDKIM.prototype.header = function (arg) {
   return this.native_header(arg);
 };
 
-OpenDKIM.prototype.eoh = function () {
-  return this.native_eoh();
+OpenDKIM.prototype.eoh_sync = function () {
+  return this.native_eoh_sync();
+};
+
+OpenDKIM.prototype.eoh = function (callback) {
+  var self = this;
+
+  if (arguments.length === 1 && typeof callback === 'function') {
+    // errback
+    this.native_eoh(callback);
+  } else {
+    // Promise
+    return new Promise(function (resolve, reject) {
+      self.native_eoh(function (err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
 };
 
 OpenDKIM.prototype.body = function (arg) {

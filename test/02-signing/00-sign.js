@@ -113,6 +113,29 @@ test('test sign method with missing bodycanon arg', async t => {
   }
 });
 
+test('test sign method works as object with correct args (errback)', t => {
+  try {
+    var opendkim = new OpenDKIM();
+    opendkim.sign({
+      id: undefined,
+      secretkey: 'testkey',
+      selector: 'a1b2c3',
+      domain: 'example.com',
+      hdrcanon: 'relaxed',
+      bodycanon: 'relaxed',
+      signalg: 'sha256',     // default is sha256
+      length: -1
+    }, function (err, result) {
+      t.is(err, null);
+      t.is(result, null);
+      t.pass();
+    });
+  } catch (err) {
+    console.log(err);
+    t.fail();
+  }
+});
+
 test('test sign method works as object with correct args', async t => {
   try {
     var opendkim = new OpenDKIM();

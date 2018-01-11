@@ -50,7 +50,7 @@ test('test no signature message multi-chunk', t => {
   }
 });
 
-test('test no signature through header(), eoh(), body(), and eom()', t => {
+test('test no signature through header(), eoh(), body(), and eom()', async t => {
   // This test should bail at the eoh() point.
   try {
     var opendkim = new OpenDKIM();
@@ -73,7 +73,7 @@ test('test no signature through header(), eoh(), body(), and eom()', t => {
         length: line.length
       });
     }
-    opendkim.eoh();
+    await opendkim.eoh();
     opendkim.body({
       body: body,
       length: body.length

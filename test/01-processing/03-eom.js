@@ -15,7 +15,7 @@ test('test eom needs context', t => {
   }
 });
 
-test('test eom works after header, eoh, and body calls', t => {
+test('test eom works after header, eoh, and body calls', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -33,7 +33,7 @@ test('test eom works after header, eoh, and body calls', t => {
         length: line.length
       });
     }
-    opendkim.eoh();
+    await opendkim.eoh();
     opendkim.body({
       body: body,
       length: body.length
@@ -46,7 +46,7 @@ test('test eom works after header, eoh, and body calls', t => {
   }
 });
 
-test('test eom chaining', t => {
+test('test eom chaining', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -64,7 +64,7 @@ test('test eom chaining', t => {
         length: line.length
       });
     }
-    opendkim.eoh();
+    await opendkim.eoh();
     opendkim.body({
       body: body,
       length: body.length
@@ -77,7 +77,7 @@ test('test eom chaining', t => {
   }
 });
 
-test('test eom testkey', t => {
+test('test eom testkey', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -95,7 +95,7 @@ test('test eom testkey', t => {
         length: line.length
       });
     }
-    opendkim.eoh();
+    await opendkim.eoh();
     opendkim.body({
       body: body,
       length: body.length

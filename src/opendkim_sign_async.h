@@ -27,6 +27,14 @@ class OpenDKIMSignAsyncWorker : public OpenDKIMAsyncWorker {
 
   private:
     // private methods/variables here
+    char *id;
+    char *secretkey;
+    char *selector;
+    char *domain;
+    char *hdrcanon;
+    char *bodycanon;
+    char *signalg;
+    int length;
 };
 
 #endif /* _OPENDKIMSIGNASYNC_ */

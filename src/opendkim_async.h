@@ -44,14 +44,6 @@ class OpenDKIMAsyncWorker : public Nan::AsyncWorker {
   protected:
     const char *result;
     OpenDKIM *obj;
-    char *id;
-    char *secretkey;
-    char *selector;
-    char *domain;
-    char *hdrcanon;
-    char *bodycanon;
-    char *signalg;
-    int length;
 };
 
 #endif /* _OPENDKIMASYNC_H_ */

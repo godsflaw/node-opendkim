@@ -32,6 +32,8 @@ class OpenDKIM : public Nan::ObjectWrap {
     // Processing methods
     static NAN_METHOD(Header);
     static NAN_METHOD(EOH);
+    static NAN_METHOD(EOHSync);
+    static const char *EOHBase(OpenDKIM *obj);
     static NAN_METHOD(Body);
     static NAN_METHOD(EOM);
     static NAN_METHOD(Chunk);
