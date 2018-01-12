@@ -67,18 +67,18 @@ class OpenDKIM : public Nan::ObjectWrap {
     );
 
     // Verifying methods
-    static NAN_METHOD(Verify);
     static NAN_METHOD(GetSignature);
+    static NAN_METHOD(OHDRS);
     static NAN_METHOD(SigGetIdentity);
     static NAN_METHOD(SigGetDomain);
     static NAN_METHOD(SigGetSelector);
     static NAN_METHOD(SigGetError);
     static NAN_METHOD(SigGetErrorStr);
+    static NAN_METHOD(Verify);
 
     // Utility methods
     static NAN_METHOD(GetOption);
     static NAN_METHOD(SetOption);
-    static NAN_METHOD(OHDRS);
 
   private:
     explicit OpenDKIM();

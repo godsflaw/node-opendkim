@@ -77,13 +77,13 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "native_set_option", SetOption);
 
   // Verifying methods
+  Nan::SetPrototypeMethod(tpl, "native_get_signature", GetSignature);
+  Nan::SetPrototypeMethod(tpl, "native_ohdrs", OHDRS);
   Nan::SetPrototypeMethod(tpl, "native_sig_getdomain", SigGetDomain);
   Nan::SetPrototypeMethod(tpl, "native_sig_geterror", SigGetError);
   Nan::SetPrototypeMethod(tpl, "native_sig_geterrorstr", SigGetErrorStr);
   Nan::SetPrototypeMethod(tpl, "native_sig_getidentity", SigGetIdentity);
   Nan::SetPrototypeMethod(tpl, "native_sig_getselector", SigGetSelector);
-  Nan::SetPrototypeMethod(tpl, "native_get_signature", GetSignature);
-  Nan::SetPrototypeMethod(tpl, "native_ohdrs", OHDRS);
   Nan::SetPrototypeMethod(tpl, "native_verify", Verify);
 
   constructor().Reset(tpl->GetFunction());

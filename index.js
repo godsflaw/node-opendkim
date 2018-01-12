@@ -157,24 +157,16 @@ OpenDKIM.prototype.tmpdir = function (data) {
 
 
 // Verifying methods
-OpenDKIM.prototype.verify = function (obj) {
-  return this.native_verify(obj);
-};
-
 OpenDKIM.prototype.get_signature = function () {
   return this.native_get_signature();
 };
 
-OpenDKIM.prototype.sig_getidentity = function () {
-  return this.native_sig_getidentity();
+OpenDKIM.prototype.ohdrs = function (obj) {
+  return this.native_ohdrs(obj);
 };
 
 OpenDKIM.prototype.sig_getdomain = function () {
   return this.native_sig_getdomain();
-};
-
-OpenDKIM.prototype.sig_getselector = function () {
-  return this.native_sig_getselector();
 };
 
 OpenDKIM.prototype.sig_geterror = function () {
@@ -183,6 +175,18 @@ OpenDKIM.prototype.sig_geterror = function () {
 
 OpenDKIM.prototype.sig_geterrorstr = function (code) {
   return this.native_sig_geterrorstr(code);
+};
+
+OpenDKIM.prototype.sig_getidentity = function () {
+  return this.native_sig_getidentity();
+};
+
+OpenDKIM.prototype.sig_getselector = function () {
+  return this.native_sig_getselector();
+};
+
+OpenDKIM.prototype.verify = function (obj) {
+  return this.native_verify(obj);
 };
 
 module.exports = OpenDKIM;
