@@ -3,6 +3,7 @@
         "target_name": "opendkim",
         "sources": [
             "src/opendkim_eoh_async.cc",
+            "src/opendkim_eom_async.cc",
             "src/opendkim_sign_async.cc",
             "src/opendkim.cc",
         ],

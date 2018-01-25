@@ -1,6 +1,7 @@
 #include "opendkim.h"
 #include "opendkim_sign_async.h"
 #include "opendkim_eoh_async.h"
+#include "opendkim_eom_async.h"
 #include <stdio.h>
 #include <unistd.h>    // TODO(godsflaw): port for windows?
 
@@ -65,16 +66,13 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "native_eoh_sync", EOHSync);
   Nan::SetPrototypeMethod(tpl, "native_body", Body);
   Nan::SetPrototypeMethod(tpl, "native_eom", EOM);
+  Nan::SetPrototypeMethod(tpl, "native_eom_sync", EOMSync);
   Nan::SetPrototypeMethod(tpl, "native_chunk", Chunk);
   Nan::SetPrototypeMethod(tpl, "native_chunk_end", ChunkEnd);
 
   // Signing methods
   Nan::SetPrototypeMethod(tpl, "native_sign", Sign);
   Nan::SetPrototypeMethod(tpl, "native_sign_sync", SignSync);
-
-  // Utility methods
-  Nan::SetPrototypeMethod(tpl, "native_get_option", GetOption);
-  Nan::SetPrototypeMethod(tpl, "native_set_option", SetOption);
 
   // Verifying methods
   Nan::SetPrototypeMethod(tpl, "native_get_signature", GetSignature);
@@ -85,6 +83,10 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "native_sig_getidentity", SigGetIdentity);
   Nan::SetPrototypeMethod(tpl, "native_sig_getselector", SigGetSelector);
   Nan::SetPrototypeMethod(tpl, "native_verify", Verify);
+
+  // Utility methods
+  Nan::SetPrototypeMethod(tpl, "native_get_option", GetOption);
+  Nan::SetPrototypeMethod(tpl, "native_set_option", SetOption);
 
   constructor().Reset(tpl->GetFunction());
   Nan::Set(
@@ -248,33 +250,26 @@ NAN_METHOD(OpenDKIM::Body) {
   info.GetReturnValue().Set(info.This());
 }
 
-NAN_METHOD(OpenDKIM::EOM) {
+NAN_METHOD(OpenDKIM::EOMSync) {
+  const char *result = NULL;
   bool testkey = false;
   bool returntest = false;
-  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-  DKIM_STAT statp = DKIM_STAT_OK;
+  OpenDKIM* obj = NULL;
 
-  if (obj->dkim == NULL) {
-    Nan::ThrowTypeError(
-      "eom(): sign() or verify(), then body() must be called first"
-    );
-    return;
+  result = EOMArgs(info, &obj, &returntest);
+
+  // skip EOMBase if we have an argument error
+  if (result != NULL) {
+    goto finish_eom_sync;
   }
 
-  if (info.Length() > 0) {
-     if (!info[0]->IsObject()) {
-        Nan::ThrowTypeError("eom(): Argument should be an object");
-     } else {
-        returntest = _value_to_bool(info[0], "testkey");
-     }
-  }
+  // call synchronously
+  result = EOMBase(obj, returntest, &testkey);
 
-  statp = dkim_eom(obj->dkim, &testkey);
+  finish_eom_sync:
 
-  // Test for error and throw an exception back to js.
-  if (statp != DKIM_STAT_OK) {
-    throw_error(statp);
-    return;
+  if (result != NULL) {
+    Nan::ThrowTypeError(result);
   }
 
   // success
@@ -283,6 +278,65 @@ NAN_METHOD(OpenDKIM::EOM) {
   } else {
      info.GetReturnValue().Set(info.This());
   }
+}
+
+NAN_METHOD(OpenDKIM::EOM) {
+  // dispatch this job to a worker
+  Nan::AsyncQueueWorker(new OpenDKIMEOMAsyncWorker(info));
+  info.GetReturnValue().Set(info.This());
+}
+
+const char *OpenDKIM::EOMArgs(
+  Nan::NAN_METHOD_ARGS_TYPE info,
+  OpenDKIM **obj,
+  bool *returntest) {
+  const char *result = NULL;
+  *obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  *returntest = false;
+
+  if ((*obj)->dkim == NULL) {
+    result = "eom(): sign() or verify(), then body() must be called first";
+    goto finish_eom_args;
+  }
+
+  if (info.Length() > 0) {
+     if (!info[0]->IsObject()) {
+        result = "eom(): Argument should be an object";
+        goto finish_eom_args;
+     } else {
+        *returntest = _value_to_bool(info[0], "testkey");
+     }
+  }
+
+  finish_eom_args:
+
+  if (result != NULL) {
+    Nan::ThrowTypeError(result);
+  }
+
+  return result;
+}
+
+const char *OpenDKIM::EOMBase(OpenDKIM *obj, bool returntest, bool *testkey)
+{
+  const char *result = NULL;
+  DKIM_STAT statp = DKIM_STAT_OK;
+
+  if (obj->dkim == NULL) {
+    result = "eom(): sign() or verify(), then body() must be called first";
+    goto finish_eom_base;
+  }
+
+  statp = dkim_eom(obj->dkim, testkey);
+
+  // Test for error and throw an exception back to js.
+  if (statp != DKIM_STAT_OK) {
+    result = get_error(statp);
+  }
+
+  finish_eom_base:
+
+  return result;
 }
 
 NAN_METHOD(OpenDKIM::GetSignature) {
@@ -516,12 +570,13 @@ NAN_METHOD(OpenDKIM::Chunk) {
 }
 
 NAN_METHOD(OpenDKIM::ChunkEnd) {
+  const char *result = NULL;
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   DKIM_STAT statp = DKIM_STAT_OK;
 
   if (obj->dkim == NULL) {
-    Nan::ThrowTypeError("chunk_end(): sign() or verify(), then chunk() must be called first");
-    return;
+    result = "chunk_end(): sign() or verify(), then chunk() must be called first";
+    goto finish_chunk_end;
   }
 
   // When done with calling chunk(), we need to call it with NULL pointer and 0 length.
@@ -529,31 +584,25 @@ NAN_METHOD(OpenDKIM::ChunkEnd) {
 
   // Test for error and throw an exception back to js.
   if (statp != DKIM_STAT_OK) {
-    throw_error(statp);
-    return;
+    result = get_error(statp);
+    goto finish_chunk_end;
   }
 
   // We also need to call dkim_eom(), so we can just call that method.
-  obj->EOM(info);
-}
+  result = obj->EOMBase(obj, false, NULL);
 
-NAN_METHOD(OpenDKIM::Sign) {
-  const char *result = NULL;
-
-  if (!info[0]->IsObject()) {
-    result = "sign(): Argument should be an object";
-    goto finish_sign;
-  }
-
-  // dispatch this job to a worker
-  Nan::AsyncQueueWorker(new OpenDKIMSignAsyncWorker(info));
-
-  finish_sign:
+  finish_chunk_end:
 
   if (result != NULL) {
     Nan::ThrowTypeError(result);
   }
 
+  info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::Sign) {
+  // dispatch this job to a worker
+  Nan::AsyncQueueWorker(new OpenDKIMSignAsyncWorker(info));
   info.GetReturnValue().Set(info.This());
 }
 
@@ -568,11 +617,6 @@ NAN_METHOD(OpenDKIM::SignSync) {
   char *bodycanon = NULL;
   char *signalg = NULL;
   int length = -1;
-
-  if (!info[0]->IsObject()) {
-    result = "sign(): Argument should be an object";
-    goto finish_sign_sync;
-  }
 
   result = SignArgs(
     info,
@@ -627,6 +671,11 @@ const char *OpenDKIM::SignArgs(
   *bodycanon = NULL;
   *signalg = NULL;
   *length = -1;
+
+  if (!info[0]->IsObject()) {
+    result = "sign(): Argument should be an object";
+    goto finish_sign_args;
+  }
 
   // id
   _value_to_char(info[0], "id", id);

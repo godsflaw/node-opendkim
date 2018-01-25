@@ -46,8 +46,42 @@ OpenDKIM.prototype.body = function (arg) {
   return this.native_body(arg);
 };
 
-OpenDKIM.prototype.eom = function () {
-  return this.native_eom();
+OpenDKIM.prototype.eom_sync = function (obj) {
+  if (obj === undefined) {
+    obj = {testkey: false};
+  }
+
+  return this.native_eom_sync(obj);
+};
+
+OpenDKIM.prototype.eom = function (obj, callback) {
+  var self = this;
+
+  if (obj === undefined) {
+    obj = {testkey: false};
+  }
+
+  // added for the poor folks that call this as an errback without a try/catch
+  if (arguments.length === 1 && typeof obj === 'function') {
+    callback = obj;
+    obj = {testkey: false};
+  }
+
+  if (typeof callback === 'function') {
+    // errback
+    this.native_eom(obj, callback);
+  } else {
+    // Promise
+    return new Promise(function (resolve, reject) {
+      self.native_eom(obj, function (err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
 };
 
 OpenDKIM.prototype.chunk = function (arg) {

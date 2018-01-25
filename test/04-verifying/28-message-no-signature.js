@@ -78,7 +78,7 @@ test('test no signature through header(), eoh(), body(), and eom()', async t => 
       body: body,
       length: body.length
     });
-    opendkim.eom();
+    await opendkim.eom();
     t.fail();
   } catch (err) {
     t.is(err.message, 'No signature');

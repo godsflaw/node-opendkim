@@ -19,7 +19,7 @@ void OpenDKIMSignAsyncWorker::HandleOKCallback() {
   v8::Local<v8::Value> argv[] = {
     Nan::Null(),
     Nan::Null()
-  };                                                                                                     
-                                                                                                         
-  callback->Call(2, argv);                                                                               
+  };
+
+  callback->Call(2, argv);
 }
