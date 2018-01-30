@@ -22,7 +22,7 @@ class OpenDKIMAsyncWorker : public Nan::AsyncWorker {
 
       v8::Local<v8::Value> argv[] = {
           Nan::Error(result),
-          Nan::Null()
+          Nan::Undefined()
       };
       callback->Call(2, argv);
     }

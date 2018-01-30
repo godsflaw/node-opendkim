@@ -15,8 +15,8 @@ void OpenDKIMEOHAsyncWorker::HandleOKCallback() {
   Nan::HandleScope scope;
 
   v8::Local<v8::Value> argv[] = {
-    Nan::Null(),
-    Nan::Null()
+    Nan::Undefined(),
+    Nan::Undefined()
   };
 
   callback->Call(2, argv);

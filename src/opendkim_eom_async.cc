@@ -14,8 +14,8 @@ void OpenDKIMEOMAsyncWorker::Execute() {
 void OpenDKIMEOMAsyncWorker::HandleOKCallback() {
   Nan::HandleScope scope;
   v8::Local<v8::Value> argv[] = {
-    Nan::Null(),    // err
-    Nan::Null()     // result
+    Nan::Undefined(),    // err
+    Nan::Undefined()     // result
   };
 
   if (returntest) {

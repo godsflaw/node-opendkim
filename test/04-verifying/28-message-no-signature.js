@@ -68,7 +68,7 @@ test('test no signature through header(), eoh(), body(), and eom()', async t => 
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
     for (var i = 0; i < headers.length; i++) {
       var line = headers[i];
-      opendkim.header({
+      await opendkim.header({
         header: line,
         length: line.length
       });

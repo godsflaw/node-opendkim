@@ -1,11 +1,14 @@
 #include "opendkim.h"
-#include "opendkim_sign_async.h"
 #include "opendkim_eoh_async.h"
 #include "opendkim_eom_async.h"
+#include "opendkim_header_async.h"
+#include "opendkim_sign_async.h"
 #include <stdio.h>
 #include <unistd.h>    // TODO(godsflaw): port for windows?
 
 #define IDENTITY_SIZE 64
+#define MAXHDRCOUNT 100000
+
 
 namespace opendkim {
 
@@ -62,6 +65,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
 
   // Processing methods
   Nan::SetPrototypeMethod(tpl, "native_header", Header);
+  Nan::SetPrototypeMethod(tpl, "native_header_sync", HeaderSync);
   Nan::SetPrototypeMethod(tpl, "native_eoh", EOH);
   Nan::SetPrototypeMethod(tpl, "native_eoh_sync", EOHSync);
   Nan::SetPrototypeMethod(tpl, "native_body", Body);
@@ -113,51 +117,101 @@ NAN_METHOD(OpenDKIM::FlushCache) {
 }
 
 NAN_METHOD(OpenDKIM::Header) {
-  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-  DKIM_STAT statp = DKIM_STAT_OK;
+  // dispatch this job to a worker
+  Nan::AsyncQueueWorker(new OpenDKIMHeaderAsyncWorker(info));
+  info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::HeaderSync) {
+  const char *result = NULL;
+  OpenDKIM* obj = NULL;
   char *header = NULL;
   int length = 0;
 
-  if (info.Length() != 1) {
-    Nan::ThrowTypeError("header(): Wrong number of arguments");
-    goto finish_header;
+  result = HeaderArgs(
+    info,
+    &obj,
+    &header,
+    &length
+  );
+
+  // skip HeaderBase if we have an argument error
+  if (result != NULL) {
+    goto finish_header_sync;
   }
+
+  // call synchronously
+  result = HeaderBase(obj, header, length);
+
+  finish_header_sync:
+
+  if (result != NULL) {
+    Nan::ThrowTypeError(result);
+  }
+
+  info.GetReturnValue().Set(info.This());
+}
+
+const char *OpenDKIM::HeaderArgs(
+  Nan::NAN_METHOD_ARGS_TYPE info,
+  OpenDKIM **obj,
+  char **header,
+  int *length) {
+  const char *result = NULL;
+  *obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  *header = NULL;
+  *length = -1;
 
   if (!info[0]->IsObject()) {
-    Nan::ThrowTypeError("header(): Argument should be an object");
-    goto finish_header;
+    result = "header(): Argument should be an object";
+    goto finish_header_args;
   }
 
-  if (!_value_to_char(info[0], "header", &header)) {
-    Nan::ThrowTypeError("header(): header is undefined");
-    goto finish_header;
+  // header
+  if (!_value_to_char(info[0], "header", header)) {
+    result = "header(): header is undefined";
+    goto finish_header_args;
   }
 
   // length
-  length = _value_to_int(info[0], "length");
-  if (length == 0) {
-    Nan::ThrowTypeError("header(): length must be defined and non-zero");
-    goto finish_header;
+  *length = _value_to_int(info[0], "length");
+  if (*length == 0) {
+    result = "header(): length must be defined and non-zero";
+    goto finish_header_args;
   }
 
-  if (obj->dkim == NULL) {
-    Nan::ThrowTypeError("header(): sign() or verify() must be called first");
-    goto finish_header;
+  if ((*obj)->dkim == NULL) {
+    result = "header(): sign() or verify() must be called first";
+    goto finish_header_args;
   }
+
+  finish_header_args:
+
+  if (result != NULL) {
+    _safe_free(header);
+  }
+
+  return result;
+}
+
+const char *OpenDKIM::HeaderBase(
+  OpenDKIM *obj,
+  char *header,
+  int length)
+{
+  const char *result = NULL;
+  DKIM_STAT statp = DKIM_STAT_OK;
 
   statp = dkim_header(obj->dkim, (unsigned char *)header, length);
 
   // Test for error and throw an exception back to js.
   if (statp != DKIM_STAT_OK) {
-    throw_error(statp);
-    goto finish_header;
+    result = get_error(statp);
   }
-
-  finish_header:
 
   _safe_free(&header);
 
-  info.GetReturnValue().Set(info.This());
+  return result;
 }
 
 NAN_METHOD(OpenDKIM::EOH) {
@@ -309,10 +363,6 @@ const char *OpenDKIM::EOMArgs(
   }
 
   finish_eom_args:
-
-  if (result != NULL) {
-    Nan::ThrowTypeError(result);
-  }
 
   return result;
 }
@@ -726,8 +776,6 @@ const char *OpenDKIM::SignArgs(
     _safe_free(hdrcanon);
     _safe_free(bodycanon);
     _safe_free(signalg);
-
-    Nan::ThrowTypeError(result);
   }
 
   return result;
@@ -994,8 +1042,6 @@ NAN_METHOD(OpenDKIM::SetOption) {
   info.GetReturnValue().Set(info.This());
 }
 
-#define MAXHDRCOUNT 100000
-
 NAN_METHOD(OpenDKIM::OHDRS) {
    OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
    unsigned char *ohdrs[MAXHDRCOUNT];
@@ -1005,7 +1051,9 @@ NAN_METHOD(OpenDKIM::OHDRS) {
    Isolate* isolate = info.GetIsolate(); // Needed to make new array
 
    if (obj->sig == NULL) {
-      Nan::ThrowTypeError("ohdrs(): either there was no signature or called before eom() or chunk_end()");
+      Nan::ThrowTypeError(
+        "ohdrs(): either there was no signature or called before eom() or chunk_end()"
+      );
       return;
    }
 
@@ -1046,17 +1094,22 @@ NAN_METHOD(OpenDKIM::LibFeature) {
   }
 
   // Convert feature into the appropriate int
-  if (strcmp(feature, "DKIM_FEATURE_DIFFHEADERS") == 0) { feature_int = DKIM_FEATURE_DIFFHEADERS; }
-  else if (strcmp(feature, "DKIM_FEATURE_PARSE_TIME") == 0) { feature_int = DKIM_FEATURE_PARSE_TIME; }
-  else if (strcmp(feature, "DKIM_FEATURE_QUERY_CACHE") == 0) { feature_int = DKIM_FEATURE_QUERY_CACHE; }
-  else if (strcmp(feature, "DKIM_FEATURE_SHA256") == 0) { feature_int = DKIM_FEATURE_SHA256; }
-  else if (strcmp(feature, "DKIM_FEATURE_DNSSEC") == 0) { feature_int = DKIM_FEATURE_DNSSEC; }
-  else if (strcmp(feature, "DKIM_FEATURE_OVERSIGN") == 0) { feature_int = DKIM_FEATURE_OVERSIGN; }
-  else {
-      Nan::ThrowTypeError("lib_feature(): Invalid feature");
-      goto finish_lib_feature;
+  if (strcmp(feature, "DKIM_FEATURE_DIFFHEADERS") == 0) {
+    feature_int = DKIM_FEATURE_DIFFHEADERS;
+  } else if (strcmp(feature, "DKIM_FEATURE_PARSE_TIME") == 0) {
+    feature_int = DKIM_FEATURE_PARSE_TIME;
+  } else if (strcmp(feature, "DKIM_FEATURE_QUERY_CACHE") == 0) {
+    feature_int = DKIM_FEATURE_QUERY_CACHE;
+  } else if (strcmp(feature, "DKIM_FEATURE_SHA256") == 0) {
+    feature_int = DKIM_FEATURE_SHA256;
+  } else if (strcmp(feature, "DKIM_FEATURE_DNSSEC") == 0) {
+    feature_int = DKIM_FEATURE_DNSSEC;
+  } else if (strcmp(feature, "DKIM_FEATURE_OVERSIGN") == 0) {
+    feature_int = DKIM_FEATURE_OVERSIGN;
+  } else {
+    Nan::ThrowTypeError("lib_feature(): Invalid feature");
+    goto finish_lib_feature;
   }
-
 
   result = dkim_libfeature(dkim_lib, feature_int);
 

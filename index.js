@@ -14,12 +14,37 @@ OpenDKIM.prototype.lib_feature = function (feature) {
 
 
 // Processing methods
-OpenDKIM.prototype.header = function (arg) {
-  return this.native_header(arg);
+OpenDKIM.prototype.header = function (obj, callback) {
+  var self = this;
+
+  if (arguments.length === 0) {
+    throw new Error('header(): Wrong number of arguments');
+  }
+
+  // added for the poor folks that call this as an errback without a try/catch
+  if (arguments.length === 1 && typeof obj === 'function') {
+    return obj(new Error('header(obj, func): Wrong number of arguments'));
+  }
+
+  if (arguments.length === 2) {
+    // errback
+    this.native_header(obj, callback);
+  } else {
+    // Promise
+    return new Promise(function (resolve, reject) {
+      self.native_header(obj, function (err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
 };
 
-OpenDKIM.prototype.eoh_sync = function () {
-  return this.native_eoh_sync();
+OpenDKIM.prototype.header_sync = function (arg) {
+  return this.native_header_sync(arg);
 };
 
 OpenDKIM.prototype.eoh = function (callback) {
@@ -42,16 +67,12 @@ OpenDKIM.prototype.eoh = function (callback) {
   }
 };
 
-OpenDKIM.prototype.body = function (arg) {
-  return this.native_body(arg);
+OpenDKIM.prototype.eoh_sync = function () {
+  return this.native_eoh_sync();
 };
 
-OpenDKIM.prototype.eom_sync = function (obj) {
-  if (obj === undefined) {
-    obj = {testkey: false};
-  }
-
-  return this.native_eom_sync(obj);
+OpenDKIM.prototype.body = function (arg) {
+  return this.native_body(arg);
 };
 
 OpenDKIM.prototype.eom = function (obj, callback) {
@@ -84,6 +105,14 @@ OpenDKIM.prototype.eom = function (obj, callback) {
   }
 };
 
+OpenDKIM.prototype.eom_sync = function (obj) {
+  if (obj === undefined) {
+    obj = {testkey: false};
+  }
+
+  return this.native_eom_sync(obj);
+};
+
 OpenDKIM.prototype.chunk = function (arg) {
   return this.native_chunk(arg);
 };
@@ -94,14 +123,6 @@ OpenDKIM.prototype.chunk_end = function () {
 
 
 // Sign methods
-OpenDKIM.prototype.sign_sync = function (obj) {
-  if (arguments.length === 0) {
-    throw new Error('sign(): Wrong number of arguments');
-  }
-
-  return this.native_sign_sync(obj);
-};
-
 OpenDKIM.prototype.sign = function (obj, callback) {
   var self = this;
 
@@ -129,6 +150,14 @@ OpenDKIM.prototype.sign = function (obj, callback) {
       });
     });
   }
+};
+
+OpenDKIM.prototype.sign_sync = function (obj) {
+  if (arguments.length === 0) {
+    throw new Error('sign(): Wrong number of arguments');
+  }
+
+  return this.native_sign_sync(obj);
 };
 
 

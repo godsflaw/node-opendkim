@@ -23,7 +23,7 @@ test('test eoh_sync method works after header calls', t => {
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
     for (var i = 0; i < headers.length; i++) {
       var line = headers[i];
-      opendkim.header({
+      opendkim.header_sync({
         header: line,
         length: line.length
       });

@@ -15,7 +15,7 @@ test('test eom_sync needs context', t => {
   }
 });
 
-test('test eom_sync works after header, eoh, and body calls', async t => {
+test('test eom_sync works after header, eoh, and body calls', t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -28,12 +28,12 @@ test('test eom_sync works after header, eoh, and body calls', async t => {
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
     for (var i = 0; i < headers.length; i++) {
       var line = headers[i];
-      opendkim.header({
+      opendkim.header_sync({
         header: line,
         length: line.length
       });
     }
-    await opendkim.eoh();
+    opendkim.eoh_sync();
     opendkim.body({
       body: body,
       length: body.length
@@ -46,7 +46,7 @@ test('test eom_sync works after header, eoh, and body calls', async t => {
   }
 });
 
-test('test eom_sync chaining', async t => {
+test('test eom_sync chaining', t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -59,12 +59,12 @@ test('test eom_sync chaining', async t => {
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
     for (var i = 0; i < headers.length; i++) {
       var line = headers[i];
-      opendkim.header({
+      opendkim.header_sync({
         header: line,
         length: line.length
       });
     }
-    await opendkim.eoh();
+    opendkim.eoh_sync();
     opendkim.body({
       body: body,
       length: body.length
@@ -77,7 +77,7 @@ test('test eom_sync chaining', async t => {
   }
 });
 
-test('test eom_sync testkey', async t => {
+test('test eom_sync testkey', t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -90,12 +90,12 @@ test('test eom_sync testkey', async t => {
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
     for (var i = 0; i < headers.length; i++) {
       var line = headers[i];
-      opendkim.header({
+      opendkim.header_sync({
         header: line,
         length: line.length
       });
     }
-    await opendkim.eoh();
+    opendkim.eoh_sync();
     opendkim.body({
       body: body,
       length: body.length
