@@ -34,7 +34,7 @@ test('test eom_sync works after header, eoh, and body calls', t => {
       });
     }
     opendkim.eoh_sync();
-    opendkim.body({
+    opendkim.body_sync({
       body: body,
       length: body.length
     });
@@ -65,7 +65,7 @@ test('test eom_sync chaining', t => {
       });
     }
     opendkim.eoh_sync();
-    opendkim.body({
+    opendkim.body_sync({
       body: body,
       length: body.length
     });
@@ -96,7 +96,7 @@ test('test eom_sync testkey', t => {
       });
     }
     opendkim.eoh_sync();
-    opendkim.body({
+    opendkim.body_sync({
       body: body,
       length: body.length
     });

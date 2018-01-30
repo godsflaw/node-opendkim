@@ -5,40 +5,60 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test body method with no argument', t => {
+test('test body method with no argument', async t => {
   try {
     var opendkim = new OpenDKIM();
-    opendkim.body();
+    await opendkim.body();
+    t.fail();
+  } catch (err) {
+    t.is(err.message, 'body(): Wrong number of arguments');
+  }
+});
+
+test.cb('test body method with no argument (errback)', t => {
+  t.plan(2);
+  var opendkim = new OpenDKIM();
+  opendkim.body(function (err, result) {
+    t.is(result, undefined);
+    t.is(err.message, 'body(obj, func): Wrong number of arguments');
+    t.end();
+  });
+});
+
+test('test body method with numeric argument', async t => {
+  try {
+    var opendkim = new OpenDKIM();
+    await opendkim.body(1);
     t.fail();
   } catch (err) {
     t.is(err.message, 'body(): Argument should be an object');
   }
 });
 
-test('test body method with numeric argument', t => {
+test('test body method with string argument', async t => {
   try {
     var opendkim = new OpenDKIM();
-    opendkim.body(1);
+    await opendkim.body('test');
     t.fail();
   } catch (err) {
     t.is(err.message, 'body(): Argument should be an object');
   }
 });
 
-test('test body method with string argument', t => {
-  try {
-    var opendkim = new OpenDKIM();
-    opendkim.body('test');
-    t.fail();
-  } catch (err) {
+test.cb('test body method with string argument (errback)', t => {
+  t.plan(2);
+  var opendkim = new OpenDKIM();
+  opendkim.body('test', function (err, result) {
+    t.is(result, undefined);
     t.is(err.message, 'body(): Argument should be an object');
-  }
+    t.end();
+  });
 });
 
-test('test body method with missing body arg', t => {
+test('test body method with missing body arg', async t => {
   try {
     var opendkim = new OpenDKIM();
-    opendkim.body({
+    await opendkim.body({
       // nothing
     });
     t.fail();
@@ -47,11 +67,11 @@ test('test body method with missing body arg', t => {
   }
 });
 
-test('test body method with missing length arg', t => {
+test('test body method with missing length arg', async t => {
   try {
     var opendkim = new OpenDKIM();
     var body = 'This is a test';
-    opendkim.body({
+    await opendkim.body({
       body: body
     });
     t.fail();
@@ -60,11 +80,11 @@ test('test body method with missing length arg', t => {
   }
 });
 
-test('test body needs context', t => {
+test('test body needs context', async t => {
   try {
     var opendkim = new OpenDKIM();
     var body = 'This is a test';
-    opendkim.body({
+    await opendkim.body({
       body: body,
       length: body.length
     });
@@ -72,6 +92,32 @@ test('test body needs context', t => {
   } catch (err) {
     t.is(err.message, 'body(): sign() or verify() must be called first');
   }
+});
+
+test.cb('test body method works after header and eoh (errback)', t => {
+  t.plan(3);
+  var opendkim = new OpenDKIM();
+  opendkim.verify({id: undefined});
+  var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
+  var body = messages.good.substring(messages.good.indexOf('\r\n\r\n') + 4);
+  var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
+  for (var i = 0; i < headers.length; i++) {
+    var line = headers[i];
+    opendkim.header_sync({
+      header: line,
+      length: line.length
+    });
+  }
+  opendkim.eoh_sync();
+  opendkim.body({
+    body: body,
+    length: body.length
+  }, function (err, result) {
+    t.is(err, undefined);
+    t.is(result, undefined);
+    t.pass();
+    t.end();
+  });
 });
 
 test('test body method works after header and eoh', async t => {
@@ -89,7 +135,7 @@ test('test body method works after header and eoh', async t => {
       });
     }
     await opendkim.eoh();
-    opendkim.body({
+    await opendkim.body({
       body: body,
       length: body.length
     });

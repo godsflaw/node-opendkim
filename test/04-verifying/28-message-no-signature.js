@@ -74,7 +74,7 @@ test('test no signature through header(), eoh(), body(), and eom()', async t => 
       });
     }
     await opendkim.eoh();
-    opendkim.body({
+    await opendkim.body({
       body: body,
       length: body.length
     });

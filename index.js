@@ -43,8 +43,8 @@ OpenDKIM.prototype.header = function (obj, callback) {
   }
 };
 
-OpenDKIM.prototype.header_sync = function (arg) {
-  return this.native_header_sync(arg);
+OpenDKIM.prototype.header_sync = function (obj) {
+  return this.native_header_sync(obj);
 };
 
 OpenDKIM.prototype.eoh = function (callback) {
@@ -71,8 +71,37 @@ OpenDKIM.prototype.eoh_sync = function () {
   return this.native_eoh_sync();
 };
 
-OpenDKIM.prototype.body = function (arg) {
-  return this.native_body(arg);
+OpenDKIM.prototype.body = function (obj, callback) {
+  var self = this;
+
+  if (arguments.length === 0) {
+    throw new Error('body(): Wrong number of arguments');
+  }
+
+  // added for the poor folks that call this as an errback without a try/catch
+  if (arguments.length === 1 && typeof obj === 'function') {
+    return obj(new Error('body(obj, func): Wrong number of arguments'));
+  }
+
+  if (arguments.length === 2) {
+    // errback
+    this.native_body(obj, callback);
+  } else {
+    // Promise
+    return new Promise(function (resolve, reject) {
+      self.native_body(obj, function (err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+};
+
+OpenDKIM.prototype.body_sync = function (obj) {
+  return this.native_body_sync(obj);
 };
 
 OpenDKIM.prototype.eom = function (obj, callback) {
@@ -113,8 +142,8 @@ OpenDKIM.prototype.eom_sync = function (obj) {
   return this.native_eom_sync(obj);
 };
 
-OpenDKIM.prototype.chunk = function (arg) {
-  return this.native_chunk(arg);
+OpenDKIM.prototype.chunk = function (obj) {
+  return this.native_chunk(obj);
 };
 
 OpenDKIM.prototype.chunk_end = function () {

@@ -43,10 +43,25 @@ class OpenDKIM : public Nan::ObjectWrap {
       char *header,
       int length
     );
+
     static NAN_METHOD(EOH);
     static NAN_METHOD(EOHSync);
     static const char *EOHBase(OpenDKIM *obj);
+
     static NAN_METHOD(Body);
+    static NAN_METHOD(BodySync);
+    static const char *BodyArgs(
+      Nan::NAN_METHOD_ARGS_TYPE info,
+      OpenDKIM **obj,
+      char **body,
+      int *length
+    );
+    static const char *BodyBase(
+      OpenDKIM *obj,
+      char *body,
+      int length
+    );
+
     static NAN_METHOD(EOM);
     static NAN_METHOD(EOMSync);
     static const char *EOMArgs(
@@ -55,6 +70,7 @@ class OpenDKIM : public Nan::ObjectWrap {
       bool *returntest
     );
     static const char *EOMBase(OpenDKIM *obj, bool returntest, bool *testkey);
+
     static NAN_METHOD(Chunk);
     static NAN_METHOD(ChunkEnd);
 

@@ -44,7 +44,7 @@ test('test eom works after header, eoh, and body calls', async t => {
       });
     }
     await opendkim.eoh();
-    opendkim.body({
+    await opendkim.body({
       body: body,
       length: body.length
     });
@@ -75,7 +75,7 @@ test.cb('test eom works after header, eoh, and body calls (errback)', t => {
     });
   }
   opendkim.eoh_sync();
-  opendkim.body({
+  opendkim.body_sync({
     body: body,
     length: body.length
   });
@@ -106,7 +106,7 @@ test('test eom testkey', async t => {
       });
     }
     await opendkim.eoh();
-    opendkim.body({
+    await opendkim.body({
       body: body,
       length: body.length
     });
