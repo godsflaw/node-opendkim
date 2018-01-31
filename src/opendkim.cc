@@ -76,7 +76,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "sig_getselector", SigGetSelector);
   Nan::SetPrototypeMethod(tpl, "sig_geterror", SigGetError);
   Nan::SetPrototypeMethod(tpl, "sig_geterrorstr", SigGetErrorStr);
-  Nan::SetPrototypeMethod(tpl, "get_canonlen", GetCanonlen);
+  Nan::SetPrototypeMethod(tpl, "sig_getcanonlen", SigGetCanonlen);
 
   // Utility methods
   Nan::SetPrototypeMethod(tpl, "get_option", GetOption);
@@ -241,7 +241,7 @@ NAN_METHOD(OpenDKIM::EOM) {
      if (!info[0]->IsObject()) {
         Nan::ThrowTypeError("eom(): Argument should be an object");
      } else {
-        returntest = _value_to_bool(info[0], "testkey"); 
+        returntest = _value_to_bool(info[0], "testkey");
      }
   }
 
@@ -352,7 +352,7 @@ NAN_METHOD(OpenDKIM::SigGetDomain) {
 
   if (obj->dkim == NULL) {
     Nan::ThrowTypeError(
-      "sig_getdomain(): library must be initialized first"  
+      "sig_getdomain(): library must be initialized first"
     );
     return;
   }
@@ -365,7 +365,7 @@ NAN_METHOD(OpenDKIM::SigGetDomain) {
     );
     return;
   }
-  
+
   if ((data = dkim_sig_getdomain(obj->sig)) == NULL) {
     info.GetReturnValue().Set(Nan::New<v8::String>("").ToLocalChecked());
   } else {
@@ -437,7 +437,7 @@ NAN_METHOD(OpenDKIM::SigGetErrorStr) {
   info.GetReturnValue().Set(Nan::New<v8::String>(errorstr).ToLocalChecked());
 }
 
-NAN_METHOD(OpenDKIM::GetCanonlen) {
+NAN_METHOD(OpenDKIM::SigGetCanonlen) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
   long msglen, canonlen, signlen;
 
