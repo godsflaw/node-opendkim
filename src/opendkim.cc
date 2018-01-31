@@ -76,6 +76,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "sig_getselector", SigGetSelector);
   Nan::SetPrototypeMethod(tpl, "sig_geterror", SigGetError);
   Nan::SetPrototypeMethod(tpl, "sig_geterrorstr", SigGetErrorStr);
+  Nan::SetPrototypeMethod(tpl, "get_canonlen", GetCanonlen);
 
   // Utility methods
   Nan::SetPrototypeMethod(tpl, "get_option", GetOption);
@@ -423,17 +424,56 @@ NAN_METHOD(OpenDKIM::SigGetError) {
   info.GetReturnValue().Set(Nan::New<v8::Int32>(data));
 }
 
-NAN_METHOD(OpenDKIM::SigGetErrorStr) {                                          
-  const char *errorstr = NULL;                                                  
-                                                                                
-  if (info.Length() != 1) {                                                     
-    Nan::ThrowTypeError("sig_geterrorstr(): Wrong number of arguments");        
-    return;                                                                     
-  }                                                                             
-                                                                                
-  errorstr = dkim_sig_geterrorstr(info[0]->NumberValue());                                               
-                                                                                
-  info.GetReturnValue().Set(Nan::New<v8::String>(errorstr).ToLocalChecked());   
+NAN_METHOD(OpenDKIM::SigGetErrorStr) {
+  const char *errorstr = NULL;
+
+  if (info.Length() != 1) {
+    Nan::ThrowTypeError("sig_geterrorstr(): Wrong number of arguments");
+    return;
+  }
+
+  errorstr = dkim_sig_geterrorstr(info[0]->NumberValue());
+
+  info.GetReturnValue().Set(Nan::New<v8::String>(errorstr).ToLocalChecked());
+}
+
+NAN_METHOD(OpenDKIM::GetCanonlen) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  long msglen, canonlen, signlen;
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError(
+      "sig_geterror(): library must be initialized first"
+    );
+    return;
+  }
+
+  obj->GetSignature(info);
+
+  if (obj->sig == NULL) {
+    Nan::ThrowTypeError(
+      "sig_geterror(): get_signature() failed, call it first for more details"
+    );
+    return;
+  }
+
+  dkim_sig_getcanonlen(obj->dkim, obj->sig, &msglen, &canonlen, &signlen);
+
+  v8::Local<v8::Object> jsonObject = Nan::New<v8::Object>();
+
+  v8::Local<v8::String> msglenProp = Nan::New("msglen").ToLocalChecked();
+  v8::Local<v8::String> canonlenProp = Nan::New("canonlen").ToLocalChecked();
+  v8::Local<v8::String> signlenProp = Nan::New("signlen").ToLocalChecked();
+
+  v8::Local<v8::Value> msglenValue = Nan::New((int)msglen);
+  v8::Local<v8::Value> canonlenValue = Nan::New((int)canonlen);
+  v8::Local<v8::Value> signlenValue = Nan::New((int)signlen);
+
+  Nan::Set(jsonObject, msglenProp, msglenValue);
+  Nan::Set(jsonObject, canonlenProp, canonlenValue);
+  Nan::Set(jsonObject, signlenProp, signlenValue);
+
+  info.GetReturnValue().Set(jsonObject);
 }
 
 NAN_METHOD(OpenDKIM::Chunk) {
