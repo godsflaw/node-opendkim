@@ -17,15 +17,15 @@ test('test get_signature before verify', t => {
   }
 });
 
-test('test get_signature before chunk_end', t => {
-  try {
-    var opendkim = new OpenDKIM();
+test('test get_signature before chunk_end', async t => {
+  var opendkim = new OpenDKIM();
 
+  try {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
@@ -40,7 +40,7 @@ test('test get_signature before chunk_end', t => {
   }
 });
 
-test('test get_signature after chunk', t => {
+test('test get_signature after chunk', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -48,7 +48,7 @@ test('test get_signature after chunk', t => {
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });

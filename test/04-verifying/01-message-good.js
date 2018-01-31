@@ -5,7 +5,7 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test good message chunk', t => {
+test('test good message chunk', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -13,7 +13,7 @@ test('test good message chunk', t => {
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
@@ -25,7 +25,7 @@ test('test good message chunk', t => {
   }
 });
 
-test('test good message multi-chunk', t => {
+test('test good message multi-chunk', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -39,7 +39,7 @@ test('test good message multi-chunk', t => {
 
     for (var i = 0, o = 0; i < numChunks; ++i, o += chunks) {
       var chunk = messages.good.substr(o, chunks);
-      opendkim.chunk({
+      await opendkim.chunk({
         message: chunk,
         length: chunk.length
       });

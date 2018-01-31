@@ -5,7 +5,7 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test message with bad timestamp (future)', t => {
+test('test message with bad timestamp (future)', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -13,7 +13,7 @@ test('test message with bad timestamp (future)', t => {
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.chunk({
       message: messages.bad_timestamp_future,
       length: messages.bad_timestamp_future.length
     });

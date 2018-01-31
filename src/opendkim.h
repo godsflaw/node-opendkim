@@ -72,6 +72,19 @@ class OpenDKIM : public Nan::ObjectWrap {
     static const char *EOMBase(OpenDKIM *obj, bool returntest, bool *testkey);
 
     static NAN_METHOD(Chunk);
+    static NAN_METHOD(ChunkSync);
+    static const char *ChunkArgs(
+      Nan::NAN_METHOD_ARGS_TYPE info,
+      OpenDKIM **obj,
+      char **message,
+      int *length
+    );
+    static const char *ChunkBase(
+      OpenDKIM *obj,
+      char *message,
+      int length
+    );
+
     static NAN_METHOD(ChunkEnd);
 
     // Signing methods

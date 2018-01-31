@@ -17,7 +17,7 @@ test('test sig_getdomain before verify', t => {
   }
 });
 
-test('test sig_getdomain before chunk_end', t => {
+test('test sig_getdomain before chunk_end', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -25,7 +25,7 @@ test('test sig_getdomain before chunk_end', t => {
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
@@ -41,7 +41,7 @@ test('test sig_getdomain before chunk_end', t => {
   }
 });
 
-test('test sig_getdomain after chunk', t => {
+test('test sig_getdomain after chunk', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -49,7 +49,7 @@ test('test sig_getdomain after chunk', t => {
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
@@ -62,7 +62,7 @@ test('test sig_getdomain after chunk', t => {
   }
 });
 
-test('test a more pedantic sig_getdomain', t => {
+test('test a more pedantic sig_getdomain', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -70,7 +70,7 @@ test('test a more pedantic sig_getdomain', t => {
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });

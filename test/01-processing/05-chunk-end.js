@@ -26,7 +26,7 @@ test('test chunk_end without calling chunk', t => {
   }
 });
 
-test('test chunk_end works after chunk', t => {
+test('test chunk_end works after chunk', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -34,7 +34,7 @@ test('test chunk_end works after chunk', t => {
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: 'testing'});
-    opendkim.chunk({
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });

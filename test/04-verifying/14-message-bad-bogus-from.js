@@ -5,15 +5,15 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test message with bogus from header', t => {
-  try {
-    var opendkim = new OpenDKIM();
+test('test message with bogus from header', async t => {
+  var opendkim = new OpenDKIM();
 
+  try {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.chunk({
       message: messages.bad_bogus_from,
       length: messages.bad_bogus_from.length
     });

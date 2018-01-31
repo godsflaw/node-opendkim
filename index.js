@@ -142,8 +142,37 @@ OpenDKIM.prototype.eom_sync = function (obj) {
   return this.native_eom_sync(obj);
 };
 
-OpenDKIM.prototype.chunk = function (obj) {
-  return this.native_chunk(obj);
+OpenDKIM.prototype.chunk = function (obj, callback) {
+  var self = this;
+
+  if (arguments.length === 0) {
+    throw new Error('chunk(): Wrong number of arguments');
+  }
+
+  // added for the poor folks that call this as an errback without a try/catch
+  if (arguments.length === 1 && typeof obj === 'function') {
+    return obj(new Error('chunk(obj, func): Wrong number of arguments'));
+  }
+
+  if (arguments.length === 2) {
+    // errback
+    this.native_chunk(obj, callback);
+  } else {
+    // Promise
+    return new Promise(function (resolve, reject) {
+      self.native_chunk(obj, function (err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+};
+
+OpenDKIM.prototype.chunk_sync = function (obj) {
+  return this.native_chunk_sync(obj);
 };
 
 OpenDKIM.prototype.chunk_end = function () {

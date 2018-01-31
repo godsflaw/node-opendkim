@@ -5,15 +5,15 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test message with bad timestamp (empty)', t => {
-  try {
-    var opendkim = new OpenDKIM();
+test('test message with bad timestamp (empty)', async t => {
+  var opendkim = new OpenDKIM();
 
+  try {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.chunk({
       message: messages.bad_timestamp_empty,
       length: messages.bad_timestamp_empty.length
     });

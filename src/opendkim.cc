@@ -1,5 +1,6 @@
 #include "opendkim.h"
 #include "opendkim_body_async.h"
+#include "opendkim_chunk_async.h"
 #include "opendkim_eoh_async.h"
 #include "opendkim_eom_async.h"
 #include "opendkim_header_async.h"
@@ -74,6 +75,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "native_eom", EOM);
   Nan::SetPrototypeMethod(tpl, "native_eom_sync", EOMSync);
   Nan::SetPrototypeMethod(tpl, "native_chunk", Chunk);
+  Nan::SetPrototypeMethod(tpl, "native_chunk_sync", ChunkSync);
   Nan::SetPrototypeMethod(tpl, "native_chunk_end", ChunkEnd);
 
   // Signing methods
@@ -624,51 +626,101 @@ NAN_METHOD(OpenDKIM::SigGetErrorStr) {
 }
 
 NAN_METHOD(OpenDKIM::Chunk) {
-  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-  DKIM_STAT statp = DKIM_STAT_OK;
+  // dispatch this job to a worker
+  Nan::AsyncQueueWorker(new OpenDKIMChunkAsyncWorker(info));
+  info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::ChunkSync) {
+  const char *result = NULL;
+  OpenDKIM* obj = NULL;
   char *message = NULL;
   int length = 0;
 
-  if (info.Length() != 1) {
-    Nan::ThrowTypeError("chunk(): Wrong number of arguments");
-    goto finish_chunk;
+  result = ChunkArgs(
+    info,
+    &obj,
+    &message,
+    &length
+  );
+
+  // skip ChunkBase if we have an argument error
+  if (result != NULL) {
+    goto finish_chunk_sync;
   }
+
+  // call synchronously
+  result = ChunkBase(obj, message, length);
+
+  finish_chunk_sync:
+
+  if (result != NULL) {
+    Nan::ThrowTypeError(result);
+  }
+
+  info.GetReturnValue().Set(info.This());
+}
+
+const char *OpenDKIM::ChunkArgs(
+  Nan::NAN_METHOD_ARGS_TYPE info,
+  OpenDKIM **obj,
+  char **message,
+  int *length) {
+  const char *result = NULL;
+  *obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  *message = NULL;
+  *length = -1;
 
   if (!info[0]->IsObject()) {
-    Nan::ThrowTypeError("chunk(): Argument should be an object");
-    goto finish_chunk;
+    result = "chunk(): Argument should be an object";
+    goto finish_chunk_args;
   }
 
-  if (!_value_to_char(info[0], "message", &message)) {
-    Nan::ThrowTypeError("chunk(): message is undefined");
-    goto finish_chunk;
+  // message
+  if (!_value_to_char(info[0], "message", message)) {
+    result = "chunk(): message is undefined";
+    goto finish_chunk_args;
   }
 
   // length
-  length = _value_to_int(info[0], "length");
-  if (length == 0) {
-    Nan::ThrowTypeError("chunk(): length must be defined and non-zero");
-    goto finish_chunk;
+  *length = _value_to_int(info[0], "length");
+  if (*length == 0) {
+    result = "chunk(): length must be defined and non-zero";
+    goto finish_chunk_args;
   }
 
-  if (obj->dkim == NULL) {
-    Nan::ThrowTypeError("chunk(): sign() or verify() must be called first");
-    goto finish_chunk;
+  if ((*obj)->dkim == NULL) {
+    result = "chunk(): sign() or verify() must be called first";
+    goto finish_chunk_args;
   }
+
+  finish_chunk_args:
+
+  if (result != NULL) {
+    _safe_free(message);
+  }
+
+  return result;
+}
+
+const char *OpenDKIM::ChunkBase(
+  OpenDKIM *obj,
+  char *message,
+  int length)
+{
+  const char *result = NULL;
+  DKIM_STAT statp = DKIM_STAT_OK;
 
   statp = dkim_chunk(obj->dkim, (unsigned char *)message, length);
 
   // Test for error and throw an exception back to js.
   if (statp != DKIM_STAT_OK) {
-    throw_error(statp);
-    goto finish_chunk;
+    result = get_error(statp);
   }
-
-  finish_chunk:
 
   _safe_free(&message);
 
-  info.GetReturnValue().Set(info.This());
+  return result;
 }
 
 NAN_METHOD(OpenDKIM::ChunkEnd) {

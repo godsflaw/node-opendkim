@@ -5,60 +5,40 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test chunk with no argument', async t => {
+test('test chunk_sync with no argument', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.chunk();
-    t.fail();
-  } catch (err) {
-    t.is(err.message, 'chunk(): Wrong number of arguments');
-  }
-});
-
-test.cb('test chunk with no argument (errback)', t => {
-  t.plan(2);
-  var opendkim = new OpenDKIM();
-  opendkim.chunk(function (err, result) {
-    t.is(result, undefined);
-    t.is(err.message, 'chunk(obj, func): Wrong number of arguments');
-    t.end();
-  });
-});
-
-test('test chunk with numeric argument', async t => {
-  try {
-    var opendkim = new OpenDKIM();
-    await opendkim.chunk(1);
+    opendkim.chunk_sync();
     t.fail();
   } catch (err) {
     t.is(err.message, 'chunk(): Argument should be an object');
   }
 });
 
-test('test chunk with string argument', async t => {
+test('test chunk_sync with numeric argument', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.chunk('test');
+    opendkim.chunk_sync(1);
     t.fail();
   } catch (err) {
     t.is(err.message, 'chunk(): Argument should be an object');
   }
 });
 
-test.cb('test chunk with string argument (errback)', t => {
-  t.plan(2);
-  var opendkim = new OpenDKIM();
-  opendkim.chunk('test', function (err, result) {
-    t.is(result, undefined);
-    t.is(err.message, 'chunk(): Argument should be an object');
-    t.end();
-  });
-});
-
-test('test chunk with missing chunk arg', async t => {
+test('test chunk_sync with string argument', t => {
   try {
     var opendkim = new OpenDKIM();
-    await opendkim.chunk({
+    opendkim.chunk_sync('test');
+    t.fail();
+  } catch (err) {
+    t.is(err.message, 'chunk(): Argument should be an object');
+  }
+});
+
+test('test chunk_sync with missing chunk arg', t => {
+  try {
+    var opendkim = new OpenDKIM();
+    opendkim.chunk_sync({
       // nothing
     });
     t.fail();
@@ -67,13 +47,13 @@ test('test chunk with missing chunk arg', async t => {
   }
 });
 
-test('test chunk with missing length arg', async t => {
+test('test chunk_sync with missing length arg', t => {
   try {
     var opendkim = new OpenDKIM();
     var message = 'From: <herp@derp.com>\r\n';
     message += '\r\n';
     message += 'this is a test';
-    await opendkim.chunk({
+    opendkim.chunk_sync({
       message: message
     });
     t.fail();
@@ -82,13 +62,13 @@ test('test chunk with missing length arg', async t => {
   }
 });
 
-test('test chunk needs context', async t => {
+test('test chunk_sync needs context', t => {
   try {
     var opendkim = new OpenDKIM();
     var message = 'From: <herp@derp.com>\r\n';
     message += '\r\n';
     message += 'this is a test';
-    await opendkim.chunk({
+    opendkim.chunk_sync({
       message: message,
       length: message.length
     });
@@ -98,27 +78,7 @@ test('test chunk needs context', async t => {
   }
 });
 
-test.cb('test chunk works (errback)', t => {
-  t.plan(3);
-  var opendkim = new OpenDKIM();
-
-  opendkim.query_method('DKIM_QUERY_FILE');
-  opendkim.query_info('../fixtures/testkeys');
-
-  opendkim.verify({id: undefined});
-  opendkim.chunk({
-    message: messages.good,
-    length: messages.good.length
-  }, function (err, result) {
-    t.is(err, undefined);
-    t.is(result, undefined);
-    t.pass();
-    opendkim.chunk_end();
-    t.end();
-  });
-});
-
-test('test chunk works', async t => {
+test('test chunk_sync works', t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -126,7 +86,7 @@ test('test chunk works', async t => {
     opendkim.query_info('../fixtures/testkeys');
 
     opendkim.verify({id: undefined});
-    await opendkim.chunk({
+    opendkim.chunk_sync({
       message: messages.good,
       length: messages.good.length
     });
@@ -138,7 +98,7 @@ test('test chunk works', async t => {
   }
 });
 
-test('test many chunks', async t => {
+test('test many chunk_sync', t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -152,7 +112,7 @@ test('test many chunks', async t => {
 
     for (var i = 0, o = 0; i < numChunks; ++i, o += chunks) {
       var chunk = messages.good.substr(o, chunks);
-      await opendkim.chunk({
+      opendkim.chunk_sync({
         message: chunk,
         length: chunk.length
       });
@@ -165,5 +125,3 @@ test('test many chunks', async t => {
     t.fail();
   }
 });
-
-// For more usage of the chunk() interface check test/04-verifying/*
