@@ -1,6 +1,7 @@
 #include "opendkim.h"
 #include "opendkim_body_async.h"
 #include "opendkim_chunk_async.h"
+#include "opendkim_chunk_end_async.h"
 #include "opendkim_eoh_async.h"
 #include "opendkim_eom_async.h"
 #include "opendkim_header_async.h"
@@ -77,6 +78,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "native_chunk", Chunk);
   Nan::SetPrototypeMethod(tpl, "native_chunk_sync", ChunkSync);
   Nan::SetPrototypeMethod(tpl, "native_chunk_end", ChunkEnd);
+  Nan::SetPrototypeMethod(tpl, "native_chunk_end_sync", ChunkEndSync);
 
   // Signing methods
   Nan::SetPrototypeMethod(tpl, "native_sign", Sign);
@@ -724,13 +726,33 @@ const char *OpenDKIM::ChunkBase(
 }
 
 NAN_METHOD(OpenDKIM::ChunkEnd) {
+  // dispatch this job to a worker
+  Nan::AsyncQueueWorker(new OpenDKIMChunkEndAsyncWorker(info));
+  info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::ChunkEndSync) {
   const char *result = NULL;
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+
+  // call synchronously
+  result = ChunkEndBase(obj);
+
+  if (result != NULL) {
+    Nan::ThrowTypeError(result);
+  }
+
+  info.GetReturnValue().Set(info.This());
+}
+
+const char *OpenDKIM::ChunkEndBase(OpenDKIM *obj)
+{
+  const char *result = NULL;
   DKIM_STAT statp = DKIM_STAT_OK;
 
   if (obj->dkim == NULL) {
     result = "chunk_end(): sign() or verify(), then chunk() must be called first";
-    goto finish_chunk_end;
+    goto finish_chunk_end_base;
   }
 
   // When done with calling chunk(), we need to call it with NULL pointer and 0 length.
@@ -739,19 +761,15 @@ NAN_METHOD(OpenDKIM::ChunkEnd) {
   // Test for error and throw an exception back to js.
   if (statp != DKIM_STAT_OK) {
     result = get_error(statp);
-    goto finish_chunk_end;
+    goto finish_chunk_end_base;
   }
 
   // We also need to call dkim_eom(), so we can just call that method.
   result = obj->EOMBase(obj, false, NULL);
 
-  finish_chunk_end:
+  finish_chunk_end_base:
 
-  if (result != NULL) {
-    Nan::ThrowTypeError(result);
-  }
-
-  info.GetReturnValue().Set(info.This());
+  return result;
 }
 
 NAN_METHOD(OpenDKIM::Sign) {

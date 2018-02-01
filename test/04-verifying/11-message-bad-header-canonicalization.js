@@ -17,7 +17,7 @@ test('test message with bad header canonicalization', async t => {
       message: messages.bad_header_canonicalization,
       length: messages.bad_header_canonicalization.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

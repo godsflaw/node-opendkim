@@ -86,6 +86,9 @@ class OpenDKIM : public Nan::ObjectWrap {
     );
 
     static NAN_METHOD(ChunkEnd);
+    static NAN_METHOD(ChunkEndSync);
+    static const char *ChunkEndBase(OpenDKIM *obj);
+
 
     // Signing methods
     static NAN_METHOD(Sign);

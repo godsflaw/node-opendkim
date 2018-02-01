@@ -17,7 +17,7 @@ test('test malformed message', async t => {
       message: messages.bad_malformed,
       length: messages.bad_malformed.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     // This isn't the best test, since lots of things end in a

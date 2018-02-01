@@ -17,7 +17,7 @@ test('test good message chunk', async t => {
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.pass();
   } catch (err) {
     console.log(err);
@@ -45,7 +45,7 @@ test('test good message multi-chunk', async t => {
       });
     }
 
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.pass();
   } catch (err) {
     console.log(err);

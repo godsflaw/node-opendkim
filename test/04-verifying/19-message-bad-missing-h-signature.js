@@ -17,7 +17,7 @@ test('test message with missing h=', async t => {
       message: messages.bad_missing_h_signature,
       length: messages.bad_missing_h_signature.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

@@ -17,7 +17,7 @@ test('test message with oversized l=', async t => {
       message: messages.bad_oversized_l,
       length: messages.bad_oversized_l.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

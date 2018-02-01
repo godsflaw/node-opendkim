@@ -17,7 +17,7 @@ test('test message with bad extra signature spaces', async t => {
       message: messages.bad_extra_signature_spaces,
       length: messages.bad_extra_signature_spaces.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

@@ -17,7 +17,7 @@ test('test message with bad timestamp (empty)', async t => {
       message: messages.bad_timestamp_empty,
       length: messages.bad_timestamp_empty.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     // This isn't the best test, since lots of things end in a

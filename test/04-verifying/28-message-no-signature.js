@@ -17,7 +17,7 @@ test('test no signature message chunk', async t => {
       message: messages.no_signature,
       length: messages.no_signature.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(err.message, 'No signature');
@@ -43,7 +43,7 @@ test('test no signature message multi-chunk', async t => {
         length: chunk.length
       });
     }
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(err.message, 'No signature');

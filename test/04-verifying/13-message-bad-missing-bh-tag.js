@@ -17,7 +17,7 @@ test('test message with missing bh tag', async t => {
       message: messages.bad_missing_bh_tag,
       length: messages.bad_missing_bh_tag.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

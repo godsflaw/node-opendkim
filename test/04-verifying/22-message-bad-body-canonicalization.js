@@ -17,7 +17,7 @@ test('test message with bad body canonicalization', async t => {
       message: messages.bad_body_canonicalization,
       length: messages.bad_body_canonicalization.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

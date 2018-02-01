@@ -17,7 +17,7 @@ test('test good message with z= chunk', async t => {
       message: messages.good_z,
       length: messages.good_z.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.pass();
   } catch (err) {
     console.log(err);
@@ -45,7 +45,7 @@ test('test good message with z= multi-chunk', async t => {
       });
     }
 
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.pass();
   } catch (err) {
     console.log(err);
@@ -65,7 +65,7 @@ test('test ohdrs with z=', async t => {
       message: messages.good_z,
       length: messages.good_z.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     opendkim.get_signature(); // this is needed for ohdrs to not throw an error
     var zheader = opendkim.ohdrs();
     t.is(zheader[0], 'Received: received data 1');

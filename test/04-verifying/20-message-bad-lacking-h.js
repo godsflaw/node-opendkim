@@ -17,7 +17,7 @@ test('test message with h= lacking required headers', async t => {
       message: messages.bad_lacking_h,
       length: messages.bad_lacking_h.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

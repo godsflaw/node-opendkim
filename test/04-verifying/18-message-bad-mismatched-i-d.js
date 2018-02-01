@@ -17,7 +17,7 @@ test('test message with mismatched i= and d=', async t => {
       message: messages.bad_mismatched_i_d,
       length: messages.bad_mismatched_i_d.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

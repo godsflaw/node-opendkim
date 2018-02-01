@@ -90,7 +90,7 @@ test('test chunk_sync works', t => {
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    opendkim.chunk_end_sync();
     t.pass();
   } catch (err) {
     console.log(err);
@@ -118,7 +118,7 @@ test('test many chunk_sync', t => {
       });
     }
 
-    opendkim.chunk_end();
+    opendkim.chunk_end_sync();
     t.pass();
   } catch (err) {
     console.log(err);

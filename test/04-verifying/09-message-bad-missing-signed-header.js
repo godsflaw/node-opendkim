@@ -17,7 +17,7 @@ test('test message with missing signed header', async t => {
       message: messages.bad_missing_signed_header,
       length: messages.bad_missing_signed_header.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

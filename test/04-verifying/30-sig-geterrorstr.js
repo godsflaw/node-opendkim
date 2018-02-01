@@ -17,7 +17,7 @@ test('test sig_geterrorstr with good message', async t => {
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     var error = opendkim.sig_geterrorstr(opendkim.sig_geterror());
     t.is(error, 'no signature error');
   } catch (err) {
@@ -37,7 +37,7 @@ test('test sig_geterror with bad_sigalg message', async t => {
       message: messages.bad_sigalg,
       length: messages.bad_sigalg.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     var error = opendkim.sig_geterrorstr(opendkim.sig_geterror());
@@ -56,7 +56,7 @@ test('test sig_geterror with bad_signature_version message', async t => {
       message: messages.bad_signature_version,
       length: messages.bad_signature_version.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     var error = opendkim.sig_geterrorstr(opendkim.sig_geterror());

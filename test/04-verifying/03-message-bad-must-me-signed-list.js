@@ -17,7 +17,7 @@ test('test message with bad signature list (extra CC header)', async t => {
       message: messages.bad_must_be_signed_list,
       length: messages.bad_must_be_signed_list.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

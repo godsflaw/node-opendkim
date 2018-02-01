@@ -17,7 +17,7 @@ test('test message with bad signature algorithm', async t => {
       message: messages.bad_sigalg,
       length: messages.bad_sigalg.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(

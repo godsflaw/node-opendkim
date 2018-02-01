@@ -17,7 +17,7 @@ test('test message with malformed signature', async t => {
       message: messages.bad_malformed_signature,
       length: messages.bad_malformed_signature.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(err.message, 'Syntax error');

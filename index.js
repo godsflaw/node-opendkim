@@ -175,8 +175,28 @@ OpenDKIM.prototype.chunk_sync = function (obj) {
   return this.native_chunk_sync(obj);
 };
 
-OpenDKIM.prototype.chunk_end = function () {
-  return this.native_chunk_end();
+OpenDKIM.prototype.chunk_end = function (callback) {
+  var self = this;
+
+  if (arguments.length === 1 && typeof callback === 'function') {
+    // errback
+    this.native_chunk_end(callback);
+  } else {
+    // Promise
+    return new Promise(function (resolve, reject) {
+      self.native_chunk_end(function (err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+};
+
+OpenDKIM.prototype.chunk_end_sync = function () {
+  return this.native_chunk_end_sync();
 };
 
 

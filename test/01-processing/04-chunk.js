@@ -113,7 +113,7 @@ test.cb('test chunk works (errback)', t => {
     t.is(err, undefined);
     t.is(result, undefined);
     t.pass();
-    opendkim.chunk_end();
+    opendkim.chunk_end_sync();
     t.end();
   });
 });
@@ -130,7 +130,7 @@ test('test chunk works', async t => {
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.pass();
   } catch (err) {
     console.log(err);
@@ -158,7 +158,7 @@ test('test many chunks', async t => {
       });
     }
 
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.pass();
   } catch (err) {
     console.log(err);

@@ -53,7 +53,7 @@ test('test sig_getidentity after chunk', async t => {
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     var identity = opendkim.sig_getidentity();
     t.is(identity, '@example.com');
   } catch (err) {
@@ -74,7 +74,7 @@ test('test a more pedantic sig_getidentity', async t => {
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     opendkim.get_signature();
     var identity = opendkim.sig_getidentity();
     t.is(identity, '@example.com');
