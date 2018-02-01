@@ -5,7 +5,7 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test get_canonlen message lengh', t => {
+test('test sig_getcanonlen message length', t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -19,7 +19,7 @@ test('test get_canonlen message lengh', t => {
     });
     opendkim.chunk_end();
 
-    var canonResult = opendkim.get_canonlen();
+    var canonResult = opendkim.sig_getcanonlen();
 
     t.is(canonResult.msglen, 347);
   } catch (err) {
@@ -28,7 +28,7 @@ test('test get_canonlen message lengh', t => {
   }
 });
 
-test('test get_canonlen canonicalized lengh', t => {
+test('test sig_getcanonlen canonicalized length', t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -42,16 +42,16 @@ test('test get_canonlen canonicalized lengh', t => {
     });
     opendkim.chunk_end();
 
-    var canonResult = opendkim.get_canonlen();
+    var canonResult = opendkim.sig_getcanonlen();
 
-    t.is(canonResult.canonlen, 343);
+    t.is(canonResult.canonlen, 343);  // Difference can be explained by trailing blank lines
   } catch (err) {
     console.log(err);
     t.fail();
   }
 });
 
-test('test get_canonlen no signature lengh limit provided', t => {
+test('test sig_getcanonlen no signature length limit provided', t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -65,7 +65,7 @@ test('test get_canonlen no signature lengh limit provided', t => {
     });
     opendkim.chunk_end();
 
-    var canonResult = opendkim.get_canonlen();
+    var canonResult = opendkim.sig_getcanonlen();
 
     t.is(canonResult.signlen, -1);
   } catch (err) {

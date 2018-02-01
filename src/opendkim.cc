@@ -439,7 +439,7 @@ NAN_METHOD(OpenDKIM::SigGetErrorStr) {
 
 NAN_METHOD(OpenDKIM::SigGetCanonlen) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-  long msglen, canonlen, signlen;
+   ssize_t msglen, canonlen, signlen;
 
   if (obj->dkim == NULL) {
     Nan::ThrowTypeError(
