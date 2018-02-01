@@ -97,7 +97,7 @@ try {
 * [opendkim.sig_geterror()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_geterror()): Retrieve the error code associated with a rejected/disqualified signature.
 * [opendkim.sig_geterrorstr()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_geterrorstr()): get the error string specified by the error code.
 * [opendkim.sig_getselector()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getselector()): get the selector from the signature handle.
-* [opendkim.get_canonlen()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.get_canonlen()): get the canonicalized message length from the signature handle and message.
+* [opendkim.get_canonlen()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getcanonlen()): get the canonicalized message length from the signature handle and message.
 
 ## API Utility
 * [opendkim.query_info()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_info()): get/set query info.
