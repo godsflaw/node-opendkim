@@ -87,6 +87,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   // Verifying methods
   Nan::SetPrototypeMethod(tpl, "native_get_signature", GetSignature);
   Nan::SetPrototypeMethod(tpl, "native_ohdrs", OHDRS);
+  Nan::SetPrototypeMethod(tpl, "native_sig_getcanonlen", SigGetCanonlen);
   Nan::SetPrototypeMethod(tpl, "native_sig_getdomain", SigGetDomain);
   Nan::SetPrototypeMethod(tpl, "native_sig_geterror", SigGetError);
   Nan::SetPrototypeMethod(tpl, "native_sig_geterrorstr", SigGetErrorStr);
@@ -384,9 +385,9 @@ NAN_METHOD(OpenDKIM::EOMSync) {
 
   // success
   if (returntest) {
-     info.GetReturnValue().Set(Nan::New<v8::Boolean>((testkey ? true : false)));
+    info.GetReturnValue().Set(Nan::New<v8::Boolean>((testkey ? true : false)));
   } else {
-     info.GetReturnValue().Set(info.This());
+    info.GetReturnValue().Set(info.This());
   }
 }
 
@@ -410,12 +411,12 @@ const char *OpenDKIM::EOMArgs(
   }
 
   if (info.Length() > 0) {
-     if (!info[0]->IsObject()) {
-        result = "eom(): Argument should be an object";
-        goto finish_eom_args;
-     } else {
-        *returntest = _value_to_bool(info[0], "testkey");
-     }
+    if (!info[0]->IsObject()) {
+      result = "eom(): Argument should be an object";
+      goto finish_eom_args;
+    } else {
+      *returntest = _value_to_bool(info[0], "testkey");
+    }
   }
 
   finish_eom_args:
@@ -625,6 +626,45 @@ NAN_METHOD(OpenDKIM::SigGetErrorStr) {
   errorstr = dkim_sig_geterrorstr(info[0]->NumberValue());
 
   info.GetReturnValue().Set(Nan::New<v8::String>(errorstr).ToLocalChecked());
+}
+
+NAN_METHOD(OpenDKIM::SigGetCanonlen) {
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+   ssize_t msglen, canonlen, signlen;
+
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError(
+      "sig_geterror(): library must be initialized first"
+    );
+    return;
+  }
+
+  obj->GetSignature(info);
+
+  if (obj->sig == NULL) {
+    Nan::ThrowTypeError(
+      "sig_geterror(): get_signature() failed, call it first for more details"
+    );
+    return;
+  }
+
+  dkim_sig_getcanonlen(obj->dkim, obj->sig, &msglen, &canonlen, &signlen);
+
+  v8::Local<v8::Object> jsonObject = Nan::New<v8::Object>();
+
+  v8::Local<v8::String> msglenProp = Nan::New("msglen").ToLocalChecked();
+  v8::Local<v8::String> canonlenProp = Nan::New("canonlen").ToLocalChecked();
+  v8::Local<v8::String> signlenProp = Nan::New("signlen").ToLocalChecked();
+
+  v8::Local<v8::Value> msglenValue = Nan::New((int)msglen);
+  v8::Local<v8::Value> canonlenValue = Nan::New((int)canonlen);
+  v8::Local<v8::Value> signlenValue = Nan::New((int)signlen);
+
+  Nan::Set(jsonObject, msglenProp, msglenValue);
+  Nan::Set(jsonObject, canonlenProp, canonlenValue);
+  Nan::Set(jsonObject, signlenProp, signlenValue);
+
+  info.GetReturnValue().Set(jsonObject);
 }
 
 NAN_METHOD(OpenDKIM::Chunk) {
