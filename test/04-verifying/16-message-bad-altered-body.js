@@ -12,7 +12,7 @@ test('test message with an altered body', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.bad_altered_body,
       length: messages.bad_altered_body.length

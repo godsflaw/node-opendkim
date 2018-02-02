@@ -18,7 +18,7 @@ test('test eoh_sync needs context', t => {
 test('test eoh_sync method works after header calls', t => {
   try {
     var opendkim = new OpenDKIM();
-    opendkim.verify({id: undefined});
+    opendkim.verify_sync({id: undefined});
     var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
     for (var i = 0; i < headers.length; i++) {

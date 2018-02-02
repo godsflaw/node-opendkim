@@ -12,7 +12,7 @@ test('test message with bad timestamp (future)', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.bad_timestamp_future,
       length: messages.bad_timestamp_future.length

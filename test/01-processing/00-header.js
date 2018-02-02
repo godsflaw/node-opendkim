@@ -94,7 +94,7 @@ test('test header needs context', async t => {
 test('test header method works as object with correct args', async t => {
   try {
     var opendkim = new OpenDKIM();
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     var header = 'From: <herp@derp.com>';
     await opendkim.header({
       header: header,
@@ -110,7 +110,7 @@ test('test header method works as object with correct args', async t => {
 test.cb('test header method works as object with correct args (errback)', t => {
   t.plan(3);
   var opendkim = new OpenDKIM();
-  opendkim.verify({id: undefined});
+  opendkim.verify_sync({id: undefined});
   var header = 'From: <herp@derp.com>';
   opendkim.header({
     header: header,

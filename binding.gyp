@@ -9,6 +9,7 @@
             "src/opendkim_eom_async.cc",
             "src/opendkim_header_async.cc",
             "src/opendkim_sign_async.cc",
+            "src/opendkim_verify_async.cc",
             "src/opendkim.cc",
         ],
         "include_dirs": [

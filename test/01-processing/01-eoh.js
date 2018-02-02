@@ -28,7 +28,7 @@ test.cb('test eoh needs context (errback)', t => {
 test('test eoh method works after header calls', async t => {
   try {
     var opendkim = new OpenDKIM();
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
     for (var i = 0; i < headers.length; i++) {
@@ -49,7 +49,7 @@ test('test eoh method works after header calls', async t => {
 test.cb('test eoh method works after header calls (errback)', t => {
   t.plan(3);
   var opendkim = new OpenDKIM();
-  opendkim.verify({id: undefined});
+  opendkim.verify_sync({id: undefined});
   var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
   var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
   for (var i = 0; i < headers.length; i++) {

@@ -131,6 +131,16 @@ class OpenDKIM : public Nan::ObjectWrap {
     static NAN_METHOD(SigGetIdentity);
     static NAN_METHOD(SigGetSelector);
     static NAN_METHOD(Verify);
+    static NAN_METHOD(VerifySync);
+    static const char *VerifyArgs(
+      Nan::NAN_METHOD_ARGS_TYPE info,
+      OpenDKIM **obj,
+      char **id
+    );
+    static const char *VerifyBase(
+      OpenDKIM *obj,
+      char *id
+    );
 
 
   private:

@@ -6,6 +6,7 @@
 #include "opendkim_eom_async.h"
 #include "opendkim_header_async.h"
 #include "opendkim_sign_async.h"
+#include "opendkim_verify_async.h"
 #include <stdio.h>
 #include <unistd.h>    // TODO(godsflaw): port for windows?
 
@@ -94,6 +95,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "native_sig_getidentity", SigGetIdentity);
   Nan::SetPrototypeMethod(tpl, "native_sig_getselector", SigGetSelector);
   Nan::SetPrototypeMethod(tpl, "native_verify", Verify);
+  Nan::SetPrototypeMethod(tpl, "native_verify_sync", VerifySync);
 
   // Utility methods
   Nan::SetPrototypeMethod(tpl, "native_get_option", GetOption);
@@ -630,7 +632,7 @@ NAN_METHOD(OpenDKIM::SigGetErrorStr) {
 
 NAN_METHOD(OpenDKIM::SigGetCanonlen) {
   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-   ssize_t msglen, canonlen, signlen;
+  ssize_t msglen, canonlen, signlen;
 
   if (obj->dkim == NULL) {
     Nan::ThrowTypeError(
@@ -652,13 +654,13 @@ NAN_METHOD(OpenDKIM::SigGetCanonlen) {
 
   v8::Local<v8::Object> jsonObject = Nan::New<v8::Object>();
 
-  v8::Local<v8::String> msglenProp = Nan::New("msglen").ToLocalChecked();
-  v8::Local<v8::String> canonlenProp = Nan::New("canonlen").ToLocalChecked();
-  v8::Local<v8::String> signlenProp = Nan::New("signlen").ToLocalChecked();
+  v8::Local<v8::String> msglenProp = Nan::New<v8::String>("msglen").ToLocalChecked();
+  v8::Local<v8::String> canonlenProp = Nan::New<v8::String>("canonlen").ToLocalChecked();
+  v8::Local<v8::String> signlenProp = Nan::New<v8::String>("signlen").ToLocalChecked();
 
-  v8::Local<v8::Value> msglenValue = Nan::New((int)msglen);
-  v8::Local<v8::Value> canonlenValue = Nan::New((int)canonlen);
-  v8::Local<v8::Value> signlenValue = Nan::New((int)signlen);
+  v8::Local<v8::Value> msglenValue = Nan::New<v8::Number>(msglen);
+  v8::Local<v8::Value> canonlenValue = Nan::New<v8::Number>(canonlen);
+  v8::Local<v8::Value> signlenValue = Nan::New<v8::Number>(signlen);
 
   Nan::Set(jsonObject, msglenProp, msglenValue);
   Nan::Set(jsonObject, canonlenProp, canonlenValue);
@@ -1015,22 +1017,68 @@ const char *OpenDKIM::SignBase(
 }
 
 NAN_METHOD(OpenDKIM::Verify) {
-  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-  DKIM_STAT statp = DKIM_STAT_OK;
+  // dispatch this job to a worker
+  Nan::AsyncQueueWorker(new OpenDKIMVerifyAsyncWorker(info));
+  info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::VerifySync) {
+  const char *result = NULL;
+  OpenDKIM *obj = NULL;
   char *id = NULL;
 
-  if (info.Length() != 1) {
-    Nan::ThrowTypeError("verify(): Wrong number of arguments");
-    goto finish_verify;
+  result = VerifyArgs(
+    info,
+    &obj,
+    &id
+  );
+
+  // skip VerifyBase if we have an argument error
+  if (result != NULL) {
+    goto finish_verify_sync;
   }
 
+  // call synchronously
+  result = VerifyBase(obj, id);
+
+  finish_verify_sync:
+
+  if (result != NULL) {
+    Nan::ThrowTypeError(result);
+  }
+
+  info.GetReturnValue().Set(info.This());
+}
+
+const char *OpenDKIM::VerifyArgs(
+  Nan::NAN_METHOD_ARGS_TYPE info,
+  OpenDKIM **obj,
+  char **id) {
+  const char *result = NULL;
+  *obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  *id = NULL;
+
   if (!info[0]->IsObject()) {
-    Nan::ThrowTypeError("verify(): Argument should be an object");
-    goto finish_verify;
+    result = "verify(): Argument should be an object";
+    goto finish_verify_args;
   }
 
   // id
-  _value_to_char(info[0], "id", &id);
+  _value_to_char(info[0], "id", id);
+
+  finish_verify_args:
+
+  if (result != NULL) {
+    _safe_free(id);
+  }
+
+  return result;
+}
+
+const char *OpenDKIM::VerifyBase(OpenDKIM *obj, char *id)
+{
+  const char *result = NULL;
+  DKIM_STAT statp = DKIM_STAT_OK;
 
   // free this to clear the old context
   if (obj->dkim != NULL) {
@@ -1042,15 +1090,15 @@ NAN_METHOD(OpenDKIM::Verify) {
 
   // Test for error and throw an exception back to js.
   if (obj->dkim == NULL) {
-    throw_error(statp);
-    goto finish_verify;
+    result = get_error(statp);
+    goto finish_verify_base;
   }
 
-  finish_verify:
+  finish_verify_base:
 
   _safe_free(&id);
 
-  info.GetReturnValue().Set(info.This());
+  return result;
 }
 
 NAN_METHOD(OpenDKIM::GetOption) {

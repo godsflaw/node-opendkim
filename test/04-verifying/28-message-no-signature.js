@@ -12,7 +12,7 @@ test('test no signature message chunk', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.no_signature,
       length: messages.no_signature.length
@@ -34,7 +34,7 @@ test('test no signature message multi-chunk', async t => {
     var chunks = 16;
     var numChunks = Math.ceil(messages.no_signature.length / chunks);
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
 
     for (var i = 0, o = 0; i < numChunks; ++i, o += chunks) {
       var chunk = messages.no_signature.substr(o, chunks);
@@ -58,7 +58,7 @@ test('test no signature through header(), eoh(), body(), and eom()', async t => 
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     var header = messages.no_signature.substring(
       0, messages.no_signature.indexOf('\r\n\r\n')
     );

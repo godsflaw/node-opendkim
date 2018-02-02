@@ -28,7 +28,7 @@ test.cb('test chunk_end needs context (errback)', t => {
 test('test chunk_end without calling chunk', async t => {
   try {
     var opendkim = new OpenDKIM();
-    opendkim.verify({id: 'testing'});
+    await opendkim.verify({id: 'testing'});
     await opendkim.chunk_end();
     t.fail();
   } catch (err) {
@@ -39,7 +39,7 @@ test('test chunk_end without calling chunk', async t => {
 test.cb('test chunk_end without calling chunk (errback)', t => {
   t.plan(2);
   var opendkim = new OpenDKIM();
-  opendkim.verify({id: 'testing'});
+  opendkim.verify_sync({id: 'testing'});
   opendkim.chunk_end(function (err, result) {
     t.is(result, undefined);
     t.is(err.message, 'Syntax error');
@@ -54,7 +54,7 @@ test('test chunk_end works after chunk', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: 'testing'});
+    await opendkim.verify({id: 'testing'});
     await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
@@ -74,7 +74,7 @@ test.cb('test chunk_end works after chunk (errback)', t => {
   opendkim.query_method('DKIM_QUERY_FILE');
   opendkim.query_info('../fixtures/testkeys');
 
-  opendkim.verify({id: 'testing'});
+  opendkim.verify_sync({id: 'testing'});
   opendkim.chunk_sync({
     message: messages.good,
     length: messages.good.length

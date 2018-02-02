@@ -24,7 +24,7 @@ test('test get_signature before chunk_end', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
@@ -47,7 +47,7 @@ test('test get_signature after chunk', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.good,
       length: messages.good.length

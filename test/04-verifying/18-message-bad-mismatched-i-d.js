@@ -12,7 +12,7 @@ test('test message with mismatched i= and d=', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.bad_mismatched_i_d,
       length: messages.bad_mismatched_i_d.length

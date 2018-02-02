@@ -12,7 +12,7 @@ test('test message with missing h=', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.bad_missing_h_signature,
       length: messages.bad_missing_h_signature.length

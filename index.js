@@ -330,8 +330,41 @@ OpenDKIM.prototype.sig_getselector = function () {
   return this.native_sig_getselector();
 };
 
-OpenDKIM.prototype.verify = function (obj) {
-  return this.native_verify(obj);
+OpenDKIM.prototype.verify = function (obj, callback) {
+  var self = this;
+
+  if (arguments.length === 0) {
+    throw new Error('verify(): Wrong number of arguments');
+  }
+
+  // added for the poor folks that call this as an errback without a try/catch
+  if (arguments.length === 1 && typeof obj === 'function') {
+    return obj(new Error('verify(obj, func): Wrong number of arguments'));
+  }
+
+  if (arguments.length === 2) {
+    // errback
+    this.native_verify(obj, callback);
+  } else {
+    // Promise
+    return new Promise(function (resolve, reject) {
+      self.native_verify(obj, function (err, result) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+};
+
+OpenDKIM.prototype.verify_sync = function (obj) {
+  if (arguments.length === 0) {
+    throw new Error('verify(): Wrong number of arguments');
+  }
+
+  return this.native_verify_sync(obj);
 };
 
 module.exports = OpenDKIM;

@@ -18,7 +18,7 @@ test('test chunk_end_sync needs context', t => {
 test('test chunk_end_sync without calling chunk', t => {
   try {
     var opendkim = new OpenDKIM();
-    opendkim.verify({id: 'testing'});
+    opendkim.verify_sync({id: 'testing'});
     opendkim.chunk_end_sync();
     t.fail();
   } catch (err) {
@@ -33,7 +33,7 @@ test('test chunk_end_sync works after chunk', t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: 'testing'});
+    opendkim.verify_sync({id: 'testing'});
     opendkim.chunk_sync({
       message: messages.good,
       length: messages.good.length

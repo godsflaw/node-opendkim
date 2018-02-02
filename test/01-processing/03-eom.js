@@ -32,7 +32,7 @@ test('test eom works after header, eoh, and body calls', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
     var body = messages.good.substring(messages.good.indexOf('\r\n\r\n') + 4);
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
@@ -63,7 +63,7 @@ test.cb('test eom works after header, eoh, and body calls (errback)', t => {
   opendkim.query_method('DKIM_QUERY_FILE');
   opendkim.query_info('../fixtures/testkeys');
 
-  opendkim.verify({id: undefined});
+  opendkim.verify_sync({id: undefined});
   var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
   var body = messages.good.substring(messages.good.indexOf('\r\n\r\n') + 4);
   var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
@@ -94,7 +94,7 @@ test('test eom testkey', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
     var body = messages.good.substring(messages.good.indexOf('\r\n\r\n') + 4);
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);

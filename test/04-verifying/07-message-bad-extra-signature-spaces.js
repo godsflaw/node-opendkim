@@ -12,7 +12,7 @@ test('test message with bad extra signature spaces', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.bad_extra_signature_spaces,
       length: messages.bad_extra_signature_spaces.length

@@ -12,7 +12,7 @@ test('test sig_geterror with good message', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
@@ -32,7 +32,7 @@ test('test sig_geterror with bad_sigalg message', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.bad_sigalg,
       length: messages.bad_sigalg.length
@@ -51,7 +51,7 @@ test('test sig_geterror with bad_signature_version message', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.bad_signature_version,
       length: messages.bad_signature_version.length

@@ -12,7 +12,7 @@ test('test message with bad signature list (extra CC header)', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.bad_must_be_signed_list,
       length: messages.bad_must_be_signed_list.length

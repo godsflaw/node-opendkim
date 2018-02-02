@@ -12,7 +12,7 @@ test('test good message with z= chunk', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.good_z,
       length: messages.good_z.length
@@ -35,7 +35,7 @@ test('test good message with z= multi-chunk', async t => {
     var chunks = 16;
     var numChunks = Math.ceil(messages.good_z.length / chunks);
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
 
     for (var i = 0, o = 0; i < numChunks; ++i, o += chunks) {
       var chunk = messages.good_z.substr(o, chunks);
@@ -60,7 +60,7 @@ test('test ohdrs with z=', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.good_z,
       length: messages.good_z.length

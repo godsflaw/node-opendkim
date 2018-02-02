@@ -74,7 +74,7 @@ test('test header_sync needs context', t => {
 test('test header_sync method works as object with correct args', t => {
   try {
     var opendkim = new OpenDKIM();
-    opendkim.verify({id: undefined});
+    opendkim.verify_sync({id: undefined});
     var header = 'From: <herp@derp.com>';
     opendkim.header_sync({
       header: header,

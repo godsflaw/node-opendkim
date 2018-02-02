@@ -22,7 +22,7 @@ test('test eom_sync works after header, eoh, and body calls', t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    opendkim.verify_sync({id: undefined});
     var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
     var body = messages.good.substring(messages.good.indexOf('\r\n\r\n') + 4);
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
@@ -53,7 +53,7 @@ test('test eom_sync chaining', t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    opendkim.verify_sync({id: undefined});
     var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
     var body = messages.good.substring(messages.good.indexOf('\r\n\r\n') + 4);
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
@@ -84,7 +84,7 @@ test('test eom_sync testkey', t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    opendkim.verify_sync({id: undefined});
     var header = messages.good.substring(0, messages.good.indexOf('\r\n\r\n'));
     var body = messages.good.substring(messages.good.indexOf('\r\n\r\n') + 4);
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);

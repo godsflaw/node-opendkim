@@ -12,7 +12,7 @@ test('test sig_getcanonlen message length', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
@@ -35,7 +35,7 @@ test('test sig_getcanonlen canonicalized length', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
@@ -58,7 +58,7 @@ test('test sig_getcanonlen no signature length limit provided', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.good,
       length: messages.good.length

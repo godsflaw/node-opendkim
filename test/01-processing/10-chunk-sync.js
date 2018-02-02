@@ -85,7 +85,7 @@ test('test chunk_sync works', t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    opendkim.verify_sync({id: undefined});
     opendkim.chunk_sync({
       message: messages.good,
       length: messages.good.length
@@ -108,7 +108,7 @@ test('test many chunk_sync', t => {
     var chunks = 16;
     var numChunks = Math.ceil(messages.good.length / chunks);
 
-    opendkim.verify({id: undefined});
+    opendkim.verify_sync({id: undefined});
 
     for (var i = 0, o = 0; i < numChunks; ++i, o += chunks) {
       var chunk = messages.good.substr(o, chunks);

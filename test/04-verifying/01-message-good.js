@@ -12,7 +12,7 @@ test('test good message chunk', async t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
@@ -35,7 +35,7 @@ test('test good message multi-chunk', async t => {
     var chunks = 16;
     var numChunks = Math.ceil(messages.good.length / chunks);
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
 
     for (var i = 0, o = 0; i < numChunks; ++i, o += chunks) {
       var chunk = messages.good.substr(o, chunks);
