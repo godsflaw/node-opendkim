@@ -306,6 +306,10 @@ OpenDKIM.prototype.ohdrs = function (obj) {
   return this.native_ohdrs(obj);
 };
 
+OpenDKIM.prototype.sig_getcanonlen = function () {
+  return this.native_sig_getcanonlen();
+};
+
 OpenDKIM.prototype.sig_getdomain = function () {
   return this.native_sig_getdomain();
 };
