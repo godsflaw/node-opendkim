@@ -48,6 +48,7 @@ class OpenDKIM : public Nan::ObjectWrap {
     static NAN_METHOD(SigGetSelector);
     static NAN_METHOD(SigGetError);
     static NAN_METHOD(SigGetErrorStr);
+    static NAN_METHOD(SigGetCanonlen);
 
     // Utility methods
     static NAN_METHOD(GetOption);
