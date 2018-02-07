@@ -8,7 +8,7 @@ void OpenDKIMEOMAsyncWorker::Execute() {
     return;
   }
 
-  result = OpenDKIM::EOMBase(obj, returntest, &testkey);
+  result = OpenDKIM::EOMBase(obj, &testkey);
 }
 
 void OpenDKIMEOMAsyncWorker::HandleOKCallback() {

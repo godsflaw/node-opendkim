@@ -377,7 +377,7 @@ NAN_METHOD(OpenDKIM::EOMSync) {
   }
 
   // call synchronously
-  result = EOMBase(obj, returntest, &testkey);
+  result = EOMBase(obj, &testkey);
 
   finish_eom_sync:
 
@@ -426,7 +426,7 @@ const char *OpenDKIM::EOMArgs(
   return result;
 }
 
-const char *OpenDKIM::EOMBase(OpenDKIM *obj, bool returntest, bool *testkey)
+const char *OpenDKIM::EOMBase(OpenDKIM *obj, bool *testkey)
 {
   const char *result = NULL;
   DKIM_STAT statp = DKIM_STAT_OK;
@@ -790,6 +790,7 @@ NAN_METHOD(OpenDKIM::ChunkEndSync) {
 const char *OpenDKIM::ChunkEndBase(OpenDKIM *obj)
 {
   const char *result = NULL;
+  bool testkey = false;
   DKIM_STAT statp = DKIM_STAT_OK;
 
   if (obj->dkim == NULL) {
@@ -807,7 +808,7 @@ const char *OpenDKIM::ChunkEndBase(OpenDKIM *obj)
   }
 
   // We also need to call dkim_eom(), so we can just call that method.
-  result = obj->EOMBase(obj, false, NULL);
+  result = obj->EOMBase(obj, &testkey);
 
   finish_chunk_end_base:
 

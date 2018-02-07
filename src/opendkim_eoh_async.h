@@ -9,6 +9,8 @@ class OpenDKIMEOHAsyncWorker : public OpenDKIMAsyncWorker {
       OpenDKIMAsyncWorker(new Nan::Callback(info[0].As<v8::Function>()))
     {
       obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+      v8::Local<v8::Object> _this = info.This();
+      SaveToPersistent("OpenDKIM", _this);
     };
 
     void Execute();

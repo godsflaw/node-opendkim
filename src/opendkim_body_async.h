@@ -14,6 +14,8 @@ class OpenDKIMBodyAsyncWorker : public OpenDKIMAsyncWorker {
         &body,
         &length
       );
+      v8::Local<v8::Object> _this = info.This();
+      SaveToPersistent("OpenDKIM", _this);
     };
 
     void Execute();

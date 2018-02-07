@@ -69,7 +69,7 @@ class OpenDKIM : public Nan::ObjectWrap {
       OpenDKIM **obj,
       bool *returntest
     );
-    static const char *EOMBase(OpenDKIM *obj, bool returntest, bool *testkey);
+    static const char *EOMBase(OpenDKIM *obj, bool *testkey);
 
     static NAN_METHOD(Chunk);
     static NAN_METHOD(ChunkSync);

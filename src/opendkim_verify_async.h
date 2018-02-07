@@ -9,6 +9,8 @@ class OpenDKIMVerifyAsyncWorker : public OpenDKIMAsyncWorker {
       OpenDKIMAsyncWorker(new Nan::Callback(info[1].As<v8::Function>()))
     {
       result = OpenDKIM::VerifyArgs(info, &obj, &id);
+      v8::Local<v8::Object> _this = info.This();
+      SaveToPersistent("OpenDKIM", _this);
     };
 
     void Execute();

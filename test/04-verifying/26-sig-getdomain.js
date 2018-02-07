@@ -42,9 +42,9 @@ test('test sig_getdomain before chunk_end', async t => {
 });
 
 test('test sig_getdomain after chunk', async t => {
-  try {
-    var opendkim = new OpenDKIM();
+  var opendkim = new OpenDKIM();
 
+  try {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
@@ -58,14 +58,16 @@ test('test sig_getdomain after chunk', async t => {
     t.is(identity, 'example.com');
   } catch (err) {
     console.log(err);
+    var error = opendkim.sig_geterrorstr(opendkim.sig_geterror());
+    console.log(error);
     t.fail();
   }
 });
 
 test('test a more pedantic sig_getdomain', async t => {
-  try {
-    var opendkim = new OpenDKIM();
+  var opendkim = new OpenDKIM();
 
+  try {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
@@ -80,6 +82,8 @@ test('test a more pedantic sig_getdomain', async t => {
     t.is(identity, 'example.com');
   } catch (err) {
     console.log(err);
+    var error = opendkim.sig_geterrorstr(opendkim.sig_geterror());
+    console.log(error);
     t.fail();
   }
 });
