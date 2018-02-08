@@ -26,7 +26,11 @@ class OpenDKIM : public Nan::ObjectWrap {
 
     // Administration methods
     static NAN_METHOD(New);
+
     static NAN_METHOD(FlushCache);
+    static NAN_METHOD(FlushCacheSync);
+    static const char *FlushCacheBase(int *records);
+
     static NAN_METHOD(LibFeature);
 
     // Processing methods

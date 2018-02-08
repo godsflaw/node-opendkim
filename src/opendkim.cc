@@ -4,6 +4,7 @@
 #include "opendkim_chunk_end_async.h"
 #include "opendkim_eoh_async.h"
 #include "opendkim_eom_async.h"
+#include "opendkim_flush_cache_async.h"
 #include "opendkim_header_async.h"
 #include "opendkim_sign_async.h"
 #include "opendkim_verify_async.h"
@@ -65,6 +66,7 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
 
   // Administration methods
   Nan::SetPrototypeMethod(tpl, "native_flush_cache", FlushCache);
+  Nan::SetPrototypeMethod(tpl, "native_flush_cache_sync", FlushCacheSync);
   Nan::SetPrototypeMethod(tpl, "native_lib_feature", LibFeature);
 
   // Processing methods
@@ -121,8 +123,43 @@ NAN_METHOD(OpenDKIM::New) {
 }
 
 NAN_METHOD(OpenDKIM::FlushCache) {
-  v8::Local<v8::Integer> retval = Nan::New(dkim_flush_cache(dkim_lib));
-  info.GetReturnValue().Set(retval);
+  // dispatch this job to a worker
+  Nan::AsyncQueueWorker(new OpenDKIMFlushCacheAsyncWorker(info));
+  info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(OpenDKIM::FlushCacheSync) {
+  int records;
+  const char *result = NULL;
+
+  // call synchronously
+  result = FlushCacheBase(&records);
+
+  if (result != NULL) {
+    Nan::ThrowTypeError(result);
+  }
+
+  if (records != -1) {
+    info.GetReturnValue().Set(Nan::New<v8::Integer>(records));
+  } else {
+    info.GetReturnValue().Set(info.This());
+  }
+}
+
+const char *OpenDKIM::FlushCacheBase(int *records)
+{
+  const char *result = NULL;
+
+  if (dkim_lib == NULL) {
+    result = "flush_cache(): library must be initialized first";
+    goto finish_flush_cache_base;
+  }
+
+  *records = dkim_flush_cache(dkim_lib);
+
+  finish_flush_cache_base:
+
+  return result;
 }
 
 NAN_METHOD(OpenDKIM::Header) {

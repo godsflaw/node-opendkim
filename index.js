@@ -4,8 +4,29 @@ var OpenDKIM = require('./build/Release/opendkim').OpenDKIM;
 
 
 // Administration methods
-OpenDKIM.prototype.flush_cache = function () {
-  return this.native_flush_cache();
+OpenDKIM.prototype.flush_cache = function (callback) {
+  var self = this;
+
+  if (arguments.length === 1 && typeof callback === 'function') {
+    // errback
+    this.native_flush_cache(callback);
+  } else {
+    // Promise
+    return new Promise(function (resolve, reject) {
+      self.native_flush_cache(function (err, result) {
+        /* istanbul ignore if */
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+};
+
+OpenDKIM.prototype.flush_cache_sync = function () {
+  return this.native_flush_cache_sync();
 };
 
 OpenDKIM.prototype.lib_feature = function (feature) {
