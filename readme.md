@@ -136,6 +136,11 @@ function verify(message, callback) {
 ## API Signing
 * [opendkim.sign()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sign()): get ready to sign a message.
 
+## API Utility
+* [opendkim.query_info()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_info()): get/set query info.
+* [opendkim.query_method()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_method()): get/set query method.
+* [opendkim.tmpdir()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.tmpdir()): get/set tmp dir.
+
 ## API Verifying
 * [opendkim.verify()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.verify()): get ready to verify a message.
 * [opendkim.get_signature()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.get_signature()): sets the signature info handle.
@@ -145,11 +150,6 @@ function verify(message, callback) {
 * [opendkim.sig_geterrorstr()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_geterrorstr()): get the error string specified by the error code.
 * [opendkim.sig_getselector()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getselector()): get the selector from the signature handle.
 * [opendkim.sig_getcanonlen()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getcanonlen()): get the canonicalized message length from the signature handle and message.
-
-## API Utility
-* [opendkim.query_info()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_info()): get/set query info.
-* [opendkim.query_method()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_method()): get/set query method.
-* [opendkim.tmpdir()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.tmpdir()): get/set tmp dir.
 
 ---
 
