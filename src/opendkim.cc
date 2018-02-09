@@ -142,7 +142,7 @@ NAN_METHOD(OpenDKIM::FlushCacheSync) {
   if (records != -1) {
     info.GetReturnValue().Set(Nan::New<v8::Integer>(records));
   } else {
-    info.GetReturnValue().Set(info.This());
+    info.GetReturnValue().Set(Nan::Undefined());
   }
 }
 
