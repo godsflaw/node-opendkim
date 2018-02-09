@@ -17,15 +17,15 @@ test('test sig_getidentity before verify', t => {
   }
 });
 
-test('test sig_getidentity before chunk_end', t => {
+test('test sig_getidentity before chunk_end', async t => {
   try {
     var opendkim = new OpenDKIM();
 
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
@@ -41,19 +41,19 @@ test('test sig_getidentity before chunk_end', t => {
   }
 });
 
-test('test sig_getidentity after chunk', t => {
+test('test sig_getidentity after chunk', async t => {
   try {
     var opendkim = new OpenDKIM();
 
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     var identity = opendkim.sig_getidentity();
     t.is(identity, '@example.com');
   } catch (err) {
@@ -62,19 +62,19 @@ test('test sig_getidentity after chunk', t => {
   }
 });
 
-test('test a more pedantic sig_getidentity', t => {
+test('test a more pedantic sig_getidentity', async t => {
   try {
     var opendkim = new OpenDKIM();
 
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     opendkim.get_signature();
     var identity = opendkim.sig_getidentity();
     t.is(identity, '@example.com');

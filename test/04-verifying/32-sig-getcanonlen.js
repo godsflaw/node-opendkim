@@ -5,19 +5,19 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test sig_getcanonlen message length', t => {
+test('test sig_getcanonlen message length', async t => {
   try {
     var opendkim = new OpenDKIM();
 
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
 
     var canonResult = opendkim.sig_getcanonlen();
 
@@ -28,19 +28,19 @@ test('test sig_getcanonlen message length', t => {
   }
 });
 
-test('test sig_getcanonlen canonicalized length', t => {
+test('test sig_getcanonlen canonicalized length', async t => {
   try {
     var opendkim = new OpenDKIM();
 
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
 
     var canonResult = opendkim.sig_getcanonlen();
 
@@ -51,19 +51,19 @@ test('test sig_getcanonlen canonicalized length', t => {
   }
 });
 
-test('test sig_getcanonlen no signature length limit provided', t => {
+test('test sig_getcanonlen no signature length limit provided', async t => {
   try {
     var opendkim = new OpenDKIM();
 
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
 
     var canonResult = opendkim.sig_getcanonlen();
 

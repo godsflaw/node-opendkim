@@ -17,15 +17,15 @@ test('test sig_getdomain before verify', t => {
   }
 });
 
-test('test sig_getdomain before chunk_end', t => {
+test('test sig_getdomain before chunk_end', async t => {
   try {
     var opendkim = new OpenDKIM();
 
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
@@ -41,45 +41,49 @@ test('test sig_getdomain before chunk_end', t => {
   }
 });
 
-test('test sig_getdomain after chunk', t => {
-  try {
-    var opendkim = new OpenDKIM();
+test('test sig_getdomain after chunk', async t => {
+  var opendkim = new OpenDKIM();
 
+  try {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     var identity = opendkim.sig_getdomain();
     t.is(identity, 'example.com');
   } catch (err) {
     console.log(err);
+    var error = opendkim.sig_geterrorstr(opendkim.sig_geterror());
+    console.log(error);
     t.fail();
   }
 });
 
-test('test a more pedantic sig_getdomain', t => {
-  try {
-    var opendkim = new OpenDKIM();
+test('test a more pedantic sig_getdomain', async t => {
+  var opendkim = new OpenDKIM();
 
+  try {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
       message: messages.good,
       length: messages.good.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     opendkim.get_signature();
     var identity = opendkim.sig_getdomain();
     t.is(identity, 'example.com');
   } catch (err) {
     console.log(err);
+    var error = opendkim.sig_geterrorstr(opendkim.sig_geterror());
+    console.log(error);
     t.fail();
   }
 });

@@ -10,7 +10,7 @@ test('test with no argument', t => {
     opendkim.set_option();
     t.fail();
   } catch (err) {
-    t.is(err.message, 'set_option(): Wrong number of arguments');
+    t.is(err.message, 'set_option(): Argument should be an object');
   }
 });
 

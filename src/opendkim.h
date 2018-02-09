@@ -26,34 +26,126 @@ class OpenDKIM : public Nan::ObjectWrap {
 
     // Administration methods
     static NAN_METHOD(New);
+
     static NAN_METHOD(FlushCache);
+    static NAN_METHOD(FlushCacheSync);
+    static const char *FlushCacheBase(int *records);
+
     static NAN_METHOD(LibFeature);
 
     // Processing methods
     static NAN_METHOD(Header);
+    static NAN_METHOD(HeaderSync);
+    static const char *HeaderArgs(
+      Nan::NAN_METHOD_ARGS_TYPE info,
+      OpenDKIM **obj,
+      char **header,
+      int *length
+    );
+    static const char *HeaderBase(
+      OpenDKIM *obj,
+      char *header,
+      int length
+    );
+
     static NAN_METHOD(EOH);
+    static NAN_METHOD(EOHSync);
+    static const char *EOHBase(OpenDKIM *obj);
+
     static NAN_METHOD(Body);
+    static NAN_METHOD(BodySync);
+    static const char *BodyArgs(
+      Nan::NAN_METHOD_ARGS_TYPE info,
+      OpenDKIM **obj,
+      char **body,
+      int *length
+    );
+    static const char *BodyBase(
+      OpenDKIM *obj,
+      char *body,
+      int length
+    );
+
     static NAN_METHOD(EOM);
+    static NAN_METHOD(EOMSync);
+    static const char *EOMArgs(
+      Nan::NAN_METHOD_ARGS_TYPE info,
+      OpenDKIM **obj,
+      bool *returntest
+    );
+    static const char *EOMBase(OpenDKIM *obj, bool *testkey);
+
     static NAN_METHOD(Chunk);
+    static NAN_METHOD(ChunkSync);
+    static const char *ChunkArgs(
+      Nan::NAN_METHOD_ARGS_TYPE info,
+      OpenDKIM **obj,
+      char **message,
+      int *length
+    );
+    static const char *ChunkBase(
+      OpenDKIM *obj,
+      char *message,
+      int length
+    );
+
     static NAN_METHOD(ChunkEnd);
+    static NAN_METHOD(ChunkEndSync);
+    static const char *ChunkEndBase(OpenDKIM *obj);
+
 
     // Signing methods
     static NAN_METHOD(Sign);
-
-    // Verifying methods
-    static NAN_METHOD(Verify);
-    static NAN_METHOD(GetSignature);
-    static NAN_METHOD(SigGetIdentity);
-    static NAN_METHOD(SigGetDomain);
-    static NAN_METHOD(SigGetSelector);
-    static NAN_METHOD(SigGetError);
-    static NAN_METHOD(SigGetErrorStr);
-    static NAN_METHOD(SigGetCanonlen);
+    static NAN_METHOD(SignSync);
+    static const char *SignArgs(
+      Nan::NAN_METHOD_ARGS_TYPE info,
+      OpenDKIM **obj,
+      char **id,
+      char **secretkey,
+      char **selector,
+      char **domain,
+      char **hdrcanon,
+      char **bodycanon,
+      char **signalg,
+      int *length
+    );
+    static const char *SignBase(
+      OpenDKIM *obj,
+      char *id,
+      char *secretkey,
+      char *selector,
+      char *domain,
+      char *hdrcanon,
+      char *bodycanon,
+      char *signalg,
+      int length
+    );
 
     // Utility methods
     static NAN_METHOD(GetOption);
     static NAN_METHOD(SetOption);
+
+    // Verifying methods
+    static NAN_METHOD(GetSignature);
     static NAN_METHOD(OHDRS);
+    static NAN_METHOD(SigGetCanonlen);
+    static NAN_METHOD(SigGetDomain);
+    static NAN_METHOD(SigGetError);
+    static NAN_METHOD(SigGetErrorStr);
+    static NAN_METHOD(SigGetIdentity);
+    static NAN_METHOD(SigGetSelector);
+    static NAN_METHOD(Verify);
+    static NAN_METHOD(VerifySync);
+    static const char *VerifyArgs(
+      Nan::NAN_METHOD_ARGS_TYPE info,
+      OpenDKIM **obj,
+      char **id
+    );
+    static const char *VerifyBase(
+      OpenDKIM *obj,
+      char *id
+    );
+
 
   private:
     explicit OpenDKIM();
@@ -64,16 +156,18 @@ class OpenDKIM : public Nan::ObjectWrap {
       return my_constructor;
     }
 
-    static inline void throw_error(DKIM_STAT result) {
+    static inline const char *get_error(DKIM_STAT result) {
       const char *msg = dkim_getresultstr(result);
 
       if (msg != NULL) {
-        Nan::ThrowError(msg);
+         return msg;
       } else {
-        Nan::ThrowError("an unknown error occurred");
+        return "an unknown error occurred";
       }
+    }
 
-      return;
+    static inline void throw_error(DKIM_STAT result) {
+      Nan::ThrowError(get_error(result));
     }
 
     // The user of this function must free retval in the caller if the function

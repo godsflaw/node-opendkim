@@ -5,26 +5,26 @@ var Messages = require('../fixtures/messages');
 
 var messages = new Messages();
 
-test('test no signature message chunk', t => {
+test('test no signature message chunk', async t => {
   try {
     var opendkim = new OpenDKIM();
 
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
-    opendkim.chunk({
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
       message: messages.no_signature,
       length: messages.no_signature.length
     });
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(err.message, 'No signature');
   }
 });
 
-test('test no signature message multi-chunk', t => {
+test('test no signature message multi-chunk', async t => {
   try {
     var opendkim = new OpenDKIM();
 
@@ -34,23 +34,23 @@ test('test no signature message multi-chunk', t => {
     var chunks = 16;
     var numChunks = Math.ceil(messages.no_signature.length / chunks);
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
 
     for (var i = 0, o = 0; i < numChunks; ++i, o += chunks) {
       var chunk = messages.no_signature.substr(o, chunks);
-      opendkim.chunk({
+      await opendkim.chunk({
         message: chunk,
         length: chunk.length
       });
     }
-    opendkim.chunk_end();
+    await opendkim.chunk_end();
     t.fail();
   } catch (err) {
     t.is(err.message, 'No signature');
   }
 });
 
-test('test no signature through header(), eoh(), body(), and eom()', t => {
+test('test no signature through header(), eoh(), body(), and eom()', async t => {
   // This test should bail at the eoh() point.
   try {
     var opendkim = new OpenDKIM();
@@ -58,7 +58,7 @@ test('test no signature through header(), eoh(), body(), and eom()', t => {
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
 
-    opendkim.verify({id: undefined});
+    await opendkim.verify({id: undefined});
     var header = messages.no_signature.substring(
       0, messages.no_signature.indexOf('\r\n\r\n')
     );
@@ -68,17 +68,17 @@ test('test no signature through header(), eoh(), body(), and eom()', t => {
     var headers = header.replace(/\r\n\t/g, ' ').split(/\r\n/);
     for (var i = 0; i < headers.length; i++) {
       var line = headers[i];
-      opendkim.header({
+      await opendkim.header({
         header: line,
         length: line.length
       });
     }
-    opendkim.eoh();
-    opendkim.body({
+    await opendkim.eoh();
+    await opendkim.body({
       body: body,
       length: body.length
     });
-    opendkim.eom();
+    await opendkim.eom();
     t.fail();
   } catch (err) {
     t.is(err.message, 'No signature');
