@@ -93,8 +93,7 @@ function verify(message, callback) {
 
   opendkim.verify({id: undefined}, function (err, result) {
     if (err) {
-      console.log(err);
-      return;
+      return callback(err, result);
     }
 
     opendkim.chunk({
@@ -102,20 +101,30 @@ function verify(message, callback) {
       length: message.length
     }, function (err, result) {
       if (err) {
-        console.log(err);
-        return;
+        return callback(err, result);
       }
 
       opendkim.chunk_end(function (err, result) {
         if (err) {
           console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()););
-          console.log(err);
-          return;
+          return callback(err, result);
         }
+
+        return callback(err, result);
       });
     });
   });
 }
+
+verify(message, function (err, result) {
+  if (err) {
+    // handle error
+    console.log(err);
+    return;
+  }
+
+  // success
+});
 ```
 
 ---
