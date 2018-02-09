@@ -96,10 +96,12 @@ function verify(message, callback) {
       return callback(err, result);
     }
 
-    opendkim.chunk({
+    var options = {
       message: message,
       length: message.length
-    }, function (err, result) {
+    };
+
+    opendkim.chunk(options, function (err, result) {
       if (err) {
         return callback(err, result);
       }
