@@ -143,6 +143,7 @@ function verify(message, callback) {
 
 ## API Verifying
 * [opendkim.get_signature()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.get_signature()): sets the signature info handle.
+* [opendkim.ohdrs()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.ohdrs()): Retrieve the original header set from the "z=" tag in a received signature if present.
 * [opendkim.sig_getcanonlen()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getcanonlen()): get the canonicalized message length from the signature handle and message.
 * [opendkim.sig_getdomain()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getdomain()): get the domain from the signature handle.
 * [opendkim.sig_geterror()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_geterror()): Retrieve the error code associated with a rejected/disqualified signature.
