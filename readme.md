@@ -39,36 +39,82 @@ node-gyp rebuild
 
 ## Usage
 
-### Verify
+### Verify (async/await)
 
 ```js
 const OpenDKIM = require('node-opendkim');
 
-try {
+async function verify(message) {
   var opendkim = new OpenDKIM();
-  opendkim.verify({
-    id: undefined // optional (default: undefined)
-  });
 
-  // Adding one header at a time, when finished call opendkim.eoh()
-  var header = 'From: <herp@derp.com>';
-  opendkim.header({
-      header: header,
-      length: header.length
-  });
-  opendkim.eoh();
+  try {
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
+      message: message,
+      length: message.length
+    });
+    await opendkim.chunk_end();
+  } catch (err) {
+    console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()););
+    console.log(err);
+  }
+}
+```
 
-  // Adding body chunks, when finished call opendkim.eom().  This too
-  // can take many chunks.  Do NOT include the terminating DOT.
- var body = 'this is a test';
-  opendkim.body({
-      body: body,
-      length: body.length
+### Verify (sync)
+
+```js
+const OpenDKIM = require('node-opendkim');
+
+function verify_sync(message) {
+  var opendkim = new OpenDKIM();
+
+  try {
+    opendkim.verify_sync({id: undefined});
+    opendkim.chunk_sync({
+      message: message,
+      length: message.length
+    });
+    opendkim.chunk_end_sync();
+  } catch (err) {
+    console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()););
+    console.log(err);
+  }
+}
+```
+
+### Verify (errback)
+
+```js
+const OpenDKIM = require('node-opendkim');
+
+function verify(message, callback) {
+  var opendkim = new OpenDKIM();
+
+  opendkim.verify({id: undefined}, function (err, result) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    opendkim.chunk({
+      message: message,
+      length: message.length
+    }, function (err, result) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+
+      opendkim.chunk_end(function (err, result) {
+        if (err) {
+          console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()););
+          console.log(err);
+          return;
+        }
+      });
+    });
   });
-  // This does the final validation, and will throw an error if there is one.
-  opendkim.eom();
-} catch (err) {
-  console.log(err);
 }
 ```
 
