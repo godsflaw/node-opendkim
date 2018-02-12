@@ -30,8 +30,8 @@ test('test sig_getdomain before chunk_end', async t => {
       length: messages.good.length
     });
 
-    var identity = opendkim.sig_getdomain();
-    t.is(identity, 'example.com');
+    var domain = opendkim.sig_getdomain();
+    t.is(domain, 'example.com');
     t.fail();
   } catch (err) {
     t.is(
@@ -54,8 +54,8 @@ test('test sig_getdomain after chunk', async t => {
       length: messages.good.length
     });
     await opendkim.chunk_end();
-    var identity = opendkim.sig_getdomain();
-    t.is(identity, 'example.com');
+    var domain = opendkim.sig_getdomain();
+    t.is(domain, 'example.com');
   } catch (err) {
     console.log(err);
     var error = opendkim.sig_geterrorstr(opendkim.sig_geterror());
@@ -78,8 +78,8 @@ test('test a more pedantic sig_getdomain', async t => {
     });
     await opendkim.chunk_end();
     opendkim.get_signature();
-    var identity = opendkim.sig_getdomain();
-    t.is(identity, 'example.com');
+    var domain = opendkim.sig_getdomain();
+    t.is(domain, 'example.com');
   } catch (err) {
     console.log(err);
     var error = opendkim.sig_geterrorstr(opendkim.sig_geterror());
