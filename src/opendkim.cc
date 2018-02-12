@@ -70,6 +70,10 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "native_lib_feature", LibFeature);
 
   // Processing methods
+  Nan::SetPrototypeMethod(tpl, "native_chunk", Chunk);
+  Nan::SetPrototypeMethod(tpl, "native_chunk_sync", ChunkSync);
+  Nan::SetPrototypeMethod(tpl, "native_chunk_end", ChunkEnd);
+  Nan::SetPrototypeMethod(tpl, "native_chunk_end_sync", ChunkEndSync);
   Nan::SetPrototypeMethod(tpl, "native_header", Header);
   Nan::SetPrototypeMethod(tpl, "native_header_sync", HeaderSync);
   Nan::SetPrototypeMethod(tpl, "native_eoh", EOH);
@@ -78,10 +82,6 @@ NAN_MODULE_INIT(OpenDKIM::Init) {
   Nan::SetPrototypeMethod(tpl, "native_body_sync", BodySync);
   Nan::SetPrototypeMethod(tpl, "native_eom", EOM);
   Nan::SetPrototypeMethod(tpl, "native_eom_sync", EOMSync);
-  Nan::SetPrototypeMethod(tpl, "native_chunk", Chunk);
-  Nan::SetPrototypeMethod(tpl, "native_chunk_sync", ChunkSync);
-  Nan::SetPrototypeMethod(tpl, "native_chunk_end", ChunkEnd);
-  Nan::SetPrototypeMethod(tpl, "native_chunk_end_sync", ChunkEndSync);
 
   // Signing methods
   Nan::SetPrototypeMethod(tpl, "native_sign", Sign);
@@ -1291,33 +1291,47 @@ NAN_METHOD(OpenDKIM::SetOption) {
 }
 
 NAN_METHOD(OpenDKIM::OHDRS) {
-   OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-   unsigned char *ohdrs[MAXHDRCOUNT];
-   int nhdrs = MAXHDRCOUNT;
-   DKIM_STAT statp = DKIM_STAT_OK;
+  OpenDKIM* obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
+  DKIM_STAT statp = DKIM_STAT_OK;
+  unsigned char *ohdrs[MAXHDRCOUNT];
+  int nhdrs = MAXHDRCOUNT;
+  Isolate* isolate = info.GetIsolate(); // Needed to make new array
+  Local<Array> zheaders = Array::New(isolate);
 
-   Isolate* isolate = info.GetIsolate(); // Needed to make new array
+  if (obj->dkim == NULL) {
+    Nan::ThrowTypeError(
+      "ohdrs(): sign() or verify(), then chunk() must be called first"
+    );
+    goto finish_ohdrs;
+  }
 
-   if (obj->sig == NULL) {
-      Nan::ThrowTypeError(
-        "ohdrs(): either there was no signature or called before eom() or chunk_end()"
-      );
-      return;
-   }
+  obj->GetSignature(info);
 
-   statp = dkim_ohdrs(obj->dkim, obj->sig, ohdrs, &nhdrs);
+  if (obj->sig == NULL) {
+    Nan::ThrowTypeError(
+      "ohdrs(): either there was no signature or called before eom() or chunk_end()"
+    );
+    goto finish_ohdrs;
+  }
 
-   if (statp != DKIM_STAT_OK) {
-      throw_error(statp);
-      return;
-   }
+  statp = dkim_ohdrs(obj->dkim, obj->sig, ohdrs, &nhdrs);
 
-   Local<Array> zheaders = Array::New(isolate);
-   for (int i = 0; i < nhdrs; i++) {
+  if (statp != DKIM_STAT_OK) {
+    throw_error(statp);
+    goto finish_ohdrs;
+  }
+
+  if (nhdrs <= MAXHDRCOUNT) {
+    for (int i = 0; i < nhdrs; i++) {
       Nan::Set(zheaders, i, Nan::New<String>((char*)ohdrs[i]).ToLocalChecked());
-   }
+    }
+  } else {
+    Nan::ThrowTypeError("ohdrs(): too many headers to fit");
+  }
 
-   info.GetReturnValue().Set(zheaders);
+  finish_ohdrs:
+
+  info.GetReturnValue().Set(zheaders);
 }
 
 NAN_METHOD(OpenDKIM::LibFeature) {

@@ -323,8 +323,8 @@ OpenDKIM.prototype.get_signature = function () {
   return this.native_get_signature();
 };
 
-OpenDKIM.prototype.ohdrs = function (obj) {
-  return this.native_ohdrs(obj);
+OpenDKIM.prototype.ohdrs = function () {
+  return this.native_ohdrs();
 };
 
 OpenDKIM.prototype.sig_getcanonlen = function () {

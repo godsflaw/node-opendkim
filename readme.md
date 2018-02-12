@@ -55,7 +55,7 @@ async function verify(message) {
     });
     await opendkim.chunk_end();
   } catch (err) {
-    console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()););
+    console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()));
     console.log(err);
   }
 }
@@ -77,7 +77,7 @@ function verify_sync(message) {
     });
     opendkim.chunk_end_sync();
   } catch (err) {
-    console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()););
+    console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()));
     console.log(err);
   }
 }
@@ -88,9 +88,7 @@ function verify_sync(message) {
 ```js
 const OpenDKIM = require('node-opendkim');
 
-function verify(message, callback) {
-  var opendkim = new OpenDKIM();
-
+function verify(opendkim, message, callback) {
   opendkim.verify({id: undefined}, function (err, result) {
     if (err) {
       return callback(err, result);
@@ -108,7 +106,6 @@ function verify(message, callback) {
 
       opendkim.chunk_end(function (err, result) {
         if (err) {
-          console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()););
           return callback(err, result);
         }
 
@@ -118,11 +115,11 @@ function verify(message, callback) {
   });
 }
 
-verify(message, function (err, result) {
+var opendkim = new OpenDKIM();
+
+verify(opendkim, message, function (err, result) {
   if (err) {
-    // handle error
-    console.log(err);
-    return;
+    return console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()));
   }
 
   // success
