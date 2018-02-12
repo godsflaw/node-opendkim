@@ -39,37 +39,91 @@ node-gyp rebuild
 
 ## Usage
 
-### Verify
+### Verify (async/await)
 
 ```js
 const OpenDKIM = require('node-opendkim');
 
-try {
+async function verify(message) {
   var opendkim = new OpenDKIM();
-  opendkim.verify({
-    id: undefined // optional (default: undefined)
-  });
 
-  // Adding one header at a time, when finished call opendkim.eoh()
-  var header = 'From: <herp@derp.com>';
-  opendkim.header({
-      header: header,
-      length: header.length
-  });
-  opendkim.eoh();
-
-  // Adding body chunks, when finished call opendkim.eom().  This too
-  // can take many chunks.  Do NOT include the terminating DOT.
- var body = 'this is a test';
-  opendkim.body({
-      body: body,
-      length: body.length
-  });
-  // This does the final validation, and will throw an error if there is one.
-  opendkim.eom();
-} catch (err) {
-  console.log(err);
+  try {
+    await opendkim.verify({id: undefined});
+    await opendkim.chunk({
+      message: message,
+      length: message.length
+    });
+    await opendkim.chunk_end();
+  } catch (err) {
+    console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()));
+    console.log(err);
+  }
 }
+```
+
+### Verify (sync)
+
+```js
+const OpenDKIM = require('node-opendkim');
+
+function verify_sync(message) {
+  var opendkim = new OpenDKIM();
+
+  try {
+    opendkim.verify_sync({id: undefined});
+    opendkim.chunk_sync({
+      message: message,
+      length: message.length
+    });
+    opendkim.chunk_end_sync();
+  } catch (err) {
+    console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()));
+    console.log(err);
+  }
+}
+```
+
+### Verify (errback)
+
+```js
+const OpenDKIM = require('node-opendkim');
+
+function verify(opendkim, message, callback) {
+  opendkim.verify({id: undefined}, function (err, result) {
+    if (err) {
+      return callback(err, result);
+    }
+
+    var options = {
+      message: message,
+      length: message.length
+    };
+
+    opendkim.chunk(options, function (err, result) {
+      if (err) {
+        return callback(err, result);
+      }
+
+      opendkim.chunk_end(function (err, result) {
+        if (err) {
+          return callback(err, result);
+        }
+
+        return callback(err, result);
+      });
+    });
+  });
+}
+
+var opendkim = new OpenDKIM();
+
+verify(opendkim, message, function (err, result) {
+  if (err) {
+    return console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()));
+  }
+
+  // success
+});
 ```
 
 ---
@@ -80,30 +134,31 @@ try {
 * [opendkim.lib_feature()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.lib_feature()): Check for supported features.
 
 ## API Processing
+* [opendkim.chunk()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.chunk()): Process a message chunk.
+* [opendkim.chunk_end()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.chunk_end()): called when done with chunk.
 * [opendkim.header()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.header()): Process a header.
 * [opendkim.eoh()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.eoh()): Identify end of headers.
 * [opendkim.body()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.body()): Process a body chunk.
 * [opendkim.eom()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.eom()): Identify end of message.
-* [opendkim.chunk()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.chunk()): Process a message chunk.
-* [opendkim.chunk_end()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.chunk_end()): called when done with chunk.
 
 ## API Signing
 * [opendkim.sign()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sign()): get ready to sign a message.
-
-## API Verifying
-* [opendkim.verify()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.verify()): get ready to verify a message.
-* [opendkim.get_signature()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.get_signature()): sets the signature info handle.
-* [opendkim.sig_getidentity()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getidentity()): get the identity from the signature handle.
-* [opendkim.sig_getdomain()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getdomain()): get the domain from the signature handle.
-* [opendkim.sig_geterror()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_geterror()): Retrieve the error code associated with a rejected/disqualified signature.
-* [opendkim.sig_geterrorstr()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_geterrorstr()): get the error string specified by the error code.
-* [opendkim.sig_getselector()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getselector()): get the selector from the signature handle.
-* [opendkim.sig_getcanonlen()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getcanonlen()): get the canonicalized message length from the signature handle and message.
 
 ## API Utility
 * [opendkim.query_info()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_info()): get/set query info.
 * [opendkim.query_method()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.query_method()): get/set query method.
 * [opendkim.tmpdir()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.tmpdir()): get/set tmp dir.
+
+## API Verifying
+* [opendkim.get_signature()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.get_signature()): sets the signature info handle.
+* [opendkim.ohdrs()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.ohdrs()): Retrieve the original header set from the "z=" tag in a received signature if present.
+* [opendkim.sig_getcanonlen()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getcanonlen()): get the canonicalized message length from the signature handle and message.
+* [opendkim.sig_getdomain()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getdomain()): get the domain from the signature handle.
+* [opendkim.sig_geterror()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_geterror()): Retrieve the error code associated with a rejected/disqualified signature.
+* [opendkim.sig_geterrorstr()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_geterrorstr()): get the error string specified by the error code.
+* [opendkim.sig_getidentity()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getidentity()): get the identity from the signature handle.
+* [opendkim.sig_getselector()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.sig_getselector()): get the selector from the signature handle.
+* [opendkim.verify()](https://github.com/godsflaw/node-opendkim/wiki/opendkim.verify()): get ready to verify a message.
 
 ---
 

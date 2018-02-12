@@ -30,8 +30,8 @@ test('test sig_getselector before chunk_end', async t => {
       length: messages.good.length
     });
 
-    var identity = opendkim.sig_getselector();
-    t.is(identity, 'test');
+    var selector = opendkim.sig_getselector();
+    t.is(selector, 'test');
     t.fail();
   } catch (err) {
     t.is(
@@ -54,8 +54,8 @@ test('test sig_getselector after chunk', async t => {
       length: messages.good.length
     });
     await opendkim.chunk_end();
-    var identity = opendkim.sig_getselector();
-    t.is(identity, 'test');
+    var selector = opendkim.sig_getselector();
+    t.is(selector, 'test');
   } catch (err) {
     console.log(err);
     t.fail();
@@ -76,8 +76,8 @@ test('test a more pedantic sig_getselector', async t => {
     });
     await opendkim.chunk_end();
     opendkim.get_signature();
-    var identity = opendkim.sig_getselector();
-    t.is(identity, 'test');
+    var selector = opendkim.sig_getselector();
+    t.is(selector, 'test');
   } catch (err) {
     console.log(err);
     t.fail();
