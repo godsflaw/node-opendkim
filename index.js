@@ -388,4 +388,8 @@ OpenDKIM.prototype.verify_sync = function (obj) {
   return this.native_verify_sync(obj);
 };
 
+OpenDKIM.prototype.diffheaders = function (obj) {
+  return this.native_diffheaders(obj);
+};
+
 module.exports = OpenDKIM;
