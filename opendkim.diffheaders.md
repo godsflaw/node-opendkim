@@ -44,7 +44,7 @@ Example:
 ```js                                                                                                    
 const OpenDKIM = require('node-opendkim');                                                               
                                                                                                          
-async function verify(message) {                                                                         
+async function diff_async(message) {                                                                         
   var opendkim = new OpenDKIM();                                                                         
                                                                                                          
   try {                                                                                                  
@@ -54,12 +54,11 @@ async function verify(message) {
       length: message.length                                                                             
     });                                                                                                  
     await opendkim.chunk_end();                                                                          
-    var canonlen = opendkim.sig_getcanonlen();                                                           
-    console.log('message length: ' + canonlen.msglen);                                                   
-    console.log('canonicalized length: ' + canonlen.canonlen);                                           
-    console.log('signature length limit: ' + canonlen.signlen);                                          
-  } catch (err) {                                                                                        
-    console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()));                                     
+    var diffResult = opendkim.diffheaders({
+      maxcost: 10
+    });                                                           
+    console.log(diffResult);                                                                                             
+  } catch (err) {                                                                                                                             
     console.log(err);                                                                                    
   }                                                                                                      
 }                                                                                                        
@@ -70,7 +69,7 @@ async function verify(message) {
 ```js                                                                                                    
 const OpenDKIM = require('node-opendkim');                                                               
                                                                                                          
-function verify_sync(message) {                                                                          
+function diff_sync(message) {                                                                          
   var opendkim = new OpenDKIM();                                                                         
                                                                                                          
   try {                                                                                                  
@@ -80,12 +79,11 @@ function verify_sync(message) {
       length: message.length                                                                             
     });                                                                                                  
     opendkim.chunk_end_sync();                                                                           
-    var canonlen = opendkim.sig_getcanonlen();                                                           
-    console.log('message length: ' + canonlen.msglen);                                                   
-    console.log('canonicalized length: ' + canonlen.canonlen);                                           
-    console.log('signature length limit: ' + canonlen.signlen);                                          
-  } catch (err) {                                                                                        
-    console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()));                                     
+    var diffResult = opendkim.diffheaders({
+      maxcost: 10
+    });                         
+    console.log(diffResult);                                            
+  } catch (err) {                                  
     console.log(err);                                                                                    
   }                                                                                                      
 }                                                                                                        
@@ -95,7 +93,7 @@ function verify_sync(message) {
 ```js                                                                                                    
 const OpenDKIM = require('node-opendkim');                                                               
                                                                                                          
-function verify(opendkim, message, callback) {                                                                                                      
+function diff(opendkim, message, callback) {                                                                                                      
   opendkim.verify({id: undefined}, function (err, result) {                                              
     if (err) {                                                                                           
       return callback(err, result);                                                                      
@@ -116,9 +114,11 @@ function verify(opendkim, message, callback) {
           return callback(err, result);                                                                  
         }                                                                                                
                                                                                                          
-        var canonlen = opendkim.sig_getcanonlen();                                                       
+        var diffResult = opendkim.diffheaders({
+          maxcost: 10
+        });                                                       
                                                                                                          
-        return callback(err, canonlen);                                                                  
+        return callback(err, diffResult);                                                                  
       });                                                                                                
     });                                                                                                  
   });                                                                                                    
@@ -126,13 +126,11 @@ function verify(opendkim, message, callback) {
                                                                                                         
 var opendkim = new OpenDKIM();
 
-verify(opendkim, message, function (err, canonlen) {                                                               
+diff(opendkim, message, function (err, diffResult) {                                                               
   if (err) {                                                                                             
-    return console.log(opendkim.sig_geterrorstr(opendkim.sig_geterror()));                                                                                              
+    return console.log(err);                                                                                              
   }                                                                                                      
                                                                                                          
   // success                                                                                             
-  console.log('message length: ' + canonlen.msglen);                                                     
-  console.log('canonicalized length: ' + canonlen.canonlen);                                             
-  console.log('signature length limit: ' + canonlen.signlen);                                            
+  console.log(diffResult);                                            
 });
