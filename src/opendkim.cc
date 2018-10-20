@@ -1142,7 +1142,6 @@ const char *OpenDKIM::VerifyBase(OpenDKIM *obj, char *id)
   return result;
 }
 
-//TODO Esteban complete function
 NAN_METHOD(OpenDKIM::Diffheaders)
 {
   OpenDKIM *obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
@@ -1151,35 +1150,47 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   unsigned char* ohdrs[MAXHDRCOUNT];
   int nohdrs = MAXHDRCOUNT;
   struct dkim_hdrdiff** out = (struct dkim_hdrdiff**) malloc(sizeof(struct dkim_hdrdiff*));
-  dkim_canon_t hdrcanon; // TODO change to function retrieve canon
+  dkim_canon_t hdrcanon;
   int maxcost = 0;
   int nout=MAXHDRCOUNT;
   const char* result;
+  Isolate* isolate = info.GetIsolate(); // Needed to make new array
+  Local<Array> out_array = Array::New(isolate);
+
+  if (ohdrs == NULL)
+  {
+    Nan::ThrowTypeError("diffheaders(): allocation failure, out of memory");
+    goto clean;
+  }
+
+  if (out == NULL)
+  {
+    Nan::ThrowTypeError("diffheaders(): allocation failure, out of memory");
+    goto clean;
+  }
 
   if (info.Length() != 1) {
     Nan::ThrowTypeError("diffheaders(): Wrong number of arguments, you must provide a maxcost value");
-    return;
+    goto clean;
   }
 
   if (!info[0]->IsObject()) {
     Nan::ThrowTypeError("diffheaders(): Argument should be an object");
-    return;
+    goto clean;
   }
   
   maxcost = _value_to_int(info[0], "maxcost");
 
   if(maxcost == 0 ){
     Nan::ThrowTypeError("diffheaders(): Invalid maxcost cannot be 0");
-    return;
+    goto clean;
   }
-  Isolate* isolate = info.GetIsolate(); // Needed to make new array
-  Local<Array> out_array = Array::New(isolate);
 
   if (obj->dkim == NULL)
   {
     Nan::ThrowTypeError(
         "diffheaders(): library must be initialized first");
-    return;
+    goto clean;
   }
 
   obj->GetSignature(info);
@@ -1188,7 +1199,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   {
     Nan::ThrowTypeError(
         "diffheaders():  either there was no signature or called before eom() or chunk_end()");
-    return;
+    goto clean;
   }
 
   statp = dkim_sig_getcanons(obj->sig, &hdrcanon, NULL);
@@ -1196,14 +1207,14 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   if (statp != DKIM_STAT_OK)
   {
     result = get_error(statp);
-    return;
+    goto clean;
   }
 
   if (&hdrcanon == NULL)
   {
     Nan::ThrowTypeError(
         "diffheaders():  signature as no  header canonicalization mode.");
-    return;
+    goto clean;
   }
   
   statp = dkim_ohdrs(obj->dkim, obj->sig, ohdrs, &nohdrs);
@@ -1211,15 +1222,15 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   {
     result = get_error(statp);
     Nan::ThrowTypeError(result);
-    return;
-  }
-
-   if (ohdrs == NULL)
-  {
-    Nan::ThrowTypeError("diffheaders(): ohdrs is NULL");
-    return;
+    goto clean;
   }
   
+  if (ohdrs == NULL)
+  {
+    Nan::ThrowTypeError("diffheaders(): ohdrs is NULL");
+    goto clean;
+  }
+    
   statp = dkim_diffheaders(dkim, hdrcanon, maxcost, (char**) ohdrs, nohdrs,  out, &nout);
 
   if (statp != DKIM_STAT_OK)
@@ -1227,12 +1238,12 @@ NAN_METHOD(OpenDKIM::Diffheaders)
     
     if (statp == DKIM_STAT_NOTIMPLEMENT)
     {
-      result = "Not implemented: The library must be compiled with an approximate regular\n expression library in order to provide this service.\n Check libopendkim is compiled with --with-tre optional packages";
+      result = "Not implemented: The library must be compiled with an approximate regular\n expression library in order to provide this service.\n Check libopendkim is compiled with --with-tre and --enable-diffheaders optional flags";
     }else{
       result = get_error(statp);
     }
     Nan::ThrowTypeError(result);
-    return;
+    goto clean;
   }
 
   if (nout <= MAXHDRCOUNT)
@@ -1243,7 +1254,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   
     for (int i = 0; i < nout; i++)
     {
-      // createobject holding  hd_old  hd_new
+
       v8::Local<v8::Object> diffObject = Nan::New<v8::Object>();
       v8::Local<v8::String> hd_old;
       v8::Local<v8::String> hd_new;
@@ -1264,14 +1275,14 @@ NAN_METHOD(OpenDKIM::Diffheaders)
     }
   } else {
     Nan::ThrowTypeError("diffheaders(): too many headers to fit");
-    return;
+    goto clean;
   }
   
   info.GetReturnValue().Set( out_array );
-
+  
+  clean:
+    free(out);
 }
-
-
 
 NAN_METHOD(OpenDKIM::GetOption) {
   DKIM_STAT statp = DKIM_STAT_OK;

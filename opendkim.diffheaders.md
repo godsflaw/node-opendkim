@@ -134,3 +134,4 @@ diff(opendkim, message, function (err, diffResult) {
   // success                                                                                             
   console.log(diffResult);                                            
 });
+
