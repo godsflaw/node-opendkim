@@ -1,4 +1,4 @@
-FROM node:8.6.0-alpine
+FROM godsflaw/opendkim:2.10.3
 MAINTAINER Christopher Mooney <chris@dod.net>
 
 ENV LOCALDIR="/node-opendkim"
@@ -17,7 +17,7 @@ ADD test ${LOCALDIR}/test
 
 # install deps
 RUN apk upgrade --update && \
-  apk add --no-cache --virtual .gyp python make g++ opendkim-dev && \
+  apk add --no-cache --virtual .gyp python && \
   npm install -g node-gyp
 
 # install codebase
