@@ -126,6 +126,7 @@ class OpenDKIM : public Nan::ObjectWrap {
     static NAN_METHOD(SetOption);
 
     // Verifying methods
+    static NAN_METHOD(Diffheaders);
     static NAN_METHOD(GetSignature);
     static NAN_METHOD(OHDRS);
     static NAN_METHOD(SigGetCanonlen);
