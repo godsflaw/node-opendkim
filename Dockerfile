@@ -2,6 +2,7 @@ FROM godsflaw/opendkim:2.10.3
 MAINTAINER Christopher Mooney <chris@dod.net>
 
 ENV LOCALDIR="/node-opendkim"
+ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 
 # drop codebase
 RUN mkdir -p ${LOCALDIR}
@@ -16,13 +17,16 @@ ADD src ${LOCALDIR}/src
 ADD test ${LOCALDIR}/test
 
 # install deps
+
 RUN apk upgrade --update && \
   apk add --no-cache --virtual .gyp python && \
   npm install -g node-gyp
 
+
 # install codebase
 WORKDIR "${LOCALDIR}"
 RUN npm install --unsafe-perm
+RUN npm install leakage
 
 # startup any services
 CMD ["tail", "-f", "readme.md"]

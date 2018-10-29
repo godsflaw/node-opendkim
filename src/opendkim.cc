@@ -1150,7 +1150,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   unsigned char* ohdrs[MAXHDRCOUNT];
   int nohdrs = MAXHDRCOUNT;
   struct dkim_hdrdiff** out = (struct dkim_hdrdiff**) malloc(sizeof(struct dkim_hdrdiff*));
-  dkim_canon_t hdrcanon;
+  dkim_canon_t* hdrcanon = (dkim_canon_t*) malloc(sizeof(dkim_canon_t));
   int maxcost = 0;
   int nout=MAXHDRCOUNT;
   const char* result;
@@ -1202,7 +1202,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
     goto clean;
   }
 
-  statp = dkim_sig_getcanons(obj->sig, &hdrcanon, NULL);
+  statp = dkim_sig_getcanons(obj->sig, hdrcanon, NULL);
   
   if (statp != DKIM_STAT_OK)
   {
@@ -1210,7 +1210,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
     goto clean;
   }
 
-  if (&hdrcanon == NULL)
+  if (hdrcanon == NULL)
   {
     Nan::ThrowTypeError(
         "diffheaders():  signature as no  header canonicalization mode.");
@@ -1231,7 +1231,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
     goto clean;
   }
     
-  statp = dkim_diffheaders(dkim, hdrcanon, maxcost, (char**) ohdrs, nohdrs,  out, &nout);
+  statp = dkim_diffheaders(dkim, *hdrcanon, maxcost, (char**) ohdrs, nohdrs,  out, &nout);
 
   if (statp != DKIM_STAT_OK)
   {
@@ -1272,6 +1272,8 @@ NAN_METHOD(OpenDKIM::Diffheaders)
       Nan::Set(diffObject, hd_old_key, hd_old);
       Nan::Set(diffObject, hd_new_key, hd_new);
       Nan::Set(out_array, i, diffObject);
+
+      
     }
   } else {
     Nan::ThrowTypeError("diffheaders(): too many headers to fit");
@@ -1279,6 +1281,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   }
   
   info.GetReturnValue().Set( out_array );
+  free(*out);
   
   clean:
     free(out);

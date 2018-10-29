@@ -1,4 +1,5 @@
 import test from 'ava';
+import {iterate} from 'leakage';
 
 var OpenDKIM = require('../../');
 var Messages = require('../fixtures/messages');
@@ -80,14 +81,7 @@ test('test diffheaders return values when header modifed', async t => {
 
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
-
     await opendkim.verify({id: undefined});
-    // var header = 'From: <yo@mismo.com>';
-    // await opendkim.header({
-    //   header: header,
-    //   length: header.length
-    // });
-
     var header = 'Received: received data 3';
     await opendkim.header({
       header: header,
@@ -119,17 +113,14 @@ test('test diffheaders return values when header modifed', async t => {
 test('test diffheaders return values adding From header field', async t => {
   try {
     var opendkim = new OpenDKIM();
-
     opendkim.query_method('DKIM_QUERY_FILE');
     opendkim.query_info('../fixtures/testkeys');
-
     await opendkim.verify({id: undefined});
     var header = 'From: Murray S. Kucherawy <yo@mismo.com>';
     await opendkim.header({
       header: header,
       length: header.length
     });
-
     header = 'Received: received data 3';
     await opendkim.header({
       header: header,
@@ -151,4 +142,42 @@ test('test diffheaders return values adding From header field', async t => {
     t.fail();
   }
 });
+
+test('Memory Leak Test For DiffHeaders Variable', async t => {
+  try {
+    return iterate.async(async () => {
+      var opendkim = new OpenDKIM();
+      opendkim.query_method('DKIM_QUERY_FILE');
+      opendkim.query_info('../fixtures/testkeys');
+      await opendkim.verify({id: undefined});
+      var header = 'From: Murray S. Kucherawy <yo@mismo.com>';
+      await opendkim.header({
+        header: header,
+        length: header.length
+      });
+      for (var i = 0; i < 5; i++) {
+        header = 'Received: received data ' + i;
+        await opendkim.header({
+          header: header,
+          length: header.length
+        });
+      }
+      await opendkim.chunk({
+        message: messages.good_z,
+        length: messages.good_z.length
+      });
+      await opendkim.chunk_end();
+      opendkim.diffheaders({
+        maxcost: 10
+      });
+    }, {iterations: 10, gcollections: 6})
+    .then(result => {
+      result.printSummary('async diff headers function');
+    });
+  } catch (err) {
+    console.log(err);
+    t.fail();
+  }
+});
+
 
