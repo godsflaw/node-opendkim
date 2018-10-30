@@ -1254,11 +1254,9 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   
     for (int i = 0; i < nout; i++)
     {
-
       v8::Local<v8::Object> diffObject = Nan::New<v8::Object>();
       v8::Local<v8::String> hd_old;
       v8::Local<v8::String> hd_new;
-
       if( (*out)[i].hd_old != NULL){
         hd_old = Nan::New<v8::String>((char *) (*out)[i].hd_old).ToLocalChecked();
       }else{
@@ -1271,9 +1269,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
       }
       Nan::Set(diffObject, hd_old_key, hd_old);
       Nan::Set(diffObject, hd_new_key, hd_new);
-      Nan::Set(out_array, i, diffObject);
-
-      
+      Nan::Set(out_array, i, diffObject);      
     }
   } else {
     Nan::ThrowTypeError("diffheaders(): too many headers to fit");

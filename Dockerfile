@@ -16,11 +16,9 @@ ADD src ${LOCALDIR}/src
 ADD test ${LOCALDIR}/test
 
 # install deps
-
 RUN apk upgrade --update && \
   apk add --no-cache --virtual .gyp python && \
   npm install -g node-gyp
-
 
 # install codebase
 WORKDIR "${LOCALDIR}"
