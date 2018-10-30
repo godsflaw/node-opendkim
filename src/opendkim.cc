@@ -1152,7 +1152,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   struct dkim_hdrdiff** out = (struct dkim_hdrdiff**) malloc(sizeof(struct dkim_hdrdiff*));
   dkim_canon_t* hdrcanon = (dkim_canon_t*) malloc(sizeof(dkim_canon_t));
   int maxcost = 0;
-  int nout=MAXHDRCOUNT;
+  int nout= 0;
   const char* result;
   Isolate* isolate = info.GetIsolate(); // Needed to make new array
   Local<Array> out_array = Array::New(isolate);
@@ -1246,7 +1246,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
     goto clean;
   }
 
-  if (nout <= MAXHDRCOUNT)
+  if (nout <= MAXHDRCOUNT && nout > 0)
   {
 
     v8::Local<v8::String> hd_old_key = Nan::New<v8::String>("hd_old").ToLocalChecked();
@@ -1282,8 +1282,9 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   
   info.GetReturnValue().Set( out_array );
   free(*out);
-  
+ 
   clean:
+    free(hdrcanon); 
     free(out);
 }
 

@@ -155,7 +155,7 @@ test('Memory Leak Test For DiffHeaders Variable', async t => {
         header: header,
         length: header.length
       });
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < 3; i++) {
         header = 'Received: received data ' + i;
         await opendkim.header({
           header: header,
