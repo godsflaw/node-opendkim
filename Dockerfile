@@ -2,7 +2,6 @@ FROM godsflaw/opendkim:2.10.3
 MAINTAINER Christopher Mooney <chris@dod.net>
 
 ENV LOCALDIR="/node-opendkim"
-ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 
 # drop codebase
 RUN mkdir -p ${LOCALDIR}
