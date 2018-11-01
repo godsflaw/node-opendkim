@@ -170,7 +170,7 @@ test('Memory Leak Test For DiffHeaders Variable', async t => {
       opendkim.diffheaders({
         maxcost: 10
       });
-    }, {iterations: 10, gcollections: 6})
+    }, {iterations: 60, gcollections: 6})
     .then(result => {
       result.printSummary('async diff headers function');
     });

@@ -1145,12 +1145,12 @@ const char *OpenDKIM::VerifyBase(OpenDKIM *obj, char *id)
 NAN_METHOD(OpenDKIM::Diffheaders)
 {
   OpenDKIM *obj = Nan::ObjectWrap::Unwrap<OpenDKIM>(info.Holder());
-  DKIM *dkim = obj->dkim;
-  DKIM_STAT statp = DKIM_STAT_OK;
+  DKIM_STAT statp;
   unsigned char* ohdrs[MAXHDRCOUNT];
   int nohdrs = MAXHDRCOUNT;
-  struct dkim_hdrdiff** out = (struct dkim_hdrdiff**) malloc(sizeof(struct dkim_hdrdiff*));
-  dkim_canon_t* hdrcanon = (dkim_canon_t*) malloc(sizeof(dkim_canon_t));
+  //struct dkim_hdrdiff** out = (struct dkim_hdrdiff**) malloc(sizeof(struct dkim_hdrdiff*));
+  struct dkim_hdrdiff* out = NULL;
+  dkim_canon_t hdrcanon;
   int maxcost = 0;
   int nout= 0;
   const char* result;
@@ -1163,7 +1163,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
     goto clean;
   }
 
-  if (out == NULL)
+  if (&out == NULL)
   {
     Nan::ThrowTypeError("diffheaders(): allocation failure, out of memory");
     goto clean;
@@ -1202,7 +1202,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
     goto clean;
   }
 
-  statp = dkim_sig_getcanons(obj->sig, hdrcanon, NULL);
+  statp = dkim_sig_getcanons(obj->sig, &hdrcanon, NULL);
   
   if (statp != DKIM_STAT_OK)
   {
@@ -1213,7 +1213,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
   if (hdrcanon == NULL)
   {
     Nan::ThrowTypeError(
-        "diffheaders():  signature as no  header canonicalization mode.");
+        "diffheaders():  signature as no header canonicalization mode.");
     goto clean;
   }
   
@@ -1231,7 +1231,7 @@ NAN_METHOD(OpenDKIM::Diffheaders)
     goto clean;
   }
     
-  statp = dkim_diffheaders(dkim, *hdrcanon, maxcost, (char**) ohdrs, nohdrs,  out, &nout);
+  statp = dkim_diffheaders(obj->dkim, hdrcanon, maxcost, (char**) ohdrs, nohdrs,  &out, &nout);
 
   if (statp != DKIM_STAT_OK)
   {
@@ -1257,13 +1257,13 @@ NAN_METHOD(OpenDKIM::Diffheaders)
       v8::Local<v8::Object> diffObject = Nan::New<v8::Object>();
       v8::Local<v8::String> hd_old;
       v8::Local<v8::String> hd_new;
-      if( (*out)[i].hd_old != NULL){
-        hd_old = Nan::New<v8::String>((char *) (*out)[i].hd_old).ToLocalChecked();
+      if( out[i].hd_old != NULL){
+        hd_old = Nan::New<v8::String>( (char*) out[i].hd_old ).ToLocalChecked();
       }else{
         hd_old = Nan::New<v8::String>("NULL").ToLocalChecked();
       }
-      if((*out)[i].hd_new != NULL){
-        hd_new = Nan::New<v8::String>((char *)(*out)[i].hd_new).ToLocalChecked();
+      if( out[i].hd_new != NULL){
+        hd_new = Nan::New<v8::String>( (char*) out[i].hd_new ).ToLocalChecked();
       }else{
         hd_new = Nan::New<v8::String>("NULL").ToLocalChecked();
       }
@@ -1271,16 +1271,14 @@ NAN_METHOD(OpenDKIM::Diffheaders)
       Nan::Set(diffObject, hd_new_key, hd_new);
       Nan::Set(out_array, i, diffObject);      
     }
-  } else {
-    Nan::ThrowTypeError("diffheaders(): too many headers to fit");
+  } else if(nout> MAXHDRCOUNT){
+      Nan::ThrowTypeError("diffheaders(): too many headers to fit");
     goto clean;
   }
   
   info.GetReturnValue().Set( out_array );
-  free(*out);
  
   clean:
-    free(hdrcanon); 
     free(out);
 }
 
