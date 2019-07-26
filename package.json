@@ -1,6 +1,6 @@
 {
   "name": "node-opendkim",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "node.js language binding for libopendkim",
   "license": "MIT",
   "repository": "godsflaw/node-opendkim",
