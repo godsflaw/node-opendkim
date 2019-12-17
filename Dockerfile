@@ -22,6 +22,7 @@ RUN apk upgrade --update && \
 
 # install codebase
 WORKDIR "${LOCALDIR}"
+RUN npm config set unsafe-perm true
 RUN npm install --unsafe-perm
 
 # startup any services

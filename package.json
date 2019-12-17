@@ -1,6 +1,6 @@
 {
   "name": "node-opendkim",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "node.js language binding for libopendkim",
   "license": "MIT",
   "repository": "godsflaw/node-opendkim",
@@ -25,9 +25,9 @@
     "nan": "^2.6.1"
   },
   "devDependencies": {
-    "ava": "^0.15.1",
-    "coveralls": "^2.11.9",
-    "nyc": "^6.4.0",
+    "ava": "^2.2.0",
+    "coveralls": "^3.0.5",
+    "nyc": "^14.1.1",
     "xo": "^0.15.0"
   },
   "gypfile": true,
