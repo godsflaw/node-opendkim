@@ -26,8 +26,8 @@
   },
   "devDependencies": {
     "ava": "^0.15.1",
-    "coveralls": "^2.11.9",
-    "nyc": "^6.4.0",
+    "coveralls": "^3.1.1",
+    "nyc": "^15.1.0",
     "xo": "^0.15.0"
   },
   "gypfile": true,
